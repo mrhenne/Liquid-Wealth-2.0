@@ -1,0 +1,598 @@
+<!DOCTYPE html>
+<html lang="de" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Liquid Wealth</title>
+    
+    <!-- Tailwind CSS (CDN) -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Chart.js (CDN) -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    
+    <!-- FontAwesome (CDN) -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    fontFamily: { sans: ['Inter', 'sans-serif'] },
+                    colors: {
+                        app: {
+                            bg: '#0a0f1c',
+                            card: '#111827',
+                            cardHover: '#1f2937',
+                            primary: '#3b82f6',
+                            accent: '#8b5cf6',
+                            success: '#10b981',
+                            danger: '#ef4444',
+                            warning: '#f59e0b',
+                            border: '#1f2937',
+                            text: '#f3f4f6',
+                            textMuted: '#9ca3af'
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    
+    <style>
+        body {
+            background-color: #0a0f1c;
+            color: #f3f4f6;
+        }
+        
+        /* Custom Scrollbar */
+        .custom-scrollbar::-webkit-scrollbar { width: 6px; height: 6px; }
+        .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background: #1f2937; border-radius: 3px; }
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: #374151; }
+        
+        /* Stealth Mode */
+        .stealth-active .sensitive-value {
+            filter: blur(5px);
+            opacity: 0.7;
+            user-select: none;
+        }
+        .sensitive-value {
+            transition: all 0.2s ease-in-out;
+        }
+
+        /* Range Slider */
+        input[type=range] {
+            -webkit-appearance: none;
+            width: 100%;
+            background: transparent;
+        }
+        input[type=range]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            height: 14px;
+            width: 14px;
+            border-radius: 50%;
+            background: #3b82f6;
+            cursor: pointer;
+            margin-top: -5px;
+            box-shadow: 0 0 10px rgba(59, 130, 246, 0.6);
+        }
+        input[type=range]::-webkit-slider-runnable-track {
+            width: 100%;
+            height: 4px;
+            cursor: pointer;
+            background: #1f2937;
+            border-radius: 2px;
+        }
+        
+        .dashboard-card {
+            background-color: #111827;
+            border: 1px solid #1f2937;
+            border-radius: 0.75rem;
+            padding: 1.25rem;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+        }
+        
+        .flow-line {
+            position: relative;
+            flex-grow: 1;
+            height: 2px;
+            background: #1f2937;
+            margin: 0 8px;
+            min-width: 20px;
+        }
+    </style>
+</head>
+<body class="flex h-screen overflow-hidden text-sm">
+
+    <!-- Sidebar -->
+    <aside class="w-64 bg-app-bg border-r border-app-border flex-col hidden lg:flex shrink-0">
+        <div class="p-5 flex items-center gap-3">
+            <div class="w-8 h-8 rounded bg-blue-600 flex items-center justify-center shadow-[0_0_12px_rgba(37,99,235,0.4)]">
+                <i class="fa-solid fa-chart-simple text-white"></i>
+            </div>
+            <div>
+                <h1 class="font-bold text-lg leading-tight">Liquid Wealth</h1>
+                <p class="text-[10px] text-app-primary uppercase tracking-widest font-bold">Tactical Engine</p>
+            </div>
+        </div>
+
+        <nav class="flex-1 px-4 space-y-1 overflow-y-auto custom-scrollbar">
+            <a href="#" class="flex items-center gap-3 px-3 py-2 bg-blue-600/10 text-blue-400 rounded-lg">
+                <i class="fa-solid fa-house w-5 text-center"></i> Dashboard
+            </a>
+            <a href="#" class="flex items-center gap-3 px-3 py-2 text-app-textMuted hover:bg-app-card hover:text-white rounded-lg transition">
+                <i class="fa-solid fa-wallet w-5 text-center"></i> Vermögen
+            </a>
+            <a href="#" class="flex items-center gap-3 px-3 py-2 text-app-textMuted hover:bg-app-card hover:text-white rounded-lg transition">
+                <i class="fa-solid fa-money-bill-transfer w-5 text-center"></i> Cashflow
+            </a>
+            <a href="#" class="flex items-center gap-3 px-3 py-2 text-app-textMuted hover:bg-app-card hover:text-white rounded-lg transition">
+                <i class="fa-solid fa-fire w-5 text-center"></i> FIRE
+            </a>
+            <a href="#" class="flex items-center gap-3 px-3 py-2 text-app-textMuted hover:bg-app-card hover:text-white rounded-lg transition">
+                <i class="fa-solid fa-sliders w-5 text-center"></i> Simulator
+            </a>
+            <a href="#" class="flex items-center gap-3 px-3 py-2 text-app-textMuted hover:bg-app-card hover:text-white rounded-lg transition">
+                <i class="fa-solid fa-chart-line w-5 text-center"></i> Projektion
+            </a>
+            
+            <div class="pt-4 mt-4 border-t border-app-border">
+                <a href="#" class="flex items-center gap-3 px-3 py-2 text-app-textMuted hover:bg-app-card hover:text-white rounded-lg transition">
+                    <i class="fa-regular fa-calendar w-5 text-center"></i> Jahresübersicht
+                </a>
+                <a href="#" class="flex items-center gap-3 px-3 py-2 text-app-textMuted hover:bg-app-card hover:text-white rounded-lg transition">
+                    <i class="fa-solid fa-chart-pie w-5 text-center"></i> Portfolio
+                </a>
+                <a href="#" class="flex items-center gap-3 px-3 py-2 text-app-textMuted hover:bg-app-card hover:text-white rounded-lg transition">
+                    <i class="fa-brands fa-bitcoin w-5 text-center"></i> Krypto
+                </a>
+                <a href="#" class="flex items-center gap-3 px-3 py-2 text-app-textMuted hover:bg-app-card hover:text-white rounded-lg transition">
+                    <i class="fa-solid fa-bullseye w-5 text-center"></i> Milestones
+                </a>
+                <a href="#" class="flex items-center gap-3 px-3 py-2 text-app-textMuted hover:bg-app-card hover:text-white rounded-lg transition">
+                    <i class="fa-solid fa-gear w-5 text-center"></i> Einstellungen
+                </a>
+            </div>
+        </nav>
+
+        <div class="p-4 m-4 bg-app-card rounded-xl border border-app-border">
+            <div class="flex items-center gap-2 mb-3">
+                <div class="w-2 h-2 rounded-full bg-app-success animate-pulse"></div>
+                <span class="text-xs font-semibold text-app-textMuted">Live Crypto</span>
+            </div>
+            <div class="space-y-2">
+                <div class="flex justify-between items-center text-xs">
+                    <div class="flex items-center gap-1.5"><i class="fa-brands fa-bitcoin text-[#f7931a]"></i> BTC</div>
+                    <span class="sensitive-value">€118.432</span>
+                    <span class="text-app-success">+2,4%</span>
+                </div>
+                <div class="flex justify-between items-center text-xs">
+                    <div class="flex items-center gap-1.5"><i class="fa-brands fa-ethereum text-[#627eea]"></i> ETH</div>
+                    <span class="sensitive-value">€3.142</span>
+                    <span class="text-app-success">+1,8%</span>
+                </div>
+                <div class="flex justify-between items-center text-xs">
+                    <div class="flex items-center gap-1.5"><i class="fa-solid fa-coins text-[#14f195]"></i> SOL</div>
+                    <span class="sensitive-value">€196</span>
+                    <span class="text-app-success">+3,2%</span>
+                </div>
+            </div>
+        </div>
+    </aside>
+
+    <!-- Main Content -->
+    <div class="flex-1 flex flex-col min-w-0 bg-[#050810]">
+        
+        <!-- Topbar -->
+        <header class="h-16 flex items-center justify-between px-4 md:px-6 bg-app-bg border-b border-app-border shrink-0">
+            <button class="lg:hidden text-app-textMuted hover:text-white mr-4">
+                <i class="fa-solid fa-bars text-xl"></i>
+            </button>
+
+            <div class="hidden sm:flex items-center gap-4 bg-app-card px-4 py-1.5 rounded-full border border-app-border">
+                <button class="text-app-textMuted hover:text-white"><i class="fa-solid fa-chevron-left text-xs"></i></button>
+                <span class="font-medium text-sm">August 2026</span>
+                <button class="text-app-textMuted hover:text-white"><i class="fa-solid fa-chevron-right text-xs"></i></button>
+            </div>
+
+            <div class="flex items-center gap-3 ml-auto">
+                <button class="text-app-textMuted hover:text-white w-8 h-8 rounded-full bg-app-card flex items-center justify-center border border-app-border">
+                    <i class="fa-solid fa-moon text-xs"></i>
+                </button>
+                <button class="text-app-textMuted hover:text-white w-8 h-8 rounded-full bg-app-card flex items-center justify-center border border-app-border">
+                    <i class="fa-solid fa-gear text-xs"></i>
+                </button>
+                <button id="stealthToggle" class="flex items-center gap-2 bg-app-accent/20 text-app-accent border border-app-accent/50 px-3 md:px-4 py-1.5 rounded-full text-xs font-semibold hover:bg-app-accent/30 transition">
+                    <i class="fa-solid fa-user-secret"></i> <span class="hidden md:inline">Stealth Mode</span>
+                </button>
+            </div>
+        </header>
+
+        <!-- Scrollable Dashboard -->
+        <main class="flex-1 overflow-y-auto custom-scrollbar p-4 md:p-6 pb-24">
+            <div class="max-w-[1400px] mx-auto space-y-4">
+
+                <!-- Row 1: Key Metrics -->
+                <div class="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-5 gap-4">
+                    <div class="dashboard-card relative overflow-hidden">
+                        <div class="flex items-center gap-3 mb-2">
+                            <div class="w-8 h-8 rounded-lg bg-blue-500/20 text-blue-400 flex items-center justify-center"><i class="fa-solid fa-wallet"></i></div>
+                            <span class="text-app-textMuted font-medium text-xs">Net Worth</span>
+                        </div>
+                        <div class="text-xl md:text-2xl font-bold sensitive-value">€ 142.500</div>
+                        <div class="text-xs text-app-success mt-1"><i class="fa-solid fa-arrow-trend-up mr-1"></i>+4,2%</div>
+                    </div>
+                    
+                    <div class="dashboard-card relative overflow-hidden">
+                        <div class="flex items-center gap-3 mb-2">
+                            <div class="w-8 h-8 rounded-lg bg-emerald-500/20 text-emerald-400 flex items-center justify-center"><i class="fa-solid fa-money-bill-transfer"></i></div>
+                            <span class="text-app-textMuted font-medium text-xs">Cashflow</span>
+                        </div>
+                        <div class="text-xl md:text-2xl font-bold sensitive-value">€ 3.200</div>
+                        <div class="text-xs text-app-success mt-1"><i class="fa-solid fa-arrow-trend-up mr-1"></i>+6,7%</div>
+                    </div>
+
+                    <div class="dashboard-card relative overflow-hidden">
+                        <div class="flex items-center gap-3 mb-2">
+                            <div class="w-8 h-8 rounded-lg bg-blue-400/20 text-blue-400 flex items-center justify-center"><i class="fa-solid fa-chart-pie"></i></div>
+                            <span class="text-app-textMuted font-medium text-xs">Sparquote</span>
+                        </div>
+                        <div class="text-xl md:text-2xl font-bold sensitive-value">53,3%</div>
+                        <div class="text-xs text-app-success mt-1"><i class="fa-solid fa-arrow-trend-up mr-1"></i>+2,1%</div>
+                    </div>
+
+                    <div class="dashboard-card relative overflow-hidden">
+                        <div class="flex items-center gap-3 mb-2">
+                            <div class="w-8 h-8 rounded-lg bg-purple-500/20 text-purple-400 flex items-center justify-center"><i class="fa-solid fa-fire"></i></div>
+                            <span class="text-app-textMuted font-medium text-xs">FIRE Count</span>
+                        </div>
+                        <div class="text-xl md:text-2xl font-bold sensitive-value">12,4 Jahre</div>
+                        <div class="text-xs text-app-textMuted mt-1">€ 1.2M Ziel</div>
+                    </div>
+
+                    <div class="dashboard-card relative overflow-hidden col-span-2 md:col-span-1 xl:col-span-1">
+                        <div class="flex items-center gap-3 mb-2">
+                            <div class="w-8 h-8 rounded-lg bg-yellow-500/20 text-yellow-500 flex items-center justify-center"><i class="fa-brands fa-bitcoin"></i></div>
+                            <span class="text-app-textMuted font-medium text-xs">BTC Equiv</span>
+                        </div>
+                        <div class="text-xl md:text-2xl font-bold sensitive-value">1,20 BTC</div>
+                        <div class="text-xs text-app-textMuted mt-1 sensitive-value">€ 142.500</div>
+                    </div>
+                </div>
+
+                <!-- Row 2: Main Visualizations -->
+                <div class="grid grid-cols-1 xl:grid-cols-12 gap-4">
+                    
+                    <!-- Asset Allocation -->
+                    <div class="dashboard-card xl:col-span-4 flex flex-col">
+                        <h2 class="font-semibold mb-4 text-sm">Vermögensaufstellung</h2>
+                        <div class="flex-1 flex items-center justify-center relative min-h-[200px]">
+                            <div class="w-48 h-48">
+                                <canvas id="assetChart"></canvas>
+                            </div>
+                            <div class="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
+                                <span class="font-bold text-lg sensitive-value">€ 142.500</span>
+                                <span class="text-xs text-app-textMuted">100%</span>
+                            </div>
+                        </div>
+                        <div class="mt-4 grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-1 gap-2 text-xs">
+                            <div class="flex justify-between items-center"><div class="flex items-center gap-2"><div class="w-2 h-2 rounded-full bg-[#3b82f6]"></div>ETF</div><div class="text-app-textMuted"><span class="mr-3 text-white">40%</span> <span class="sensitive-value">(€ 57k)</span></div></div>
+                            <div class="flex justify-between items-center"><div class="flex items-center gap-2"><div class="w-2 h-2 rounded-full bg-[#f59e0b]"></div>Bitcoin</div><div class="text-app-textMuted"><span class="mr-3 text-white">25%</span> <span class="sensitive-value">(€ 35k)</span></div></div>
+                            <div class="flex justify-between items-center"><div class="flex items-center gap-2"><div class="w-2 h-2 rounded-full bg-[#6b7280]"></div>Depot</div><div class="text-app-textMuted"><span class="mr-3 text-white">15%</span> <span class="sensitive-value">(€ 21k)</span></div></div>
+                        </div>
+                    </div>
+
+                    <!-- Cashflow Anatomy -->
+                    <div class="dashboard-card xl:col-span-5 flex flex-col overflow-x-auto custom-scrollbar">
+                        <h2 class="font-semibold mb-4 text-sm whitespace-nowrap">Cashflow Anatomy</h2>
+                        <div class="flex-1 flex flex-col justify-center py-2 min-w-[400px]">
+                            <!-- Income row -->
+                            <div class="flex items-center justify-between mb-4">
+                                <div class="bg-emerald-500/20 border border-emerald-500/30 rounded p-3 w-1/3 text-center">
+                                    <div class="text-xs text-emerald-400 mb-1">Einnahmen</div>
+                                    <div class="font-bold text-emerald-400 sensitive-value">€ 6.000</div>
+                                </div>
+                                <div class="flow-line"></div>
+                                <div class="w-1/2">
+                                    <div class="bg-red-500/10 border border-red-500/20 rounded p-2 text-xs">
+                                        <div class="flex justify-between text-red-400 mb-1 font-semibold"><span>Ausgaben</span><span class="sensitive-value">€ 2.800</span></div>
+                                        <div class="flex justify-between text-app-textMuted text-[10px]"><span>Wohnen</span><span class="sensitive-value">€ 1.200</span></div>
+                                    </div>
+                                </div>
+                            </div>
+                            <!-- Distribution row -->
+                            <div class="flex items-center justify-between">
+                                <div class="w-1/3 flex flex-col gap-2">
+                                    <div class="bg-blue-500/20 border border-blue-500/30 rounded p-2 text-center">
+                                        <div class="text-xs text-blue-400 mb-1">Investments</div>
+                                        <div class="font-bold text-blue-400 sensitive-value">€ 2.000</div>
+                                    </div>
+                                </div>
+                                <div class="flow-line"></div>
+                                <div class="w-1/2">
+                                    <div class="bg-purple-500/10 border border-purple-500/20 rounded p-2 text-xs">
+                                        <div class="flex justify-between text-purple-400 mb-1 font-semibold"><span>Verteilung</span></div>
+                                        <div class="flex justify-between text-app-textMuted text-[10px]"><span>ETF</span><span class="sensitive-value">€ 1.000</span></div>
+                                        <div class="flex justify-between text-app-textMuted text-[10px]"><span>Bitcoin</span><span class="sensitive-value">€ 500</span></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Monthly Overview -->
+                    <div class="dashboard-card xl:col-span-3 flex flex-col">
+                        <div class="flex justify-between items-center mb-4">
+                            <h2 class="font-semibold text-sm">Monatsübersicht</h2>
+                        </div>
+                        <div class="flex-1 space-y-3 text-sm">
+                            <div class="flex justify-between items-center"><div class="flex items-center gap-2 text-app-textMuted"><i class="fa-solid fa-arrow-down text-emerald-400 w-4"></i>In</div><span class="sensitive-value">€ 6.000</span></div>
+                            <div class="flex justify-between items-center"><div class="flex items-center gap-2 text-app-textMuted"><i class="fa-solid fa-arrow-right-arrow-left text-red-400 w-4"></i>Out</div><span class="sensitive-value">€ 2.800</span></div>
+                            <hr class="border-app-border my-2">
+                            <div class="flex justify-between items-center"><div class="flex items-center gap-2 text-emerald-400"><i class="fa-solid fa-scale-balanced w-4"></i>Netto</div><span class="text-emerald-400 font-semibold sensitive-value">€ 3.200</span></div>
+                        </div>
+                        <div class="mt-4 flex gap-2">
+                            <button class="flex-1 bg-app-primary hover:bg-blue-600 text-white py-1.5 rounded text-xs font-medium transition">Eintrag</button>
+                            <button class="flex-1 bg-app-bg border border-app-border hover:bg-app-cardHover py-1.5 rounded text-xs text-app-textMuted transition">Kopieren</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Row 3: FIRE & Simulator -->
+                <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-4">
+                    
+                    <div class="dashboard-card flex flex-col justify-center">
+                        <div class="flex items-center gap-2 mb-4">
+                            <i class="fa-solid fa-bullseye text-app-accent"></i>
+                            <h2 class="font-semibold text-sm">FIRE-Ziel</h2>
+                        </div>
+                        <div class="space-y-3 text-xs">
+                            <div class="flex justify-between border-b border-app-border pb-1">
+                                <span class="text-app-textMuted">Zielvermögen</span><span class="font-medium sensitive-value">€ 1.200.000</span>
+                            </div>
+                            <div class="flex justify-between pb-1">
+                                <span class="text-app-textMuted">Entnahme (SWR)</span><span class="font-medium">4,0%</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="dashboard-card flex flex-col">
+                        <div class="flex items-center gap-2 mb-2">
+                            <i class="fa-solid fa-sliders text-blue-400"></i>
+                            <h2 class="font-semibold text-sm">FIRE Simulator</h2>
+                        </div>
+                        <div class="flex items-center gap-3 mb-2">
+                            <span class="text-xs text-app-textMuted">€0</span>
+                            <input type="range" id="fireSimulatorInput" min="0" max="5000" step="100" value="500">
+                            <span class="text-xs text-app-textMuted">€5k</span>
+                        </div>
+                        <div class="bg-app-bg rounded border border-app-border p-2 mb-2 text-center">
+                            <span class="text-xs text-blue-400 font-semibold" id="simulatorAmountDisplay">€ 500 / Monat extra</span>
+                        </div>
+                        <div class="flex justify-between items-end">
+                            <div>
+                                <div class="text-emerald-400 font-bold text-lg" id="simulatorResultDisplay">11,2 Jahre</div>
+                            </div>
+                            <div class="bg-emerald-500/20 text-emerald-400 px-2 py-1 rounded text-[10px]" id="simulatorBadgeDisplay">
+                                +1,2 J. früher
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="dashboard-card md:col-span-2 xl:col-span-2">
+                        <div class="flex items-center gap-2 mb-3">
+                            <i class="fa-solid fa-shield-halved text-red-400"></i>
+                            <h2 class="font-semibold text-sm">Crash-Szenarien & Notgroschen</h2>
+                        </div>
+                        <div class="flex flex-col sm:flex-row gap-4">
+                            <div class="flex-1 bg-app-bg border border-red-500/20 rounded p-3">
+                                <div class="text-[10px] text-app-textMuted mb-1">TradFi Crash</div>
+                                <div class="text-red-400 font-bold text-sm mb-1">-30%</div>
+                                <div class="text-xs font-semibold sensitive-value">€ 99.750</div>
+                            </div>
+                            <div class="flex-1 flex flex-col justify-center">
+                                <p class="text-xs text-app-textMuted mb-2">Notgroschen: 6 Monate</p>
+                                <div class="w-full bg-app-bg rounded-full h-2.5 mb-2 border border-app-border overflow-hidden">
+                                    <div class="bg-gradient-to-r from-teal-500 to-emerald-400 h-2.5" style="width: 85%"></div>
+                                </div>
+                                <div class="flex justify-between text-xs">
+                                    <span class="text-emerald-400 font-medium sensitive-value">€ 14.300</span>
+                                    <span class="text-app-textMuted">85%</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Row 4: Charts and Tables -->
+                <div class="grid grid-cols-1 lg:grid-cols-12 gap-4">
+                    
+                    <div class="dashboard-card lg:col-span-8">
+                        <div class="flex justify-between items-center mb-4">
+                            <div class="flex items-center gap-2">
+                                <i class="fa-solid fa-chart-line text-blue-400"></i>
+                                <h2 class="font-semibold text-sm">10-Jahres-Projektion</h2>
+                            </div>
+                        </div>
+                        <div class="h-56 w-full relative">
+                            <canvas id="projectionChart"></canvas>
+                        </div>
+                    </div>
+
+                    <div class="dashboard-card lg:col-span-4 overflow-x-auto custom-scrollbar">
+                        <div class="flex items-center gap-2 mb-4">
+                            <i class="fa-regular fa-calendar text-blue-400"></i>
+                            <h2 class="font-semibold text-sm">Jahresübersicht 2026</h2>
+                        </div>
+                        <table class="w-full text-xs text-left min-w-[250px]">
+                            <thead class="text-app-textMuted border-b border-app-border">
+                                <tr>
+                                    <th class="pb-2 font-normal">Monat</th>
+                                    <th class="pb-2 font-normal text-right">Cashflow</th>
+                                    <th class="pb-2 font-normal text-right">Quote</th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-app-border/50 text-app-textMuted">
+                                <tr><td class="py-2">Juni</td><td class="text-right sensitive-value">€ 3.300</td><td class="text-right">53,6%</td></tr>
+                                <tr><td class="py-2">Juli</td><td class="text-right sensitive-value">€ 3.250</td><td class="text-right">53,4%</td></tr>
+                                <tr class="bg-blue-600/20 text-white rounded"><td class="py-2 px-1 rounded-l">Aug</td><td class="text-right px-1 sensitive-value">€ 3.200</td><td class="text-right px-1 rounded-r">53,3%</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+            </div>
+        </main>
+    </div>
+
+    <!-- Scripts gesichert im DOMContentLoaded -->
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            
+            // Stealth Mode
+            const stealthToggle = document.getElementById('stealthToggle');
+            if (stealthToggle) {
+                stealthToggle.addEventListener('click', () => {
+                    document.body.classList.toggle('stealth-active');
+                    const isActive = document.body.classList.contains('stealth-active');
+                    if(isActive) {
+                        stealthToggle.classList.replace('bg-app-accent/20', 'bg-app-accent');
+                        stealthToggle.classList.replace('text-app-accent', 'text-white');
+                    } else {
+                        stealthToggle.classList.replace('bg-app-accent', 'bg-app-accent/20');
+                        stealthToggle.classList.replace('text-white', 'text-app-accent');
+                    }
+                });
+            }
+
+            // Simulator
+            const simInput = document.getElementById('fireSimulatorInput');
+            const simAmountDisplay = document.getElementById('simulatorAmountDisplay');
+            const simResultDisplay = document.getElementById('simulatorResultDisplay');
+            const simBadgeDisplay = document.getElementById('simulatorBadgeDisplay');
+
+            if (simInput) {
+                simInput.addEventListener('input', (e) => {
+                    const val = parseInt(e.target.value);
+                    simAmountDisplay.textContent = `€ ${val.toLocaleString('de-DE')} / Monat extra`;
+                    
+                    const baseYears = 12.4;
+                    const reduction = (val / 500) * 1.2; 
+                    const newYears = Math.max(1, baseYears - reduction).toFixed(1);
+                    
+                    if(val > 0) {
+                        simResultDisplay.textContent = `${newYears} Jahre`;
+                        simBadgeDisplay.textContent = `+${reduction.toFixed(1).replace('.', ',')} J. früher`;
+                        simBadgeDisplay.style.opacity = '1';
+                    } else {
+                        simResultDisplay.textContent = `${baseYears.toString().replace('.', ',')} Jahre`;
+                        simBadgeDisplay.style.opacity = '0';
+                    }
+                });
+            }
+
+            // Sicherstellen, dass Chart.js geladen ist
+            if (typeof Chart !== 'undefined') {
+                Chart.defaults.color = '#9ca3af';
+                Chart.defaults.font.family = 'Inter';
+
+                // Asset Chart
+                const assetCanvas = document.getElementById('assetChart');
+                if (assetCanvas) {
+                    const ctxAsset = assetCanvas.getContext('2d');
+                    new Chart(ctxAsset, {
+                        type: 'doughnut',
+                        data: {
+                            labels: ['ETF', 'Bitcoin', 'Depot', 'Cash'],
+                            datasets: [{
+                                data: [40, 25, 15, 10],
+                                backgroundColor: ['#3b82f6', '#f59e0b', '#6b7280', '#10b981'],
+                                borderWidth: 0,
+                                cutout: '75%'
+                            }]
+                        },
+                        options: {
+                            responsive: true,
+                            maintainAspectRatio: false,
+                            plugins: { legend: { display: false } }
+                        }
+                    });
+                }
+
+                // Projection Chart
+                const projCanvas = document.getElementById('projectionChart');
+                if (projCanvas) {
+                    const ctxProj = projCanvas.getContext('2d');
+                    const labels = Array.from({length: 11}, (_, i) => 2026 + i);
+                    const dataWealth = labels.map((year, i) => 142500 * Math.pow(1.24, i));
+
+                    // Custom Plugin sicher definieren
+                    const fireLinePlugin = {
+                        id: 'fireLine',
+                        beforeDraw: (chart) => {
+                            const ctx = chart.canvas.getContext('2d');
+                            const yAxis = chart.scales.y;
+                            const xAxis = chart.scales.x;
+                            // Nur zeichnen, wenn die Achse initialisiert ist
+                            if (!yAxis || !xAxis) return;
+                            
+                            const yPos = yAxis.getPixelForValue(1200000); 
+                            ctx.save();
+                            ctx.beginPath();
+                            ctx.moveTo(xAxis.left, yPos);
+                            ctx.lineTo(xAxis.right, yPos);
+                            ctx.lineWidth = 1;
+                            ctx.strokeStyle = '#8b5cf6';
+                            ctx.setLineDash([5, 5]);
+                            ctx.stroke();
+                            ctx.restore();
+                        }
+                    };
+
+                    new Chart(ctxProj, {
+                        type: 'line',
+                        data: {
+                            labels: labels,
+                            datasets: [{
+                                label: 'Vermögen',
+                                data: dataWealth,
+                                borderColor: '#10b981',
+                                backgroundColor: 'rgba(16, 185, 129, 0.1)',
+                                borderWidth: 2,
+                                fill: true,
+                                tension: 0.4,
+                                pointRadius: 0
+                            }]
+                        },
+                        options: {
+                            responsive: true,
+                            maintainAspectRatio: false,
+                            plugins: { legend: { display: false } },
+                            scales: {
+                                x: { grid: { display: false } },
+                                y: {
+                                    beginAtZero: true,
+                                    max: 2000000,
+                                    ticks: {
+                                        callback: function(value) { return '€ ' + (value / 1000000).toFixed(1) + 'M'; },
+                                        stepSize: 500000
+                                    },
+                                    grid: { color: '#1f2937', drawBorder: false }
+                                }
+                            }
+                        },
+                        plugins: [fireLinePlugin]
+                    });
+                }
+            } else {
+                console.warn("Chart.js konnte nicht geladen werden. Prüfe die Netzwerkverbindung des Viewers.");
+            }
+        });
+    </script>
+</body>
+</html>
