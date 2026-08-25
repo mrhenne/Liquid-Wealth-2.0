@@ -58,7 +58,74 @@ html.light .kicon{background:#e7f1ff;color:#1269c9}
 html.light .donut:after{background:#fff}
 .themeText{font-size:10px;font-weight:800;margin-left:5px}
 </style>
-<script type="text/javascript" nonce="f9537dd93a3a4cd8b2cb36dc28a" src="//local.adguard.org?ts=1787645969621&amp;type=content-script&amp;dmn=chatgpt.com&amp;url=https%3A%2F%2Fchatgpt.com%2Fbackend-api%2Festuary%2Fcontent%3Fid%3Dfile_00000000466481f4917fa3e1ffa3f968%26ts%3D496569%26p%3Dfs%26cid%3D1%26sig%3D33fe44d0f38dd501fb7fdcfacdae503ab382c706d53a0bd934d3124691a6d94c%26v%3D0&amp;app=com.apple.Safari&amp;css=3&amp;js=1&amp;rel=1&amp;rji=1&amp;sbe=1"></script><script type="text/javascript" nonce="f9537dd93a3a4cd8b2cb36dc28a" src="//local.adguard.org?ts=1787645969621&amp;name=AdGuard%20Assistant&amp;name=AdGuard%20Extra&amp;name=AdGuard%20Popup%20Blocker&amp;type=user-script"></script></head>
+
+<style id="ui-polish-v11">
+:root{
+ --bg:#050b16;--panel:#0b1627;--panel2:#0f1e32;--line:#23415f;
+ --text:#f2f6fb;--muted:#9aabc0;--soft:#c4d0de;
+ --blue:#3aa0ff;--blue2:#176ff0;--cyan:#22d8c2;--green:#35e28f;
+ --red:#ff5d78;--yellow:#f2c94c;--purple:#9b6cff;
+ --focus:#63b4ff;
+}
+html,body{font-size:clamp(14px,0.22vw + 12px,16px)}
+body{line-height:1.45;color:var(--text)}
+button,input,select{font:inherit}
+button:focus-visible,input:focus-visible,select:focus-visible{outline:2px solid var(--focus);outline-offset:2px}
+.card{border-color:var(--line);background:linear-gradient(145deg,rgba(13,29,49,.97),rgba(7,17,31,.98))}
+.klabel,.subhead,.mrow span,.metric span{color:var(--muted)}
+.kvalue{font-size:clamp(1.35rem,1.9vw,1.8rem);letter-spacing:-.035em}
+.card h2{display:flex;align-items:center;gap:8px;font-size:clamp(1rem,.8vw + .65rem,1.15rem);letter-spacing:-.02em}
+.btn,.topAction,.dateNav button,.toolbar select,.toolbar button,.input{border-color:#2a4969;color:var(--text)}
+.nav button{color:#a7b7c9}
+.nav button:hover,.nav button.active{color:#e9f4ff;border-color:#2b66a3}
+.green{color:var(--green)!important}.red{color:var(--red)!important}.purple{color:#bda5ff!important}.blue{color:#69b6ff!important}.cyan{color:#48e5d2!important}
+.entry{border-bottom-color:#213c59}.table th,.table td{border-bottom-color:#213c59}
+.metric{border-color:#23415f;background:#0a192c}
+.progress{background:#17304b}
+.addrow .add,.addrow .plus,.btn.primary{background:var(--blue2);border-color:var(--blue2)}
+.scenario button{border-color:#2a4866;color:var(--text)}
+.live{border-color:#23415f;background:#071426}
+.modalBox{border-color:#2a4969}
+.toolbar{gap:12px}
+.toolbar .subhead{font-size:.78rem}
+.kpi{min-height:clamp(112px,8vw,132px)}
+.alloc{min-height:250px}
+.chart,.sankey{max-height:300px}
+.footer{color:#7f93aa}
+
+/* Light mode: explicit, high-contrast palette */
+html.light,body.light{
+ --bg:#f3f6fa;--panel:#ffffff;--panel2:#f7f9fc;--line:#d3deea;
+ --text:#152235;--muted:#53677e;--soft:#33465d;
+ --blue:#086fe8;--blue2:#086fe8;--cyan:#078d82;--green:#087b4b;
+ --red:#c52f4b;--yellow:#8a6800;--purple:#6840c7;--focus:#005fcc;
+ color:var(--text)!important;background:#f3f6fa!important;
+}
+html.light body,.light body{background:#f3f6fa!important;color:var(--text)!important}
+.light .sidebar,.light .top{background:rgba(255,255,255,.94);border-color:#d3deea}
+.light .card{background:#fff;border-color:#d3deea;box-shadow:0 8px 24px rgba(23,43,66,.08)}
+.light .nav button{color:#53677e}
+.light .nav button:hover,.light .nav button.active{background:#e9f2fc;color:#075fbd}
+.light .live{background:#f7f9fc;border-color:#d3deea}
+.light .dateNav button,.light .topAction,.light .btn,.light .toolbar select,.light .toolbar button,.light .input{background:#fff;color:#152235;border-color:#c5d3e2}
+.light .metric{background:#f7f9fc;border-color:#d3deea}
+.light .entry,.light .table th,.light .table td{border-color:#d8e2ec}
+.light .progress{background:#dbe5ee}
+.light .scenario button{background:#f7f9fc;color:#152235;border-color:#c5d3e2}
+.light .footer{color:#687b91}
+.light .klabel,.light .subhead,.light .mrow span,.light .metric span{color:#53677e}
+.light .modal{background:rgba(13,27,43,.48)}
+.light .modalBox{background:#fff;border-color:#c5d3e2}
+.light .sensitive{color:inherit}
+
+/* Minimal icon system */
+.ui-ico{width:18px;height:18px;display:inline-flex;align-items:center;justify-content:center;flex:0 0 18px;color:currentColor}
+.ui-ico svg{width:18px;height:18px;stroke:currentColor;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.nav .ui-ico{width:19px;height:19px}.nav .ui-ico svg{width:19px;height:19px}
+.kicon{display:grid;place-items:center}
+.kicon .ui-ico svg{width:17px;height:17px}
+</style>
+<script type="text/javascript" nonce="f9537dd93a3a4cd8b2cb36dc28a" src="//local.adguard.org?ts=1787649569456&amp;type=content-script&amp;dmn=chatgpt.com&amp;url=https%3A%2F%2Fchatgpt.com%2Fbackend-api%2Festuary%2Fcontent%3Fid%3Dfile_000000006fc481f4966cacc8e9071c24%26ts%3D496569%26p%3Dfs%26cid%3D1%26sig%3Dc252e933a93b843ab3bb287f9572483d8f924d7a4635cd74b7c0b625129bb669%26v%3D0&amp;app=com.apple.Safari&amp;css=3&amp;js=1&amp;rel=1&amp;rji=1&amp;sbe=1"></script><script type="text/javascript" nonce="f9537dd93a3a4cd8b2cb36dc28a" src="//local.adguard.org?ts=1787649569456&amp;name=AdGuard%20Assistant&amp;name=AdGuard%20Extra&amp;name=AdGuard%20Popup%20Blocker&amp;type=user-script"></script></head>
 <body>
 <div class="app">
 <aside class="sidebar"><div class="brand"><div class="mark">LW</div><div class="brandText"><b>Liquid Wealth</b><small>Tactical Engine</small></div></div>
