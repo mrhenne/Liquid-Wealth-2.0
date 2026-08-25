@@ -1,598 +1,142 @@
-<!DOCTYPE html>
-<html lang="de" class="dark">
+<!doctype html>
+<html lang="de">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Liquid Wealth</title>
-    
-    <!-- Tailwind CSS (CDN) -->
-    <script src="https://cdn.tailwindcss.com"></script>
-    
-    <!-- Chart.js (CDN) -->
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    
-    <!-- FontAwesome (CDN) -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    
-    <!-- Google Fonts -->
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    
-    <script>
-        tailwind.config = {
-            darkMode: 'class',
-            theme: {
-                extend: {
-                    fontFamily: { sans: ['Inter', 'sans-serif'] },
-                    colors: {
-                        app: {
-                            bg: '#0a0f1c',
-                            card: '#111827',
-                            cardHover: '#1f2937',
-                            primary: '#3b82f6',
-                            accent: '#8b5cf6',
-                            success: '#10b981',
-                            danger: '#ef4444',
-                            warning: '#f59e0b',
-                            border: '#1f2937',
-                            text: '#f3f4f6',
-                            textMuted: '#9ca3af'
-                        }
-                    }
-                }
-            }
-        }
-    </script>
-    
-    <style>
-        body {
-            background-color: #0a0f1c;
-            color: #f3f4f6;
-        }
-        
-        /* Custom Scrollbar */
-        .custom-scrollbar::-webkit-scrollbar { width: 6px; height: 6px; }
-        .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
-        .custom-scrollbar::-webkit-scrollbar-thumb { background: #1f2937; border-radius: 3px; }
-        .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: #374151; }
-        
-        /* Stealth Mode */
-        .stealth-active .sensitive-value {
-            filter: blur(5px);
-            opacity: 0.7;
-            user-select: none;
-        }
-        .sensitive-value {
-            transition: all 0.2s ease-in-out;
-        }
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Liquid Wealth Tactical Engine</title>
+<style>
+:root{color-scheme:dark;--bg:#050b16;--bg2:#081426;--panel:#0b192d;--panel2:#0e2038;--line:#1a3554;--text:#edf4ff;--muted:#8396b1;--blue:#1688ff;--cyan:#19d9c0;--green:#29df8c;--red:#ff4f70;--purple:#9667ff;--orange:#ffad3d;--yellow:#f3ce52;--shadow:0 18px 45px #0005}
+html.light{color-scheme:light;--bg:#eef3f9;--bg2:#fff;--panel:#fff;--panel2:#f5f8fc;--line:#d7e1ee;--text:#17243a;--muted:#687b95;--shadow:0 12px 30px #17345716}*{box-sizing:border-box}body{margin:0;background:radial-gradient(circle at 20% -15%,#07316b 0,transparent 32%),radial-gradient(circle at 95% 75%,#261057 0,transparent 27%),var(--bg);color:var(--text);font-family:Inter,ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-serif}button,input,select{font:inherit}button{cursor:pointer}.app{min-height:100vh;display:grid;grid-template-columns:235px 1fr}.sidebar{background:#040a15cc;border-right:1px solid var(--line);padding:18px 11px;display:flex;flex-direction:column;backdrop-filter:blur(16px)}html.light .sidebar{background:#f8fbffdd}.brand{display:flex;gap:10px;align-items:center;padding:5px 9px 22px}.mark{width:40px;height:40px;border-radius:12px;background:linear-gradient(145deg,#1598ff,#3c43ff);display:grid;place-items:center;font-weight:900;box-shadow:0 0 30px #1688ff55}.brand b{display:block;font-size:15px}.brand small{color:var(--blue);font-weight:800}.nav{display:grid;gap:4px}.nav button{border:1px solid transparent;background:transparent;color:var(--muted);padding:10px 11px;border-radius:10px;text-align:left;font-weight:750;display:flex;gap:11px;align-items:center}.nav button:hover,.nav button.active{background:linear-gradient(90deg,#0b397e,#082653);color:#55a9ff;border-color:#154a85}.ico{width:20px;text-align:center}.sidebarBottom{margin-top:auto}.status{padding:12px;border:1px solid var(--line);background:var(--panel);border-radius:14px}.status h4{margin:0 0 8px;font-size:11px}.dot{display:inline-block;width:7px;height:7px;border-radius:50%;background:var(--green);margin-right:5px}.coinMini{display:grid;grid-template-columns:30px 1fr auto;gap:6px;font-size:11px;padding:5px 0}.coinMini em{font-style:normal;color:var(--green)}.main{min-width:0}.top{height:72px;position:sticky;top:0;z-index:20;display:flex;justify-content:space-between;align-items:center;padding:0 22px;background:#050b16bb;border-bottom:1px solid var(--line);backdrop-filter:blur(16px)}html.light .top{background:#ffffffdd}.topLeft,.topRight,.dateNav{display:flex;align-items:center;gap:8px}.topBtn,.monthBtn,.primary,.ghost,.danger,.smallBtn{border:1px solid var(--line);background:var(--panel);color:var(--text);border-radius:9px;padding:8px 11px}.primary{background:var(--blue);border-color:var(--blue);color:#fff;font-weight:800}.ghost{background:transparent}.danger{background:#35101d;border-color:#6b1b32;color:#ff91a6}.monthLabel{min-width:150px;text-align:center;font-weight:850}.content{max-width:1650px;margin:auto;padding:18px 20px 30px}.view{display:none}.view.active{display:block}.grid{display:grid;gap:14px}.kpis{grid-template-columns:repeat(6,minmax(0,1fr))}.card{min-width:0;background:linear-gradient(145deg,#0c1b30eF,#081426f5);border:1px solid var(--line);border-radius:16px;padding:15px;box-shadow:var(--shadow)}html.light .card{min-width:0;background:linear-gradient(145deg,#fff,#f7faff)}.kpi{min-height:120px;position:relative;overflow:hidden}.kpi:after{content:"";position:absolute;width:130px;height:130px;border-radius:50%;right:-55px;bottom:-70px;background:#1688ff22;filter:blur(10px)}.klabel{font-size:11px;color:var(--muted);font-weight:800}.kicon{float:right;width:32px;height:32px;border-radius:9px;background:#0c376d;color:#51a8ff;display:grid;place-items:center}.kvalue{font-size:23px;font-weight:900;margin-top:12px}.ksub{font-size:10px;margin-top:5px;color:var(--green)}.red{color:var(--red)!important}.green{color:var(--green)!important}.blue{color:#55a9ff}.cyan{color:var(--cyan)}.purple{color:#c7adff}.orange{color:var(--orange)}.muted{color:var(--muted)}.dash{grid-template-columns:1.05fr 1.25fr .75fr;margin-top:14px}.lower{grid-template-columns:1fr 1fr 1fr;margin-top:14px}.wide{grid-template-columns:1.35fr .65fr;margin-top:14px}.toolbar{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:10px}.toolbar h2{margin:0;font-size:16px}.sub{font-size:10px;color:var(--muted)}.alloc{display:grid;grid-template-columns:185px 1fr;gap:18px;align-items:center;min-height:270px}.donut{width:170px;height:170px;border-radius:50%;background:conic-gradient(#1688ff 0 35%,#ff9c24 35% 58%,#7d57ff 58% 72%,#20d8bd 72% 82%,#d5c7a8 82% 90%,#93dc35 90% 100%);display:grid;place-items:center;position:relative;margin:auto}.donut:after{content:"";width:105px;height:105px;border-radius:50%;background:var(--panel)}.donutCenter{position:absolute;z-index:2;text-align:center;font-size:17px;font-weight:900}.donutCenter small{display:block;color:var(--muted);font-size:9px}.legend{display:grid;gap:8px}.legendRow{display:grid;grid-template-columns:10px 1fr auto auto;gap:7px;align-items:center;font-size:11px}.sw{width:9px;height:9px;border-radius:3px}.metricGrid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}.metric{background:var(--panel2);border:1px solid var(--line);border-radius:10px;padding:10px}.metric span{display:block;color:var(--muted);font-size:9px}.metric b{display:block;font-size:14px;margin-top:4px}.statList{display:grid;gap:2px}.stat{display:flex;justify-content:space-between;padding:7px 0;border-bottom:1px solid var(--line);font-size:11px}.stat span{color:var(--muted)}.addRow{display:flex;gap:7px;margin-top:12px}.addRow>*{min-width:0}.addRow .grow{flex:1}.input{background:var(--panel);border:1px solid var(--line);color:var(--text);border-radius:8px;padding:8px;outline:none}.input:focus{border-color:var(--blue)}.table{width:100%;max-width:100%;border-collapse:collapse;font-size:11px}.table th,.table td{padding:8px 7px;border-bottom:1px solid var(--line);text-align:right}.table th:first-child,.table td:first-child{text-align:left}.table th{color:var(--muted);font-weight:800}.entry{display:grid;grid-template-columns:1fr 105px 55px 28px;gap:5px;align-items:center;padding:7px 0;border-bottom:1px solid var(--line)}.entry input{min-width:0}.entry .amount{text-align:right;font-weight:800}.toggle{display:flex;align-items:center;gap:4px;font-size:9px;color:var(--muted)}.toggle input{accent-color:var(--blue)}.miniGrid{display:grid;grid-template-columns:repeat(2,1fr);gap:8px}.sectionTitle{margin:0 0 5px;font-size:17px}.sectionSub{margin:0 0 15px;color:var(--muted);font-size:11px}.chart{width:100%;height:270px}.chartLegend{display:flex;gap:14px;font-size:10px;color:var(--muted);margin-top:4px}.bar{height:7px;background:#10253d;border-radius:8px;overflow:hidden}.bar i{display:block;height:100%;background:linear-gradient(90deg,#1688ff,#1ddcbf)}.progress{height:6px;background:#10253d;border-radius:8px;overflow:hidden}.progress i{display:block;height:100%;background:#19d9c0}.scenarioGrid{display:grid;grid-template-columns:repeat(3,1fr);gap:9px}.scenario{border:1px solid var(--line);background:var(--panel2);color:var(--text);border-radius:10px;padding:10px;text-align:left}.scenario.active{border-color:var(--red);background:#3a1020}.scenario b{display:block;margin-top:4px}.slider{width:100%;accent-color:var(--blue)}.bigNum{font-size:29px;font-weight:900;margin:4px 0}.formGrid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}.field label{display:block;color:var(--muted);font-size:10px;margin-bottom:5px}.field input,.field select{width:100%}.field.full{grid-column:1/-1}.actions{display:flex;flex-wrap:wrap;gap:8px;margin-top:13px}.assetCard{display:grid;grid-template-columns:1fr 130px 90px 80px 30px;gap:7px;align-items:center;padding:9px 0;border-bottom:1px solid var(--line);font-size:11px}.goal{padding:11px 0;border-bottom:1px solid var(--line)}.goalTop{display:flex;justify-content:space-between;font-size:11px}.search{width:240px}.notice{padding:10px 12px;border:1px solid #29486b;background:#0b1c32;border-radius:10px;font-size:11px;color:#a9bad0}.modal{position:fixed;inset:0;background:#000a;z-index:50;display:none;align-items:center;justify-content:center;padding:18px}.modal.show{display:flex}.modalBox{width:min(760px,100%);max-height:90vh;overflow:auto;background:var(--panel);border:1px solid var(--line);border-radius:17px;padding:18px;box-shadow:0 30px 90px #0008}.toast{position:fixed;right:20px;bottom:20px;background:#0b1b30;border:1px solid var(--line);color:#fff;padding:11px 14px;border-radius:10px;display:none;z-index:100}.toast.show{display:block}.stealth .sensitive{filter:blur(8px);user-select:none}.footer{text-align:center;color:#60738d;font-size:9px;padding:18px}.mobileOnly{display:none}@media(max-width:1200px){.app{grid-template-columns:76px 1fr}.brandText,.navText,.status{display:none}.nav button{justify-content:center}.kpis{grid-template-columns:repeat(3,1fr)}.dash,.lower,.wide{grid-template-columns:1fr}.monthGrid{grid-template-columns:repeat(2,1fr)}}@media(max-width:720px){.app{display:block}.sidebar{display:none}.mobileOnly{display:inline-block}.top{padding:0 10px}.content{padding:10px}.kpis,.monthGrid,.formGrid{grid-template-columns:1fr}.alloc{grid-template-columns:1fr}.metricGrid{grid-template-columns:1fr 1fr}.topRight .topBtn.hideMobile{display:none}.monthLabel{min-width:100px}.assetCard{grid-template-columns:1fr 90px 70px 30px}.assetCard .assetType{display:none}}
 
-        /* Range Slider */
-        input[type=range] {
-            -webkit-appearance: none;
-            width: 100%;
-            background: transparent;
-        }
-        input[type=range]::-webkit-slider-thumb {
-            -webkit-appearance: none;
-            height: 14px;
-            width: 14px;
-            border-radius: 50%;
-            background: #3b82f6;
-            cursor: pointer;
-            margin-top: -5px;
-            box-shadow: 0 0 10px rgba(59, 130, 246, 0.6);
-        }
-        input[type=range]::-webkit-slider-runnable-track {
-            width: 100%;
-            height: 4px;
-            cursor: pointer;
-            background: #1f2937;
-            border-radius: 2px;
-        }
-        
-        .dashboard-card {
-            background-color: #111827;
-            border: 1px solid #1f2937;
-            border-radius: 0.75rem;
-            padding: 1.25rem;
-            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
-        }
-        
-        .flow-line {
-            position: relative;
-            flex-grow: 1;
-            height: 2px;
-            background: #1f2937;
-            margin: 0 8px;
-            min-width: 20px;
-        }
-    </style>
-</head>
-<body class="flex h-screen overflow-hidden text-sm">
+/* v5 visual accessibility and responsive scaling */
+body{font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"SF Pro Display","Segoe UI Variable","Segoe UI",Roboto,Arial,sans-serif;font-size:clamp(13px,.18vw + 12px,15px);line-height:1.42}
+.sectionTitle{font-size:clamp(18px,1.1vw,23px)}
+.kvalue{font-size:clamp(20px,1.55vw,28px);letter-spacing:-.02em}
+.toolbar h2{font-size:clamp(14px,.8vw,17px)}
+.topBtn,.monthBtn,.primary,.ghost,.danger,.smallBtn{min-height:38px}
+html.light .topBtn,html.light .monthBtn,html.light .ghost,html.light .smallBtn{background:#fff;color:#17243a;border-color:#c8d6e6}
+html.light .primary{color:#fff}
+html.light .danger{background:#fff1f4;color:#a92745;border-color:#f0b9c5}
+html.light .notice{background:#f3f7fc;color:#425873;border-color:#c9d9e9}
+html.light .scenario{background:#fff;color:#17243a}
+html.light .scenario.active{background:#fff0f3;color:#8f2440;border-color:#df6b84}
+html.light .kicon{background:#e8f2ff;color:#1269c9}
+html.light .nav button:hover,html.light .nav button.active{background:#eaf3ff;color:#1269c9;border-color:#b9d4f3}
+html.light .status{background:#fff}
+.srOnly{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
+.calendarGrid{display:grid;grid-template-columns:1fr 1fr;gap:12px}.calendarGrid .field{min-width:0}
+.calendarActions{display:flex;gap:8px;justify-content:flex-end;margin-top:14px;flex-wrap:wrap}
+.checkGrid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
+.checkCard{background:var(--panel2);border:1px solid var(--line);border-radius:12px;padding:12px}
+.checkCard .label{color:var(--muted);font-size:10px;font-weight:800}.checkCard .value{font-size:clamp(17px,1.2vw,23px);font-weight:900;margin-top:5px}.checkCard .hint{font-size:10px;color:var(--muted);margin-top:4px}
+@media(max-width:1200px){.checkGrid{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:720px){.calendarGrid,.checkGrid{grid-template-columns:1fr}.content{padding-left:10px;padding-right:10px}.top{gap:5px}.topLeft,.topRight{gap:5px}.topRight .topBtn{padding-left:8px;padding-right:8px}}
+</style>
+<script type="text/javascript" nonce="f9537dd93a3a4cd8b2cb36dc28a" src="//local.adguard.org?ts=1787642369460&amp;type=content-script&amp;dmn=chatgpt.com&amp;url=https%3A%2F%2Fchatgpt.com%2Fbackend-api%2Festuary%2Fcontent%3Fid%3Dfile_00000000c18c824699eec040f9a5eda1%26fn%3DLiquid_Wealth_Tactical_Engine_5.html%26cd%3Dattachment%26ts%3D496568%26p%3Dfs%26cid%3D1%26sig%3D2f7b12fdc299da95f51cf65c443d225b9e8d9ccc40573426c5fcc34b29598b7b%26v%3D0&amp;app=com.apple.Safari&amp;css=3&amp;js=1&amp;rel=1&amp;rji=1&amp;sbe=1"></script><script type="text/javascript" nonce="f9537dd93a3a4cd8b2cb36dc28a" src="//local.adguard.org?ts=1787642369460&amp;name=AdGuard%20Assistant&amp;name=AdGuard%20Extra&amp;name=AdGuard%20Popup%20Blocker&amp;type=user-script"></script></head>
+<body>
+<div class="app">
+<aside class="sidebar"><div class="brand"><div class="mark">LW</div><div class="brandText"><b>Liquid Wealth</b><small>Tactical Engine</small></div></div>
+<nav class="nav" id="nav"><button class="active" data-view="dashboard"><span class="ico">⌂</span><span class="navText">Dashboard</span></button><button data-view="wealth"><span class="ico">▣</span><span class="navText">Vermögen</span></button><button data-view="cashflow"><span class="ico">⇆</span><span class="navText">Cashflow</span></button><button data-view="fire"><span class="ico">♨</span><span class="navText">FIRE</span></button><button data-view="simulator"><span class="ico">☷</span><span class="navText">Simulator</span></button><button data-view="projection"><span class="ico">⌁</span><span class="navText">Projektion</span></button><button data-view="year"><span class="ico">▦</span><span class="navText">Jahresübersicht</span></button><button data-view="portfolio"><span class="ico">◔</span><span class="navText">Portfolio</span></button><button data-view="crypto"><span class="ico">₿</span><span class="navText">Krypto</span></button><button data-view="goals"><span class="ico">◎</span><span class="navText">Ziele</span></button><button data-view="financeCheck"><span class="ico">✓</span><span class="navText">Finanz-Check</span></button><button data-view="settings"><span class="ico">⚙</span><span class="navText">Einstellungen</span></button></nav>
+<div class="sidebarBottom"><div class="status"><h4><span class="dot"></span>Live Crypto</h4><div id="coinMini"></div><small class="muted">CoinGecko optional</small></div></div></aside>
+<main class="main"><header class="top"><div class="topLeft"><button class="monthBtn" id="prev">‹</button><button class="monthLabel ghost" id="monthLabel" title="Kalender öffnen"></button><button class="monthBtn" id="next">›</button><button class="ghost hideMobile" id="today">Heute</button><button class="ghost" id="calendarBtn" title="Jahr und Monat auswählen">📅 <span class="hideMobile">Kalender</span></button></div><div class="topRight"><button class="topBtn hideMobile" id="addQuick">＋ Eintrag</button><button class="topBtn" id="theme">☾</button><button class="topBtn" id="stealth">◈ Stealth</button><button class="primary" id="openSettings">⚙</button></div></header>
+<div class="content">
+<section id="dashboard" class="view active"></section><section id="wealth" class="view"></section><section id="cashflow" class="view"></section><section id="fire" class="view"></section><section id="simulator" class="view"></section><section id="projection" class="view"></section><section id="year" class="view"></section><section id="portfolio" class="view"></section><section id="crypto" class="view"></section><section id="goals" class="view"></section><section id="financeCheck" class="view"></section><section id="settings" class="view"></section><div class="footer">Liquid Wealth Tactical Engine · lokale Daten · regelmäßig JSON Backup exportieren</div>
+</div></main></div>
+<div class="modal" id="modal"><div class="modalBox"><div class="toolbar"><div><h2 id="modalTitle">Eintrag</h2><div class="sub" id="modalSub"></div></div><button class="ghost" id="closeModal">Schließen</button></div><div id="modalBody"></div></div></div><div class="toast" id="toast"></div>
+<script>
+'use strict';
+const APP='LWTE_5';
+const now=new Date();
+const defaults={swr:4,returnRate:7,inflation:2,retirementAge:55,targetMode:'expense',fixedTarget:1200000,emergencyMonths:6,monthlyExtra:0,cryptoShare:25};
+const sampleMonths={};
+function demoMonth(){return{income:[tx('Gehalt',6000,true),tx('Nebenjob',500,true)],expenses:[tx('Wohnen',1200,true),tx('Lebensmittel',600,true),tx('Versicherungen',400,true),tx('Mobilität',300,true),tx('Freizeit',300,false),tx('Sonstiges',200,false)],invest:[tx('ETF',1000,true),tx('Bitcoin',500,true),tx('Cash Reserve',500,true)]}}
+function tx(name,val,recurring=false,cat=''){return{id:crypto.randomUUID?crypto.randomUUID():String(Date.now()+Math.random()),name,val:+val||0,recurring,cat}}
+const defaultAssets=[{id:'a1',name:'ETF',value:57000,type:'ETF',cost:42000,rate:7},{id:'a2',name:'Bitcoin',value:35600,type:'Crypto',cost:18000,rate:12},{id:'a3',name:'Depot',value:21400,type:'Aktien',cost:16000,rate:7},{id:'a4',name:'Cash',value:14300,type:'Cash',cost:14300,rate:1},{id:'a5',name:'Immobilien',value:9800,type:'Immobilie',cost:7000,rate:3},{id:'a6',name:'Sonstige',value:4400,type:'Sonstige',cost:3000,rate:2}];
+const initial={version:5,settings:{...defaults},months:{},assets:defaultAssets,liabilities:[],goals:[{id:'g1',name:'FIRE',target:1200000,current:0,deadline:2042},{id:'g2',name:'Notgroschen',target:15000,current:0,deadline:2027}],meta:{created:new Date().toISOString()}};
+let state=loadState();let UI={year:now.getFullYear(),month:now.getMonth()+1,view:'dashboard',stealth:false,coins:[],sim:{extra:2000,returnRate:7,crash:0,years:15}};
+function loadState(){try{let x=JSON.parse(localStorage.getItem(APP));if(x&&x.version===4)return x}catch(e){}let x=structuredClone?structuredClone(initial):JSON.parse(JSON.stringify(initial));x.months[`${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}`]=demoMonth();return x}
+function save(){localStorage.setItem(APP,JSON.stringify(state))}
+function key(y=UI.year,m=UI.month){return `${y}-${String(m).padStart(2,'0')}`}
+function getMonth(y=UI.year,m=UI.month,create=true){let k=key(y,m);if(!state.months[k]&&create)state.months[k]={income:[],expenses:[],invest:[]};return state.months[k]||{income:[],expenses:[],invest:[]}}
+function sum(a){return(a||[]).reduce((s,x)=>s+(Number(x.val)||0),0)}
+function totals(d){return{income:sum(d.income),expenses:sum(d.expenses),invest:sum(d.invest)}}
+function assetsTotal(){return state.assets.reduce((s,a)=>s+(Number(a.value)||0),0)}
+function debtTotal(){return state.liabilities.reduce((s,a)=>s+(Number(a.value)||0),0)}
+function netWorth(){return assetsTotal()-debtTotal()}
+function stressNetWorth(type){let a=0;state.assets.forEach(x=>{let v=Number(x.value)||0;if(type===.3&&(x.type==='ETF'||x.type==='Aktien'))v*=.7;if(type===.6&&x.type==='Crypto')v*=.4;a+=v});return a-debtTotal()}
+function realReturn(nom=state.settings.returnRate){return ((1+Number(nom)/100)/(1+Number(state.settings.inflation)/100)-1)*100}
+function goalCurrent(g){if(g.name==='FIRE')return netWorth();if(g.name.toLowerCase().includes('notgroschen'))return state.assets.filter(a=>a.type==='Cash').reduce((s,a)=>s+Number(a.value||0),0);return Number(g.current)||0}
+function euro(n){return new Intl.NumberFormat('de-DE',{style:'currency',currency:'EUR',maximumFractionDigits:0}).format(Number(n)||0)}
+function pct(n){return `${(Number(n)||0).toFixed(1)}%`}
+function esc(s){return String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
+function monthName(m){return new Intl.DateTimeFormat('de-DE',{month:'long'}).format(new Date(2020,m-1,1))}
+function annualExpenses(d){return totals(d).expenses*12}
+function fireTarget(d,sw=state.settings.swr){return state.settings.targetMode==='fixed'?Number(state.settings.fixedTarget)||0:annualExpenses(d)*100/sw}
+function monthlyInvest(d){return totals(d).invest+Number(state.settings.monthlyExtra||0)}
+function fireYears(d,extra=0,returnRate=state.settings.returnRate,start=netWorth(),target=fireTarget(d)){if(start>=target)return 0;let p=Number(start),r=Number(returnRate)/100/12,con=totals(d).invest+Number(extra||0);if(con<=0)return 999;if(r===0)return (target-p)/con/12;for(let i=1;i<=1200;i++){p=p*(1+r)+con;if(p>=target)return i/12}return 999}
+function projectedSeries(d,years=15,returnRate=state.settings.returnRate,extra=state.settings.monthlyExtra,start=netWorth(),crash=0){let r=returnRate/100/12,con=totals(d).invest+Number(extra||0),p=start,out=[];if(crash) p*=1-crash;for(let y=0;y<=years;y++){out.push({year:y,value:p});for(let i=0;i<12;i++)p=p*(1+r)+con}return out}
+function q(label,value,sub,icon,cls=''){return `<div class="card kpi"><span class="kicon">${icon}</span><div class="klabel">${label}</div><div class="kvalue sensitive ${cls}">${value}</div><div class="ksub">${sub}</div></div>`}
+function metric(label,value){return `<div class="metric"><span>${label}</span><b class="sensitive">${value}</b></div>`}
+function stat(label,value,cls=''){return `<div class="stat"><span>${label}</span><b class="sensitive ${cls}">${value}</b></div>`}
+function donut(){let total=Math.max(netWorth(),1);let groups={ETF:0,Crypto:0,Aktien:0,Cash:0,Immobilie:0,Sonstige:0};state.assets.forEach(a=>groups[a.type]=(groups[a.type]||0)+Number(a.value||0));let colors=['#1688ff','#ff9c24','#7d57ff','#20d8bd','#d5c7a8','#93dc35'];let labels=Object.entries(groups).filter(x=>x[1]>0);let deg=0;let stops=labels.map((x,i)=>{let s=deg;deg+=x[1]/total*360;return `${colors[i%colors.length]} ${s}deg ${deg}deg`}).join(',');return `<div class="donut" style="background:conic-gradient(${stops})"><div class="donutCenter sensitive">${euro(netWorth())}<small>${pct(100)}</small></div></div>`}
+function allocationLegend(){let total=Math.max(netWorth(),1),groups={ETF:0,Crypto:0,Aktien:0,Cash:0,Immobilie:0,Sonstige:0},colors=['#1688ff','#ff9c24','#7d57ff','#20d8bd','#d5c7a8','#93dc35'];state.assets.forEach(a=>groups[a.type]=(groups[a.type]||0)+Number(a.value||0));return `<div class="legend">${Object.entries(groups).filter(x=>x[1]>0).map((x,i)=>`<div class="legendRow"><i class="sw" style="background:${colors[i%colors.length]}"></i><span>${x[0]}</span><b>${pct(x[1]/total*100)}</b><span class="sensitive">${euro(x[1])}</span></div>`).join('')}</div>`}
+function sankey(d){let t=totals(d),outs=[...d.expenses.map(x=>[x.name,x.val,'#ff4f70']),...d.invest.map(x=>[x.name,x.val,'#9667ff'])];let leftover=Math.max(0,t.income-t.expenses-t.invest);if(leftover)outs.push(['Liquidität',leftover,'#1688ff']);let total=outs.reduce((s,x)=>s+x[1],0)||1,y=18;let svg=`<svg class="chart" viewBox="0 0 760 250"><rect x="15" y="85" width="120" height="75" rx="12" fill="#18d9c0"/><text x="75" y="116" text-anchor="middle" fill="white" font-size="12" font-weight="800">Einnahmen</text><text x="75" y="138" text-anchor="middle" fill="white" font-size="11">${euro(t.income)}</text>`;outs.sort((a,b)=>b[1]-a[1]).slice(0,9).forEach(o=>{let h=Math.max(9,180*o[1]/total),cy=y+h/2;svg+=`<path d="M135 122 C290 ${cy},410 ${cy},500 ${cy}" fill="none" stroke="${o[2]}" stroke-width="${Math.max(4,24*o[1]/Math.max(t.income,1))}" opacity=".48" stroke-linecap="round"/><rect x="500" y="${y}" width="245" height="${h}" rx="8" fill="${o[2]}"/><text x="622" y="${cy-2}" text-anchor="middle" fill="white" font-size="10" font-weight="800">${esc(o[0])}</text><text x="622" y="${cy+12}" text-anchor="middle" fill="white" font-size="9">${euro(o[1])}</text>`;y+=h+4});return svg+'</svg>'}
+function lineChart(series,goal){let max=Math.max(goal||0,...series.map(x=>x.value),1),min=Math.min(0,...series.map(x=>x.value));let pts=series.map((x,i)=>`${35+i*(730/(series.length-1))},${215-(x.value-min)/(max-min)*180}`).join(' ');let g=goal?`<line x1="35" x2="765" y1="${215-(goal-min)/(max-min)*180}" y2="${215-(goal-min)/(max-min)*180}" stroke="#ff4f70" stroke-dasharray="6 5"/><text x="760" y="${210-(goal-min)/(max-min)*180}" text-anchor="end" fill="#ff6a85" font-size="9">FIRE Ziel ${euro(goal)}</text>`:'';return `<svg class="chart" viewBox="0 0 800 240"><line x1="35" y1="215" x2="765" y2="215" stroke="var(--line)"/>${g}<polyline points="${pts}" fill="none" stroke="#19d9c0" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>${series.map((x,i)=>`<circle cx="${35+i*(730/(series.length-1))}" cy="${215-(x.value-min)/(max-min)*180}" r="3.5" fill="#19d9c0"/><text x="${35+i*(730/(series.length-1))}" y="232" text-anchor="middle" fill="var(--muted)" font-size="9">${x.year}</text>`).join('')}</svg>`}
+function dashboard(){let d=getMonth(),t=totals(d),cash=t.income-t.expenses-t.invest,saveRate=t.income?(t.income-t.expenses)/t.income*100:0,fy=fireYears(d),target=fireTarget(d);return `<div class="grid kpis">${q('Net Worth',euro(netWorth()),'Assets minus Schulden','▣','blue')}${q('Cashflow',euro(cash),cash>=0?'positiv':'negativ','⇆',cash>=0?'green':'red')}${q('Sparquote',pct(saveRate),'vor Investments','◔','cyan')}${q('FIRE Countdown',fy===999?'N/A':fy.toFixed(1)+' Jahre',`Ziel ${euro(target)}`,'♨','purple')}${q('Investments / Monat',euro(t.invest),'aktiver Monat','◈','blue')}${q('Daily Burn',euro(t.expenses/30),'Ausgaben pro Tag','⌁','orange')}</div><div class="grid dash"><div class="card"><div class="toolbar"><div><h2>Vermögensaufstellung</h2><span class="sub">Net Worth und Allocation</span></div><button class="ghost" data-nav="portfolio">Details</button></div><div class="alloc">${donut()}${allocationLegend()}</div></div><div class="card"><div class="toolbar"><div><h2>Cashflow Anatomy</h2><span class="sub">Wohin fließt dein Geld?</span></div><button class="ghost" data-nav="cashflow">Bearbeiten</button></div>${sankey(d,t)}</div><div class="card"><div class="toolbar"><h2>${monthName(UI.month)} ${UI.year}</h2></div>${stat('Einnahmen',euro(t.income))}${stat('Ausgaben',euro(t.expenses),'red')}${stat('Investments',euro(t.invest),'purple')}${stat('Cashflow',euro(cash),cash>=0?'green':'red')}${stat('Ausgabenquote',pct(t.income?t.expenses/t.income*100:0))}${stat('größter Ausgabenposten',largest(d.expenses))}<div class="addRow"><button class="primary" data-action="quick">＋ Eintrag</button><button class="ghost" data-nav="cashflow">Cashflow</button></div></div></div><div class="grid lower"><div class="card"><div class="toolbar"><h2>FIRE Cockpit</h2><span class="sub">4% SWR = ${euro(target)}</span></div><div class="metricGrid">${metric('Jahresausgaben',euro(annualExpenses(d)))}${metric('Zielvermögen',euro(target))}${metric('SWR',pct(state.settings.swr))}${metric('Rendite',pct(state.settings.returnRate))}${metric('Notgroschen',euro(t.expenses*state.settings.emergencyMonths))}${metric('FIRE Alter',fy===999?'N/A':Math.round(new Date().getFullYear()+fy))}</div></div><div class="card"><div class="toolbar"><h2>Tactical FIRE Simulator</h2><span class="sub">zusätzliche Monatsrate</span></div><input class="slider" id="dashExtra" type="range" min="0" max="5000" step="100" value="${UI.sim.extra}"><div class="bigNum sensitive">${euro(UI.sim.extra)}</div><div>FIRE in <b>${fireYears(d,UI.sim.extra)===999?'N/A':fireYears(d,UI.sim.extra).toFixed(1)+' Jahren'}</b></div><div class="green">Zeitgewinn ${fy===999?'N/A':Math.max(0,fy-fireYears(d,UI.sim.extra)).toFixed(1)+' Jahre'}</div></div><div class="card"><div class="toolbar"><h2>Crash Szenarien</h2><span class="sub">Auswirkung auf Net Worth</span></div><div class="scenarioGrid">${scenario('Normal',0)}${scenario('TradFi',.3)}${scenario('Crypto',.6)}</div><div class="notice" style="margin-top:10px">${UI.sim.crash?`Stress-Test: Net Worth ${euro(stressNetWorth(UI.sim.crash))}`:'Wähle ein Szenario für den Stress-Test.'}</div></div></div><div class="grid wide"><div class="card"><div class="toolbar"><div><h2>10-Jahres-Projektion</h2><span class="sub">${state.settings.returnRate}% p.a. · aktuelle Sparrate</span></div><button class="ghost" data-nav="projection">Vollansicht</button></div>${lineChart(projectedSeries(d,10,state.settings.returnRate,state.settings.monthlyExtra),target)}</div><div class="card"><div class="toolbar"><h2>Milestones</h2><button class="ghost" data-nav="goals">Alle</button></div>${goalMini()}</div></div>`}
+function scenario(name,v){return `<button class="scenario ${UI.sim.crash===v?'active':''}" data-crash="${v}">${name}<b>${v?`-${v*100}%`:'Basis'}</b></button>`}
+function largest(a){let x=(a||[]).slice().sort((a,b)=>b.val-a.val)[0];return x?esc(x.name):'—'}
+function goalMini(){return state.goals.slice(0,4).map(g=>{let cur=goalCurrent(g),p=Math.min(100,cur/g.target*100);return `<div class="goal"><div class="goalTop"><span>${esc(g.name)}</span><b>${euro(cur)} / ${euro(g.target)}</b></div><div class="progress" style="margin-top:6px"><i style="width:${p}%"></i></div></div>`}).join('')}
+function entries(cat){let d=getMonth(),arr=d[cat]||[];return `<div>${arr.map(x=>`<div class="entry" data-cat="${cat}" data-id="${x.id}"><input class="input name" value="${esc(x.name)}"><input class="input amount sensitive" type="number" step="0.01" value="${x.val}"><label class="toggle"><input class="rec" type="checkbox" ${x.recurring?'checked':''}>wiederkehrend</label><button class="danger del" title="löschen">×</button></div>`).join('')}</div><div class="addRow"><input class="input grow newName" placeholder="Bezeichnung"><input class="input" style="width:120px" type="number" step="0.01" placeholder="€" data-new="val"><label class="toggle"><input type="checkbox" data-new="rec">wiederkehrend</label><button class="primary addEntry" data-cat="${cat}">＋</button></div>`}
+function cashflow(){let d=getMonth(),t=totals(d);return `<div class="toolbar"><div><h1 class="sectionTitle">Cashflow</h1><p class="sectionSub">Monatliche Einnahmen, Ausgaben und Investments verwalten.</p></div><div><button class="ghost" data-action="applyRecurring">↻ Recurring anwenden</button><button class="primary" data-action="copyPrev">Kopiere Vormonat</button></div></div><div class="grid monthGrid" style="grid-template-columns:repeat(3,1fr)"><div class="card"><div class="toolbar"><h2>Einnahmen</h2><b class="green">${euro(t.income)}</b></div>${entries('income')}</div><div class="card"><div class="toolbar"><h2>Ausgaben</h2><b class="red">${euro(t.expenses)}</b></div>${entries('expenses')}</div><div class="card"><div class="toolbar"><h2>Investments</h2><b class="purple">${euro(t.invest)}</b></div>${entries('invest')}</div></div>`}
+function wealth(){return `<div class="toolbar"><div><h1 class="sectionTitle">Vermögen</h1><p class="sectionSub">Assets, Einstandswerte, erwartete Renditen und Schulden.</p></div><button class="primary" data-action="addAsset">＋ Asset</button></div><div class="grid wide"><div class="card"><div class="toolbar"><h2>Assets</h2><b>${euro(assetsTotal())}</b></div>${state.assets.map(a=>`<div class="assetCard" data-asset="${a.id}"><input class="input assetName" value="${esc(a.name)}"><input class="input assetVal sensitive" type="number" value="${a.value}"><select class="input assetType"><option ${a.type==='ETF'?'selected':''}>ETF</option><option ${a.type==='Crypto'?'selected':''}>Crypto</option><option ${a.type==='Aktien'?'selected':''}>Aktien</option><option ${a.type==='Cash'?'selected':''}>Cash</option><option ${a.type==='Immobilie'?'selected':''}>Immobilie</option><option ${a.type==='Sonstige'?'selected':''}>Sonstige</option></select><button class="danger assetDel">×</button></div>`).join('')}</div><div class="card"><div class="toolbar"><h2>Schulden</h2><button class="primary" data-action="addDebt">＋ Schuld</button></div>${state.liabilities.map(a=>`<div class="assetCard" data-debt="${a.id}"><input class="input debtName" value="${esc(a.name)}"><input class="input debtVal sensitive" type="number" value="${a.value}"><span class="assetType">${esc(a.type||'Schuld')}</span><button class="danger debtDel">×</button></div>`).join('')}<div class="sub" style="margin-top:8px">Gesamt: ${euro(debtTotal())}</div></div><div class="card"><h2>Vermögenskennzahlen</h2>${stat('Assets',euro(assetsTotal()))}${stat('Schulden',euro(debtTotal()),'red')}${stat('Net Worth',euro(netWorth()),'green')}${stat('Liquidität',euro(state.assets.filter(a=>a.type==='Cash').reduce((s,a)=>s+a.value,0)))}${stat('FIRE Fortschritt',pct(netWorth()/fireTarget(getMonth())*100))}</div></div>`}
+function portfolio(){return `<div class="grid wide"><div class="card"><div class="toolbar"><div><h1 class="sectionTitle">Portfolio</h1><p class="sectionSub">Allocation und Konzentrationsrisiko.</p></div></div>${donut()}<div style="margin-top:10px">${allocationLegend()}</div></div><div class="card"><h2>Risiko-Check</h2>${riskRows()}</div></div>`}
+function riskRows(){let total=Math.max(netWorth(),1),crypto=state.assets.filter(a=>a.type==='Crypto').reduce((s,a)=>s+a.value,0),cash=state.assets.filter(a=>a.type==='Cash').reduce((s,a)=>s+a.value,0);return `${stat('Crypto Anteil',pct(crypto/total*100),crypto/total>.3?'red':'green')}${stat('Cash Anteil',pct(cash/total*100),cash/total<.05?'red':'green')}${stat('Größte Position',largestAsset())}${stat('FIRE Ziel',euro(fireTarget(getMonth())))}`}
+function largestAsset(){let a=state.assets.slice().sort((a,b)=>b.value-a.value)[0];return a?`${esc(a.name)} · ${euro(a.value)}`:'—'}
+function fire(){let d=getMonth(),t=totals(d),target=fireTarget(d),fy=fireYears(d),safe=t.expenses*state.settings.emergencyMonths;return `<div class="toolbar"><div><h1 class="sectionTitle">FIRE Engine</h1><p class="sectionSub">Finanzielle Unabhängigkeit mit transparenten Annahmen.</p></div><button class="primary" data-nav="settings">Annahmen bearbeiten</button></div><div class="grid kpis">${q('Net Worth',euro(netWorth()),'aktuell','▣')}${q('FIRE Ziel',euro(target),'dynamisch/fix','♨','purple')}${q('FIRE Countdown',fy===999?'N/A':fy.toFixed(1)+' Jahre','bei aktueller Rate','⌁')}${q('SWR',pct(state.settings.swr),'Entnahmerate','◔')}${q('Notgroschen',euro(safe),'Ziel','◇')}${q('Jahresausgaben',euro(annualExpenses(d)),'aktuell','↘','red')}</div><div class="grid lower"><div class="card"><h2>FIRE Mathematik</h2><div class="metricGrid">${metric('Monatliche Investments',euro(t.invest))}${metric('Zusatzrate',euro(state.settings.monthlyExtra))}${metric('Rendite',pct(state.settings.returnRate))}${metric('Inflation',pct(state.settings.inflation))}${metric('Realrendite',pct(realReturn()))}${metric('Zielvermögen',euro(target))}${metric('FIRE Fortschritt',pct(netWorth()/Math.max(target,1)*100))}</div></div><div class="card"><h2>Was wenn?</h2>${fireTable(d)}</div><div class="card"><h2>Notgroschen</h2>${stat('Monatliche Ausgaben',euro(t.expenses))}${stat('Zielmonate',state.settings.emergencyMonths)}${stat('Zielbetrag',euro(safe))}${stat('Aktuelles Cash',euro(state.assets.filter(a=>a.type==='Cash').reduce((s,a)=>s+a.value,0)))}</div></div>`}
+function fireTable(d){let base=fireYears(d),rows=[['Aktuell',0,base],['+500 €',500,fireYears(d,500)],['+1.000 €',1000,fireYears(d,1000)],['+2.000 €',2000,fireYears(d,2000)],['+5.000 €',5000,fireYears(d,5000)]];return `<table class="table"><tr><th>Szenario</th><th>Extra</th><th>FIRE</th></tr>${rows.map(r=>`<tr><td>${r[0]}</td><td>${euro(r[1])}</td><td>${r[2]===999?'N/A':r[2].toFixed(1)+' J'}</td></tr>`).join('')}</table>`}
+function simulator(){let d=getMonth(),base=fireYears(d),sim=fireYears(d,UI.sim.extra,UI.sim.returnRate,netWorth()*(1-UI.sim.crash)),series=projectedSeries(d,UI.sim.years,UI.sim.returnRate,UI.sim.extra,netWorth(),UI.sim.crash);return `<div class="toolbar"><div><h1 class="sectionTitle">Tactical FIRE Simulator</h1><p class="sectionSub">Parameter verändern und Wirkung sofort sehen.</p></div><button class="ghost" data-action="resetSim">Reset</button></div><div class="grid lower"><div class="card"><h2>Monatlicher Zusatzbetrag</h2><div class="bigNum sensitive">${euro(UI.sim.extra)}</div><input id="simExtra" class="slider" type="range" min="0" max="10000" step="100" value="${UI.sim.extra}"><div class="sub">0 € bis 10.000 €</div></div><div class="card"><h2>Rendite</h2><div class="bigNum">${pct(UI.sim.returnRate)}</div><input id="simReturn" class="slider" type="range" min="0" max="15" step="0.5" value="${UI.sim.returnRate}"><div class="sub">Nominal p.a.</div></div><div class="card"><h2>Crash</h2><div class="scenarioGrid">${scenario('0%',0)}${scenario('-30%',.3)}${scenario('-60%',.6)}</div><div class="sub" style="margin-top:8px">Einmaliger Schock zu Beginn.</div></div></div><div class="grid wide"><div class="card"><h2>Ergebnis</h2><div class="metricGrid">${metric('Basis FIRE',base===999?'N/A':base.toFixed(1)+' Jahre')}${metric('Simulation',sim===999?'N/A':sim.toFixed(1)+' Jahre')}${metric('Zeitgewinn',base===999?'N/A':Math.max(0,base-sim).toFixed(1)+' Jahre')}${metric('Endvermögen',euro(series.at(-1).value))}</div>${lineChart(series,fireTarget(d))}</div><div class="card"><h2>Parameter</h2>${stat('Aktuelle Investition',euro(totals(d).invest))}${stat('Zusatzbetrag',euro(UI.sim.extra))}${stat('Gesamtrate',euro(totals(d).invest+UI.sim.extra))}${stat('Rendite',pct(UI.sim.returnRate))}${stat('Crash',pct(UI.sim.crash*100),'red')}</div></div>`}
+function projection(){let d=getMonth(),series=projectedSeries(d,20,state.settings.returnRate,state.settings.monthlyExtra);return `<div class="toolbar"><div><h1 class="sectionTitle">Vermögensprojektion</h1><p class="sectionSub">20 Jahre · ${state.settings.returnRate}% nominal · ${state.settings.inflation}% Inflation · ${realReturn().toFixed(1)}% real.</p></div></div><div class="card">${lineChart(series,fireTarget(d))}</div><div class="grid monthGrid" style="grid-template-columns:repeat(4,1fr);margin-top:14px">${series.filter((x,i)=>[0,5,10,15,20].includes(i)).map(x=>`<div class="card">${metric('Jahr '+(UI.year+x.year),euro(x.value))}</div>`).join('')}</div>`}
+function year(){let rows=[],yi=0,ye=0,iv=0;for(let m=1;m<=12;m++){let d=getMonth(UI.year,m,false),t=totals(d);if(t.income||t.expenses||t.invest){rows.push({m,t});yi+=t.income;ye+=t.expenses;iv+=t.invest}}return `<div class="toolbar"><div><h1 class="sectionTitle">Jahresübersicht ${UI.year}</h1><p class="sectionSub">Monatliche Entwicklung und Jahreskennzahlen.</p></div><select class="input" id="yearSelect">${Array.from({length:7},(_,i)=>UI.year-3+i).map(y=>`<option ${y===UI.year?'selected':''}>${y}</option>`).join('')}</select></div><div class="grid kpis">${q('Income',euro(yi),'Jahr','↗')}${q('Expenses',euro(ye),'Jahr','↘')}${q('Investments',euro(iv),'Jahr','◈')}${q('Sparquote',pct(yi?(yi-ye)/yi*100:0),'Jahr','◔')}${q('Cashflow',euro(yi-ye),'Jahr','⇆')}${q('Ø monatlich',euro((yi-ye)/12),'Cashflow','⌁')}</div><div class="card" style="margin-top:14px"><table class="table"><tr><th>Monat</th><th>Income</th><th>Expenses</th><th>Invest</th><th>Cashflow</th><th>Sparquote</th></tr>${rows.map(r=>`<tr><td>${monthName(r.m)}</td><td>${euro(r.t.income)}</td><td>${euro(r.t.expenses)}</td><td>${euro(r.t.invest)}</td><td class="${r.t.income-r.t.expenses>=0?'green':'red'}">${euro(r.t.income-r.t.expenses)}</td><td>${pct(r.t.income?(r.t.income-r.t.expenses)/r.t.income*100:0)}</td></tr>`).join('')}</table></div>`}
+function crypto(){return `<div class="toolbar"><div><h1 class="sectionTitle">Krypto</h1><p class="sectionSub">Live Market Data, optional. Die App funktioniert auch offline.</p></div><button class="primary" data-action="refreshCrypto">↻ Aktualisieren</button></div><div class="card"><table class="table"><tr><th>Asset</th><th>Preis EUR</th><th>24h</th><th>Market Cap</th></tr>${UI.coins.length?UI.coins.map(c=>`<tr><td style="text-align:left"><b>${esc(c.name)}</b> · ${esc(c.symbol.toUpperCase())}</td><td>${euro(c.current_price)}</td><td class="${c.price_change_percentage_24h>=0?'green':'red'}">${(c.price_change_percentage_24h||0).toFixed(2)}%</td><td>${euro(c.market_cap)}</td></tr>`).join(''):'<tr><td colspan="4">Noch keine Live-Daten. Klicke Aktualisieren oder prüfe die Internetverbindung.</td></tr>'}</table></div>`}
+function goals(){return `<div class="toolbar"><div><h1 class="sectionTitle">Ziele</h1><p class="sectionSub">FIRE, Notgroschen und frei definierbare Vermögensziele.</p></div><button class="primary" data-action="addGoal">＋ Ziel</button></div><div class="card">${state.goals.map(g=>{let cur=goalCurrent(g),p=Math.min(100,cur/Math.max(g.target,1)*100);return `<div class="goal" data-goal="${g.id}"><div class="goalTop"><input class="input goalName" value="${esc(g.name)}"><span class="sensitive">${euro(cur)} / ${euro(g.target)}</span><button class="danger goalDel">×</button></div><div class="formGrid" style="margin-top:8px"><div class="field"><label>Zielbetrag</label><input class="input goalTarget" type="number" value="${g.target}"></div><div class="field"><label>Deadline</label><input class="input goalDeadline" type="number" value="${g.deadline||''}"></div></div><div class="progress" style="margin-top:8px"><i style="width:${p}%"></i></div><div class="sub" style="margin-top:4px">${p.toFixed(0)}% erreicht</div></div>`}).join('')}</div>`}
+function liquidityRunway(){let d=getMonth(),cash=state.assets.filter(a=>a.type==='Cash').reduce((s,a)=>s+Number(a.value||0),0),monthly=totals(d).expenses;return monthly>0?cash/monthly:0}
+function twelveMonthStats(){let income=0,expenses=0,invest=0,months=0,series=[];for(let i=0;i<12;i++){let dt=new Date(UI.year,UI.month-1-i,1),d=getMonth(dt.getFullYear(),dt.getMonth()+1,false),t=totals(d);income+=t.income;expenses+=t.expenses;invest+=t.invest;if(t.income||t.expenses||t.invest)months++;series.unshift({label:monthName(dt.getMonth()+1).slice(0,3),rate:t.income?(t.income-t.expenses)/t.income*100:0})}return {income,expenses,invest,months,series,rate:income?(income-expenses)/income*100:0}}
+function fireSafety(){let d=getMonth(),target=fireTarget(d),nw=netWorth(),base=nw/Math.max(target,1),stressNW=nw*.8,stressTarget=target*1.1;return {base,stress:stressNW/Math.max(stressTarget,1),gap:stressTarget-stressNW}}
+function savingsTrendChart(series){let max=Math.max(1,...series.map(x=>x.rate)),min=Math.min(0,...series.map(x=>x.rate)),pts=series.map((x,i)=>`${25+i*(750/Math.max(series.length-1,1))},${215-(x.rate-min)/Math.max(max-min,1)*170}`).join(' ');return `<svg class="chart" viewBox="0 0 800 240"><line x1="25" y1="215" x2="775" y2="215" stroke="var(--line)"/><line x1="25" y1="130" x2="775" y2="130" stroke="var(--line)" stroke-dasharray="5 5"/><text x="770" y="125" text-anchor="end" fill="var(--muted)" font-size="9">0%</text><polyline points="${pts}" fill="none" stroke="#1688ff" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>${series.map((x,i)=>`<circle cx="${25+i*(750/Math.max(series.length-1,1))}" cy="${215-(x.rate-min)/Math.max(max-min,1)*170}" r="3.5" fill="#1688ff"/><text x="${25+i*(750/Math.max(series.length-1,1))}" y="232" text-anchor="middle" fill="var(--muted)" font-size="9">${x.label}</text>`).join('')}</svg>`}
+function financeCheck(){let d=getMonth(),t=totals(d),r=liquidityRunway(),s=twelveMonthStats(),f=fireSafety(),targetMonths=state.settings.emergencyMonths;let runwayClass=r>=targetMonths?'green':r>=targetMonths*.75?'orange':'red';let largestExp=(d.expenses||[]).slice().sort((a,b)=>b.val-a.val)[0];let topShare=t.expenses?largestExp.val/t.expenses*100:0;return `<div class="toolbar"><div><h1 class="sectionTitle">Finanz-Check</h1><p class="sectionSub">Zwei zusätzliche Kontrollinstrumente: Liquiditäts-Runway und FIRE-Sicherheitsmarge. Dazu ein 12-Monats-Blick auf deine Sparquote.</p></div><button class="ghost" data-nav="settings">Annahmen prüfen</button></div><div class="checkGrid"><div class="checkCard"><div class="label">LIQUIDITY RUNWAY</div><div class="value ${runwayClass}">${r.toFixed(1)} Monate</div><div class="hint">Cash / aktuelle Monatsausgaben · Ziel ${targetMonths} Monate</div><div class="progress" style="margin-top:10px"><i style="width:${Math.min(100,r/Math.max(targetMonths,1)*100)}%"></i></div></div><div class="checkCard"><div class="label">FIRE SICHERHEITSMARGE</div><div class="value ${f.stress>=1?'green':f.stress>=.8?'orange':'red'}">${pct(f.base*100)}</div><div class="hint">Basis: Net Worth / FIRE Ziel · Stress: −20% Vermögen und +10% Ziel</div><div class="progress" style="margin-top:10px"><i style="width:${Math.min(100,f.stress*100)}%"></i></div></div><div class="checkCard"><div class="label">12-MONATS-SPARQUOTE</div><div class="value ${s.rate>=25?'green':s.rate>=10?'orange':'red'}">${pct(s.rate)}</div><div class="hint">${s.months} aktive Monate · Investments ${euro(s.invest)}</div></div></div><div class="grid wide" style="margin-top:14px"><div class="card"><div class="toolbar"><div><h2>Sparquoten-Trend</h2><span class="sub">Rolling 12 Monate</span></div><b>${pct(s.rate)}</b></div>${savingsTrendChart(s.series)}</div><div class="card"><h2>Risiko- und Liquiditätscheck</h2>${stat('Cash verfügbar',euro(state.assets.filter(a=>a.type==='Cash').reduce((x,a)=>x+a.value,0)))}${stat('Runway',r.toFixed(1)+' Monate',runwayClass)}${stat('FIRE Ziel',euro(fireTarget(d)))}${stat('Stress Gap',f.gap>0?euro(f.gap):'kein Gap',f.gap>0?'red':'green')}${stat('Größter Ausgabenposten',largestExp?esc(largestExp.name):'—')}${stat('Anteil größter Posten',pct(topShare),topShare>35?'red':'green')}<div class="notice" style="margin-top:12px">Der Check ersetzt keine Anlageberatung. Er soll dir früh zeigen, wo Liquidität, Sparrate oder FIRE-Puffer zu knapp werden.</div></div></div>`}
+function openCalendar(){let years=[];for(let y=now.getFullYear()-10;y<=now.getFullYear()+15;y++)years.push(y);let body=`<div class="calendarGrid"><div class="field"><label>Jahr</label><select class="input" id="calYear">${years.map(y=>`<option value="${y}" ${y===UI.year?'selected':''}>${y}</option>`).join('')}</select></div><div class="field"><label>Monat</label><select class="input" id="calMonth">${Array.from({length:12},(_,i)=>`<option value="${i+1}" ${i+1===UI.month?'selected':''}>${monthName(i+1)}</option>`).join('')}</select></div></div><div class="calendarActions"><button class="ghost" id="calCancel">Abbrechen</button><button class="primary" id="calGo">Springen</button></div>`;openModal('Kalender', 'Direkt zu Jahr und Monat springen', body);document.getElementById('calCancel').onclick=closeModal;document.getElementById('calGo').onclick=()=>{UI.year=Number(document.getElementById('calYear').value);UI.month=Number(document.getElementById('calMonth').value);getMonth();closeModal();render();toast(`Geöffnet: ${monthName(UI.month)} ${UI.year}`)}}
+function settings(){let s=state.settings;return `<div class="toolbar"><div><h1 class="sectionTitle">Einstellungen</h1><p class="sectionSub">FIRE-Annahmen, Darstellung und Datenverwaltung.</p></div></div><div class="grid wide"><div class="card"><h2>FIRE Annahmen</h2><div class="formGrid"><div class="field"><label>SWR (%)</label><input class="input" id="setSWR" type="number" step="0.1" value="${s.swr}"></div><div class="field"><label>Rendite p.a. (%)</label><input class="input" id="setReturn" type="number" step="0.1" value="${s.returnRate}"></div><div class="field"><label>Inflation (%)</label><input class="input" id="setInflation" type="number" step="0.1" value="${s.inflation}"></div><div class="field"><label>Notgroschen Monate</label><input class="input" id="setEmergency" type="number" step="1" value="${s.emergencyMonths}"></div><div class="field"><label>FIRE Zielmodus</label><select class="input" id="setMode"><option value="expense" ${s.targetMode==='expense'?'selected':''}>Ausgaben / SWR</option><option value="fixed" ${s.targetMode==='fixed'?'selected':''}>Fixes Ziel</option></select></div><div class="field"><label>Fixes FIRE Ziel (€)</label><input class="input" id="setTarget" type="number" value="${s.fixedTarget}"></div><div class="field"><label>Zusätzliche Standard-Investition (€ / Monat)</label><input class="input" id="setExtra" type="number" value="${s.monthlyExtra}"></div></div><div class="actions"><button class="primary" data-action="saveSettings">Speichern</button></div></div><div class="card"><h2>Daten</h2><p class="sub">Alle Finanzdaten werden lokal im Browser gespeichert.</p><div class="actions"><button class="primary" data-action="export">JSON Export</button><label class="ghost" style="display:inline-block">JSON Import<input id="importFile" type="file" accept="application/json" hidden></label><button class="danger" data-action="reset">Demo-Daten zurücksetzen</button></div><div class="notice" style="margin-top:12px">Tipp: Vor größeren Änderungen exportieren. Der Export enthält Einstellungen, Monate, Assets, Schulden und Ziele.</div></div></div>`}
+function bind(){document.querySelectorAll('[data-view]').forEach(b=>b.onclick=()=>navigate(b.dataset.view));document.querySelectorAll('[data-nav]').forEach(b=>b.onclick=()=>navigate(b.dataset.nav));document.querySelectorAll('[data-action]').forEach(b=>b.onclick=()=>action(b.dataset.action));document.querySelectorAll('[data-crash]').forEach(b=>b.onclick=()=>{UI.sim.crash=Number(b.dataset.crash);render()});document.getElementById('dashExtra')?.addEventListener('input',e=>{UI.sim.extra=Number(e.target.value);render()});document.getElementById('simExtra')?.addEventListener('input',e=>{UI.sim.extra=Number(e.target.value);render()});document.getElementById('simReturn')?.addEventListener('input',e=>{UI.sim.returnRate=Number(e.target.value);render()});document.querySelectorAll('.addEntry').forEach(b=>b.onclick=()=>addEntry(b.dataset.cat,b.closest('.card')));document.querySelectorAll('.del').forEach(b=>b.onclick=()=>deleteTx(b));document.querySelectorAll('.entry .name,.entry .amount,.entry .rec').forEach(x=>x.onchange=()=>updateTx(x));document.querySelectorAll('.assetDel').forEach(b=>b.onclick=()=>deleteAsset(b));document.querySelectorAll('.debtDel').forEach(b=>b.onclick=()=>deleteDebt(b));document.querySelectorAll('.debtName,.debtVal').forEach(x=>x.onchange=()=>updateDebt(x));document.querySelectorAll('.assetName,.assetVal,.assetType').forEach(x=>x.onchange=()=>updateAsset(x));document.querySelectorAll('.goalDel').forEach(b=>b.onclick=()=>deleteGoal(b));document.querySelectorAll('.goalName,.goalTarget,.goalDeadline').forEach(x=>x.onchange=()=>updateGoal(x));document.getElementById('yearSelect')?.addEventListener('change',e=>{UI.year=Number(e.target.value);render()});document.getElementById('importFile')?.addEventListener('change',importData);document.getElementById('calendarBtn')?.addEventListener('click',openCalendar);document.getElementById('monthLabel')?.addEventListener('click',openCalendar)}
+function navigate(v){UI.view=v;render();window.scrollTo({top:0,behavior:'smooth'})}
+function addEntry(cat,card){let name=card.querySelector('.newName').value.trim(),val=Number(card.querySelector('[data-new="val"]').value)||0,rec=card.querySelector('[data-new="rec"]').checked;if(!name)return toast('Bezeichnung fehlt');getMonth()[cat].push(tx(name,val,rec,cat));save();render();toast('Eintrag hinzugefügt')}
+function findTx(cat,id){return getMonth()[cat].find(x=>String(x.id)===String(id))}
+function deleteTx(btn){let e=btn.closest('.entry'),d=getMonth(),cat=e.dataset.cat;d[cat]=d[cat].filter(x=>String(x.id)!==String(e.dataset.id));save();render();toast('Eintrag gelöscht')}
+function updateTx(el){let e=el.closest('.entry'),x=findTx(e.dataset.cat,e.dataset.id);if(!x)return;if(el.classList.contains('name'))x.name=el.value;if(el.classList.contains('amount'))x.val=Number(el.value)||0;if(el.classList.contains('rec'))x.recurring=el.checked;save();render()}
+function addAsset(){state.assets.push({id:String(Date.now()),name:'Neues Asset',value:0,type:'ETF',cost:0,rate:7});save();render()}
+function updateAsset(el){let a=state.assets.find(x=>String(x.id)===el.closest('.assetCard').dataset.asset);if(!a)return;if(el.classList.contains('assetName'))a.name=el.value;if(el.classList.contains('assetVal'))a.value=Number(el.value)||0;if(el.classList.contains('assetType'))a.type=el.value;save();render()}
+function deleteAsset(b){state.assets=state.assets.filter(a=>String(a.id)!==b.closest('.assetCard').dataset.asset);save();render()}
+function addDebt(){state.liabilities.push({id:String(Date.now()),name:'Neue Schuld',value:0,type:'Schuld'});save();render()}
+function updateDebt(el){let d=state.liabilities.find(x=>String(x.id)===el.closest('[data-debt]').dataset.debt);if(!d)return;if(el.classList.contains('debtName'))d.name=el.value;if(el.classList.contains('debtVal'))d.value=Number(el.value)||0;save();render()}
+function deleteDebt(b){state.liabilities=state.liabilities.filter(x=>String(x.id)!==b.closest('[data-debt]').dataset.debt);save();render()}
+function addGoal(){state.goals.push({id:String(Date.now()),name:'Neues Ziel',target:100000,current:0,deadline:2030});save();render()}
+function updateGoal(el){let g=state.goals.find(x=>String(x.id)===el.closest('.goal').dataset.goal);if(!g)return;if(el.classList.contains('goalName'))g.name=el.value;if(el.classList.contains('goalTarget'))g.target=Number(el.value)||0;if(el.classList.contains('goalDeadline'))g.deadline=Number(el.value)||0;save();render()}
+function deleteGoal(b){state.goals=state.goals.filter(g=>String(g.id)!==b.closest('.goal').dataset.goal);save();render()}
+function applyRecurring(){let d=getMonth();for(const cat of ['income','expenses','invest'])for(const x of d[cat])if(x.recurring&&x.val===0)x.val=0;let prev=new Date(UI.year,UI.month-2,1),p=getMonth(prev.getFullYear(),prev.getMonth()+1,false);if(!p){toast('Kein Vormonat vorhanden');return}for(const cat of ['income','expenses','invest'])for(const x of p[cat]||[])if(x.recurring&&!d[cat].some(y=>y.name===x.name))d[cat].push({...x,id:String(Date.now()+Math.random())});save();render();toast('Wiederkehrende Einträge übernommen')}
+function copyPrev(){let p=new Date(UI.year,UI.month-2,1),src=getMonth(p.getFullYear(),p.getMonth()+1,false),d=getMonth();if(!src){toast('Kein Vormonat vorhanden');return}for(const cat of ['income','expenses','invest'])d[cat]=(src[cat]||[]).map(x=>({...x,id:String(Date.now()+Math.random())}));save();render();toast('Vormonat kopiert')}
+function shift(n){let d=new Date(UI.year,UI.month-1+n,1);UI.year=d.getFullYear();UI.month=d.getMonth()+1;getMonth();render()}
+function saveSettings(){let s=state.settings;s.swr=Number(document.getElementById('setSWR').value)||4;s.returnRate=Number(document.getElementById('setReturn').value)||7;s.inflation=Number(document.getElementById('setInflation').value)||2;s.emergencyMonths=Number(document.getElementById('setEmergency').value)||6;s.targetMode=document.getElementById('setMode').value;s.fixedTarget=Number(document.getElementById('setTarget').value)||1200000;s.monthlyExtra=Number(document.getElementById('setExtra').value)||0;save();render();toast('Einstellungen gespeichert')}
+function exportData(){let blob=new Blob([JSON.stringify(state,null,2)],{type:'application/json'}),a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='liquid-wealth-backup.json';a.click();setTimeout(()=>URL.revokeObjectURL(a.href),1000);toast('Backup exportiert')}
+function importData(e){let f=e.target.files?.[0];if(!f)return;let r=new FileReader();r.onload=()=>{try{let x=JSON.parse(r.result);if(!x||![4,5].includes(x.version))throw Error('Unbekanntes Format');state={...initial,...x,version:5,settings:{...defaults,...(x.settings||{})},months:x.months||{},assets:x.assets||[],liabilities:x.liabilities||[],goals:x.goals||[]};save();render();toast('Backup importiert')}catch(err){toast('Import fehlgeschlagen')}};r.readAsText(f)}
+function reset(){if(!confirm('Wirklich Demo-Daten zurücksetzen?'))return;state=structuredClone?structuredClone(initial):JSON.parse(JSON.stringify(initial));state.months[key()]=demoMonth();save();render();toast('Demo-Daten zurückgesetzt')}
+function action(a){if(a==='quick')openQuick();if(a==='copyPrev')copyPrev();if(a==='applyRecurring')applyRecurring();if(a==='addAsset')addAsset();if(a==='addDebt')addDebt();if(a==='addGoal')addGoal();if(a==='saveSettings')saveSettings();if(a==='export')exportData();if(a==='reset')reset();if(a==='refreshCrypto')fetchCoins(true);if(a==='resetSim'){UI.sim={...UI.sim,extra:2000,returnRate:7,crash:0};render()}}
+function openQuick(){let body=`<div class="formGrid"><div class="field"><label>Kategorie</label><select class="input" id="quickCat"><option value="income">Einnahmen</option><option value="expenses">Ausgaben</option><option value="invest">Investment</option></select></div><div class="field"><label>Betrag</label><input class="input" id="quickVal" type="number" step="0.01"></div><div class="field full"><label>Bezeichnung</label><input class="input" id="quickName" placeholder="z. B. Gehalt"></div><div class="field"><label>Wiederkehrend</label><select class="input" id="quickRec"><option value="1">Ja</option><option value="0">Nein</option></select></div></div><div class="actions"><button class="primary" id="quickSave">Speichern</button></div>`;openModal('Schneller Eintrag',`Für ${monthName(UI.month)} ${UI.year}`,body);document.getElementById('quickSave').onclick=()=>{let c=document.getElementById('quickCat').value,n=document.getElementById('quickName').value.trim(),v=Number(document.getElementById('quickVal').value)||0,r=document.getElementById('quickRec').value==='1';if(!n)return toast('Bezeichnung fehlt');getMonth()[c].push(tx(n,v,r,c));save();closeModal();render();toast('Eintrag gespeichert')}
+}
+function openModal(title,sub,body){document.getElementById('modalTitle').textContent=title;document.getElementById('modalSub').textContent=sub;document.getElementById('modalBody').innerHTML=body;document.getElementById('modal').classList.add('show')}
+function closeModal(){document.getElementById('modal').classList.remove('show')}
+function render(){document.getElementById('monthLabel').textContent=`${monthName(UI.month)} ${UI.year}`;document.querySelectorAll('.view').forEach(v=>v.classList.toggle('active',v.id===UI.view));document.querySelectorAll('#nav button').forEach(b=>b.classList.toggle('active',b.dataset.view===UI.view));document.getElementById('dashboard').innerHTML=dashboard();document.getElementById('wealth').innerHTML=wealth();document.getElementById('cashflow').innerHTML=cashflow();document.getElementById('fire').innerHTML=fire();document.getElementById('simulator').innerHTML=simulator();document.getElementById('projection').innerHTML=projection();document.getElementById('year').innerHTML=year();document.getElementById('portfolio').innerHTML=portfolio();document.getElementById('crypto').innerHTML=crypto();document.getElementById('goals').innerHTML=goals();document.getElementById('financeCheck').innerHTML=financeCheck();document.getElementById('settings').innerHTML=settings();document.documentElement.classList.toggle('light',!UI.dark);document.body.classList.toggle('stealth',UI.stealth);bind()}
+function toast(msg){let t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');clearTimeout(window.__toast);window.__toast=setTimeout(()=>t.classList.remove('show'),1800)}
+async function fetchCoins(force=false){try{let r=await fetch('https://api.coingecko.com/api/v3/coins/markets?vs_currency=eur&order=market_cap_desc&per_page=12&page=1&sparkline=false',{cache:'no-store'});if(!r.ok)throw Error();UI.coins=await r.json();document.getElementById('coinMini').innerHTML=UI.coins.slice(0,5).map(c=>`<div class="coinMini"><b>${esc(c.symbol.toUpperCase())}</b><span>${euro(c.current_price)}</span><em>${c.price_change_percentage_24h>=0?'+':''}${(c.price_change_percentage_24h||0).toFixed(1)}%</em></div>`).join('');if(UI.view==='crypto')render()}catch(e){document.getElementById('coinMini').innerHTML='<span class="muted" style="font-size:10px">Live-Daten offline</span>';if(force)toast('CoinGecko nicht erreichbar')}}
 
-    <!-- Sidebar -->
-    <aside class="w-64 bg-app-bg border-r border-app-border flex-col hidden lg:flex shrink-0">
-        <div class="p-5 flex items-center gap-3">
-            <div class="w-8 h-8 rounded bg-blue-600 flex items-center justify-center shadow-[0_0_12px_rgba(37,99,235,0.4)]">
-                <i class="fa-solid fa-chart-simple text-white"></i>
-            </div>
-            <div>
-                <h1 class="font-bold text-lg leading-tight">Liquid Wealth</h1>
-                <p class="text-[10px] text-app-primary uppercase tracking-widest font-bold">Tactical Engine</p>
-            </div>
-        </div>
-
-        <nav class="flex-1 px-4 space-y-1 overflow-y-auto custom-scrollbar">
-            <a href="#" class="flex items-center gap-3 px-3 py-2 bg-blue-600/10 text-blue-400 rounded-lg">
-                <i class="fa-solid fa-house w-5 text-center"></i> Dashboard
-            </a>
-            <a href="#" class="flex items-center gap-3 px-3 py-2 text-app-textMuted hover:bg-app-card hover:text-white rounded-lg transition">
-                <i class="fa-solid fa-wallet w-5 text-center"></i> Vermögen
-            </a>
-            <a href="#" class="flex items-center gap-3 px-3 py-2 text-app-textMuted hover:bg-app-card hover:text-white rounded-lg transition">
-                <i class="fa-solid fa-money-bill-transfer w-5 text-center"></i> Cashflow
-            </a>
-            <a href="#" class="flex items-center gap-3 px-3 py-2 text-app-textMuted hover:bg-app-card hover:text-white rounded-lg transition">
-                <i class="fa-solid fa-fire w-5 text-center"></i> FIRE
-            </a>
-            <a href="#" class="flex items-center gap-3 px-3 py-2 text-app-textMuted hover:bg-app-card hover:text-white rounded-lg transition">
-                <i class="fa-solid fa-sliders w-5 text-center"></i> Simulator
-            </a>
-            <a href="#" class="flex items-center gap-3 px-3 py-2 text-app-textMuted hover:bg-app-card hover:text-white rounded-lg transition">
-                <i class="fa-solid fa-chart-line w-5 text-center"></i> Projektion
-            </a>
-            
-            <div class="pt-4 mt-4 border-t border-app-border">
-                <a href="#" class="flex items-center gap-3 px-3 py-2 text-app-textMuted hover:bg-app-card hover:text-white rounded-lg transition">
-                    <i class="fa-regular fa-calendar w-5 text-center"></i> Jahresübersicht
-                </a>
-                <a href="#" class="flex items-center gap-3 px-3 py-2 text-app-textMuted hover:bg-app-card hover:text-white rounded-lg transition">
-                    <i class="fa-solid fa-chart-pie w-5 text-center"></i> Portfolio
-                </a>
-                <a href="#" class="flex items-center gap-3 px-3 py-2 text-app-textMuted hover:bg-app-card hover:text-white rounded-lg transition">
-                    <i class="fa-brands fa-bitcoin w-5 text-center"></i> Krypto
-                </a>
-                <a href="#" class="flex items-center gap-3 px-3 py-2 text-app-textMuted hover:bg-app-card hover:text-white rounded-lg transition">
-                    <i class="fa-solid fa-bullseye w-5 text-center"></i> Milestones
-                </a>
-                <a href="#" class="flex items-center gap-3 px-3 py-2 text-app-textMuted hover:bg-app-card hover:text-white rounded-lg transition">
-                    <i class="fa-solid fa-gear w-5 text-center"></i> Einstellungen
-                </a>
-            </div>
-        </nav>
-
-        <div class="p-4 m-4 bg-app-card rounded-xl border border-app-border">
-            <div class="flex items-center gap-2 mb-3">
-                <div class="w-2 h-2 rounded-full bg-app-success animate-pulse"></div>
-                <span class="text-xs font-semibold text-app-textMuted">Live Crypto</span>
-            </div>
-            <div class="space-y-2">
-                <div class="flex justify-between items-center text-xs">
-                    <div class="flex items-center gap-1.5"><i class="fa-brands fa-bitcoin text-[#f7931a]"></i> BTC</div>
-                    <span class="sensitive-value">€118.432</span>
-                    <span class="text-app-success">+2,4%</span>
-                </div>
-                <div class="flex justify-between items-center text-xs">
-                    <div class="flex items-center gap-1.5"><i class="fa-brands fa-ethereum text-[#627eea]"></i> ETH</div>
-                    <span class="sensitive-value">€3.142</span>
-                    <span class="text-app-success">+1,8%</span>
-                </div>
-                <div class="flex justify-between items-center text-xs">
-                    <div class="flex items-center gap-1.5"><i class="fa-solid fa-coins text-[#14f195]"></i> SOL</div>
-                    <span class="sensitive-value">€196</span>
-                    <span class="text-app-success">+3,2%</span>
-                </div>
-            </div>
-        </div>
-    </aside>
-
-    <!-- Main Content -->
-    <div class="flex-1 flex flex-col min-w-0 bg-[#050810]">
-        
-        <!-- Topbar -->
-        <header class="h-16 flex items-center justify-between px-4 md:px-6 bg-app-bg border-b border-app-border shrink-0">
-            <button class="lg:hidden text-app-textMuted hover:text-white mr-4">
-                <i class="fa-solid fa-bars text-xl"></i>
-            </button>
-
-            <div class="hidden sm:flex items-center gap-4 bg-app-card px-4 py-1.5 rounded-full border border-app-border">
-                <button class="text-app-textMuted hover:text-white"><i class="fa-solid fa-chevron-left text-xs"></i></button>
-                <span class="font-medium text-sm">August 2026</span>
-                <button class="text-app-textMuted hover:text-white"><i class="fa-solid fa-chevron-right text-xs"></i></button>
-            </div>
-
-            <div class="flex items-center gap-3 ml-auto">
-                <button class="text-app-textMuted hover:text-white w-8 h-8 rounded-full bg-app-card flex items-center justify-center border border-app-border">
-                    <i class="fa-solid fa-moon text-xs"></i>
-                </button>
-                <button class="text-app-textMuted hover:text-white w-8 h-8 rounded-full bg-app-card flex items-center justify-center border border-app-border">
-                    <i class="fa-solid fa-gear text-xs"></i>
-                </button>
-                <button id="stealthToggle" class="flex items-center gap-2 bg-app-accent/20 text-app-accent border border-app-accent/50 px-3 md:px-4 py-1.5 rounded-full text-xs font-semibold hover:bg-app-accent/30 transition">
-                    <i class="fa-solid fa-user-secret"></i> <span class="hidden md:inline">Stealth Mode</span>
-                </button>
-            </div>
-        </header>
-
-        <!-- Scrollable Dashboard -->
-        <main class="flex-1 overflow-y-auto custom-scrollbar p-4 md:p-6 pb-24">
-            <div class="max-w-[1400px] mx-auto space-y-4">
-
-                <!-- Row 1: Key Metrics -->
-                <div class="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-5 gap-4">
-                    <div class="dashboard-card relative overflow-hidden">
-                        <div class="flex items-center gap-3 mb-2">
-                            <div class="w-8 h-8 rounded-lg bg-blue-500/20 text-blue-400 flex items-center justify-center"><i class="fa-solid fa-wallet"></i></div>
-                            <span class="text-app-textMuted font-medium text-xs">Net Worth</span>
-                        </div>
-                        <div class="text-xl md:text-2xl font-bold sensitive-value">€ 142.500</div>
-                        <div class="text-xs text-app-success mt-1"><i class="fa-solid fa-arrow-trend-up mr-1"></i>+4,2%</div>
-                    </div>
-                    
-                    <div class="dashboard-card relative overflow-hidden">
-                        <div class="flex items-center gap-3 mb-2">
-                            <div class="w-8 h-8 rounded-lg bg-emerald-500/20 text-emerald-400 flex items-center justify-center"><i class="fa-solid fa-money-bill-transfer"></i></div>
-                            <span class="text-app-textMuted font-medium text-xs">Cashflow</span>
-                        </div>
-                        <div class="text-xl md:text-2xl font-bold sensitive-value">€ 3.200</div>
-                        <div class="text-xs text-app-success mt-1"><i class="fa-solid fa-arrow-trend-up mr-1"></i>+6,7%</div>
-                    </div>
-
-                    <div class="dashboard-card relative overflow-hidden">
-                        <div class="flex items-center gap-3 mb-2">
-                            <div class="w-8 h-8 rounded-lg bg-blue-400/20 text-blue-400 flex items-center justify-center"><i class="fa-solid fa-chart-pie"></i></div>
-                            <span class="text-app-textMuted font-medium text-xs">Sparquote</span>
-                        </div>
-                        <div class="text-xl md:text-2xl font-bold sensitive-value">53,3%</div>
-                        <div class="text-xs text-app-success mt-1"><i class="fa-solid fa-arrow-trend-up mr-1"></i>+2,1%</div>
-                    </div>
-
-                    <div class="dashboard-card relative overflow-hidden">
-                        <div class="flex items-center gap-3 mb-2">
-                            <div class="w-8 h-8 rounded-lg bg-purple-500/20 text-purple-400 flex items-center justify-center"><i class="fa-solid fa-fire"></i></div>
-                            <span class="text-app-textMuted font-medium text-xs">FIRE Count</span>
-                        </div>
-                        <div class="text-xl md:text-2xl font-bold sensitive-value">12,4 Jahre</div>
-                        <div class="text-xs text-app-textMuted mt-1">€ 1.2M Ziel</div>
-                    </div>
-
-                    <div class="dashboard-card relative overflow-hidden col-span-2 md:col-span-1 xl:col-span-1">
-                        <div class="flex items-center gap-3 mb-2">
-                            <div class="w-8 h-8 rounded-lg bg-yellow-500/20 text-yellow-500 flex items-center justify-center"><i class="fa-brands fa-bitcoin"></i></div>
-                            <span class="text-app-textMuted font-medium text-xs">BTC Equiv</span>
-                        </div>
-                        <div class="text-xl md:text-2xl font-bold sensitive-value">1,20 BTC</div>
-                        <div class="text-xs text-app-textMuted mt-1 sensitive-value">€ 142.500</div>
-                    </div>
-                </div>
-
-                <!-- Row 2: Main Visualizations -->
-                <div class="grid grid-cols-1 xl:grid-cols-12 gap-4">
-                    
-                    <!-- Asset Allocation -->
-                    <div class="dashboard-card xl:col-span-4 flex flex-col">
-                        <h2 class="font-semibold mb-4 text-sm">Vermögensaufstellung</h2>
-                        <div class="flex-1 flex items-center justify-center relative min-h-[200px]">
-                            <div class="w-48 h-48">
-                                <canvas id="assetChart"></canvas>
-                            </div>
-                            <div class="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
-                                <span class="font-bold text-lg sensitive-value">€ 142.500</span>
-                                <span class="text-xs text-app-textMuted">100%</span>
-                            </div>
-                        </div>
-                        <div class="mt-4 grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-1 gap-2 text-xs">
-                            <div class="flex justify-between items-center"><div class="flex items-center gap-2"><div class="w-2 h-2 rounded-full bg-[#3b82f6]"></div>ETF</div><div class="text-app-textMuted"><span class="mr-3 text-white">40%</span> <span class="sensitive-value">(€ 57k)</span></div></div>
-                            <div class="flex justify-between items-center"><div class="flex items-center gap-2"><div class="w-2 h-2 rounded-full bg-[#f59e0b]"></div>Bitcoin</div><div class="text-app-textMuted"><span class="mr-3 text-white">25%</span> <span class="sensitive-value">(€ 35k)</span></div></div>
-                            <div class="flex justify-between items-center"><div class="flex items-center gap-2"><div class="w-2 h-2 rounded-full bg-[#6b7280]"></div>Depot</div><div class="text-app-textMuted"><span class="mr-3 text-white">15%</span> <span class="sensitive-value">(€ 21k)</span></div></div>
-                        </div>
-                    </div>
-
-                    <!-- Cashflow Anatomy -->
-                    <div class="dashboard-card xl:col-span-5 flex flex-col overflow-x-auto custom-scrollbar">
-                        <h2 class="font-semibold mb-4 text-sm whitespace-nowrap">Cashflow Anatomy</h2>
-                        <div class="flex-1 flex flex-col justify-center py-2 min-w-[400px]">
-                            <!-- Income row -->
-                            <div class="flex items-center justify-between mb-4">
-                                <div class="bg-emerald-500/20 border border-emerald-500/30 rounded p-3 w-1/3 text-center">
-                                    <div class="text-xs text-emerald-400 mb-1">Einnahmen</div>
-                                    <div class="font-bold text-emerald-400 sensitive-value">€ 6.000</div>
-                                </div>
-                                <div class="flow-line"></div>
-                                <div class="w-1/2">
-                                    <div class="bg-red-500/10 border border-red-500/20 rounded p-2 text-xs">
-                                        <div class="flex justify-between text-red-400 mb-1 font-semibold"><span>Ausgaben</span><span class="sensitive-value">€ 2.800</span></div>
-                                        <div class="flex justify-between text-app-textMuted text-[10px]"><span>Wohnen</span><span class="sensitive-value">€ 1.200</span></div>
-                                    </div>
-                                </div>
-                            </div>
-                            <!-- Distribution row -->
-                            <div class="flex items-center justify-between">
-                                <div class="w-1/3 flex flex-col gap-2">
-                                    <div class="bg-blue-500/20 border border-blue-500/30 rounded p-2 text-center">
-                                        <div class="text-xs text-blue-400 mb-1">Investments</div>
-                                        <div class="font-bold text-blue-400 sensitive-value">€ 2.000</div>
-                                    </div>
-                                </div>
-                                <div class="flow-line"></div>
-                                <div class="w-1/2">
-                                    <div class="bg-purple-500/10 border border-purple-500/20 rounded p-2 text-xs">
-                                        <div class="flex justify-between text-purple-400 mb-1 font-semibold"><span>Verteilung</span></div>
-                                        <div class="flex justify-between text-app-textMuted text-[10px]"><span>ETF</span><span class="sensitive-value">€ 1.000</span></div>
-                                        <div class="flex justify-between text-app-textMuted text-[10px]"><span>Bitcoin</span><span class="sensitive-value">€ 500</span></div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Monthly Overview -->
-                    <div class="dashboard-card xl:col-span-3 flex flex-col">
-                        <div class="flex justify-between items-center mb-4">
-                            <h2 class="font-semibold text-sm">Monatsübersicht</h2>
-                        </div>
-                        <div class="flex-1 space-y-3 text-sm">
-                            <div class="flex justify-between items-center"><div class="flex items-center gap-2 text-app-textMuted"><i class="fa-solid fa-arrow-down text-emerald-400 w-4"></i>In</div><span class="sensitive-value">€ 6.000</span></div>
-                            <div class="flex justify-between items-center"><div class="flex items-center gap-2 text-app-textMuted"><i class="fa-solid fa-arrow-right-arrow-left text-red-400 w-4"></i>Out</div><span class="sensitive-value">€ 2.800</span></div>
-                            <hr class="border-app-border my-2">
-                            <div class="flex justify-between items-center"><div class="flex items-center gap-2 text-emerald-400"><i class="fa-solid fa-scale-balanced w-4"></i>Netto</div><span class="text-emerald-400 font-semibold sensitive-value">€ 3.200</span></div>
-                        </div>
-                        <div class="mt-4 flex gap-2">
-                            <button class="flex-1 bg-app-primary hover:bg-blue-600 text-white py-1.5 rounded text-xs font-medium transition">Eintrag</button>
-                            <button class="flex-1 bg-app-bg border border-app-border hover:bg-app-cardHover py-1.5 rounded text-xs text-app-textMuted transition">Kopieren</button>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Row 3: FIRE & Simulator -->
-                <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-4">
-                    
-                    <div class="dashboard-card flex flex-col justify-center">
-                        <div class="flex items-center gap-2 mb-4">
-                            <i class="fa-solid fa-bullseye text-app-accent"></i>
-                            <h2 class="font-semibold text-sm">FIRE-Ziel</h2>
-                        </div>
-                        <div class="space-y-3 text-xs">
-                            <div class="flex justify-between border-b border-app-border pb-1">
-                                <span class="text-app-textMuted">Zielvermögen</span><span class="font-medium sensitive-value">€ 1.200.000</span>
-                            </div>
-                            <div class="flex justify-between pb-1">
-                                <span class="text-app-textMuted">Entnahme (SWR)</span><span class="font-medium">4,0%</span>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="dashboard-card flex flex-col">
-                        <div class="flex items-center gap-2 mb-2">
-                            <i class="fa-solid fa-sliders text-blue-400"></i>
-                            <h2 class="font-semibold text-sm">FIRE Simulator</h2>
-                        </div>
-                        <div class="flex items-center gap-3 mb-2">
-                            <span class="text-xs text-app-textMuted">€0</span>
-                            <input type="range" id="fireSimulatorInput" min="0" max="5000" step="100" value="500">
-                            <span class="text-xs text-app-textMuted">€5k</span>
-                        </div>
-                        <div class="bg-app-bg rounded border border-app-border p-2 mb-2 text-center">
-                            <span class="text-xs text-blue-400 font-semibold" id="simulatorAmountDisplay">€ 500 / Monat extra</span>
-                        </div>
-                        <div class="flex justify-between items-end">
-                            <div>
-                                <div class="text-emerald-400 font-bold text-lg" id="simulatorResultDisplay">11,2 Jahre</div>
-                            </div>
-                            <div class="bg-emerald-500/20 text-emerald-400 px-2 py-1 rounded text-[10px]" id="simulatorBadgeDisplay">
-                                +1,2 J. früher
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="dashboard-card md:col-span-2 xl:col-span-2">
-                        <div class="flex items-center gap-2 mb-3">
-                            <i class="fa-solid fa-shield-halved text-red-400"></i>
-                            <h2 class="font-semibold text-sm">Crash-Szenarien & Notgroschen</h2>
-                        </div>
-                        <div class="flex flex-col sm:flex-row gap-4">
-                            <div class="flex-1 bg-app-bg border border-red-500/20 rounded p-3">
-                                <div class="text-[10px] text-app-textMuted mb-1">TradFi Crash</div>
-                                <div class="text-red-400 font-bold text-sm mb-1">-30%</div>
-                                <div class="text-xs font-semibold sensitive-value">€ 99.750</div>
-                            </div>
-                            <div class="flex-1 flex flex-col justify-center">
-                                <p class="text-xs text-app-textMuted mb-2">Notgroschen: 6 Monate</p>
-                                <div class="w-full bg-app-bg rounded-full h-2.5 mb-2 border border-app-border overflow-hidden">
-                                    <div class="bg-gradient-to-r from-teal-500 to-emerald-400 h-2.5" style="width: 85%"></div>
-                                </div>
-                                <div class="flex justify-between text-xs">
-                                    <span class="text-emerald-400 font-medium sensitive-value">€ 14.300</span>
-                                    <span class="text-app-textMuted">85%</span>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Row 4: Charts and Tables -->
-                <div class="grid grid-cols-1 lg:grid-cols-12 gap-4">
-                    
-                    <div class="dashboard-card lg:col-span-8">
-                        <div class="flex justify-between items-center mb-4">
-                            <div class="flex items-center gap-2">
-                                <i class="fa-solid fa-chart-line text-blue-400"></i>
-                                <h2 class="font-semibold text-sm">10-Jahres-Projektion</h2>
-                            </div>
-                        </div>
-                        <div class="h-56 w-full relative">
-                            <canvas id="projectionChart"></canvas>
-                        </div>
-                    </div>
-
-                    <div class="dashboard-card lg:col-span-4 overflow-x-auto custom-scrollbar">
-                        <div class="flex items-center gap-2 mb-4">
-                            <i class="fa-regular fa-calendar text-blue-400"></i>
-                            <h2 class="font-semibold text-sm">Jahresübersicht 2026</h2>
-                        </div>
-                        <table class="w-full text-xs text-left min-w-[250px]">
-                            <thead class="text-app-textMuted border-b border-app-border">
-                                <tr>
-                                    <th class="pb-2 font-normal">Monat</th>
-                                    <th class="pb-2 font-normal text-right">Cashflow</th>
-                                    <th class="pb-2 font-normal text-right">Quote</th>
-                                </tr>
-                            </thead>
-                            <tbody class="divide-y divide-app-border/50 text-app-textMuted">
-                                <tr><td class="py-2">Juni</td><td class="text-right sensitive-value">€ 3.300</td><td class="text-right">53,6%</td></tr>
-                                <tr><td class="py-2">Juli</td><td class="text-right sensitive-value">€ 3.250</td><td class="text-right">53,4%</td></tr>
-                                <tr class="bg-blue-600/20 text-white rounded"><td class="py-2 px-1 rounded-l">Aug</td><td class="text-right px-1 sensitive-value">€ 3.200</td><td class="text-right px-1 rounded-r">53,3%</td></tr>
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-
-            </div>
-        </main>
-    </div>
-
-    <!-- Scripts gesichert im DOMContentLoaded -->
-    <script>
-        document.addEventListener('DOMContentLoaded', () => {
-            
-            // Stealth Mode
-            const stealthToggle = document.getElementById('stealthToggle');
-            if (stealthToggle) {
-                stealthToggle.addEventListener('click', () => {
-                    document.body.classList.toggle('stealth-active');
-                    const isActive = document.body.classList.contains('stealth-active');
-                    if(isActive) {
-                        stealthToggle.classList.replace('bg-app-accent/20', 'bg-app-accent');
-                        stealthToggle.classList.replace('text-app-accent', 'text-white');
-                    } else {
-                        stealthToggle.classList.replace('bg-app-accent', 'bg-app-accent/20');
-                        stealthToggle.classList.replace('text-white', 'text-app-accent');
-                    }
-                });
-            }
-
-            // Simulator
-            const simInput = document.getElementById('fireSimulatorInput');
-            const simAmountDisplay = document.getElementById('simulatorAmountDisplay');
-            const simResultDisplay = document.getElementById('simulatorResultDisplay');
-            const simBadgeDisplay = document.getElementById('simulatorBadgeDisplay');
-
-            if (simInput) {
-                simInput.addEventListener('input', (e) => {
-                    const val = parseInt(e.target.value);
-                    simAmountDisplay.textContent = `€ ${val.toLocaleString('de-DE')} / Monat extra`;
-                    
-                    const baseYears = 12.4;
-                    const reduction = (val / 500) * 1.2; 
-                    const newYears = Math.max(1, baseYears - reduction).toFixed(1);
-                    
-                    if(val > 0) {
-                        simResultDisplay.textContent = `${newYears} Jahre`;
-                        simBadgeDisplay.textContent = `+${reduction.toFixed(1).replace('.', ',')} J. früher`;
-                        simBadgeDisplay.style.opacity = '1';
-                    } else {
-                        simResultDisplay.textContent = `${baseYears.toString().replace('.', ',')} Jahre`;
-                        simBadgeDisplay.style.opacity = '0';
-                    }
-                });
-            }
-
-            // Sicherstellen, dass Chart.js geladen ist
-            if (typeof Chart !== 'undefined') {
-                Chart.defaults.color = '#9ca3af';
-                Chart.defaults.font.family = 'Inter';
-
-                // Asset Chart
-                const assetCanvas = document.getElementById('assetChart');
-                if (assetCanvas) {
-                    const ctxAsset = assetCanvas.getContext('2d');
-                    new Chart(ctxAsset, {
-                        type: 'doughnut',
-                        data: {
-                            labels: ['ETF', 'Bitcoin', 'Depot', 'Cash'],
-                            datasets: [{
-                                data: [40, 25, 15, 10],
-                                backgroundColor: ['#3b82f6', '#f59e0b', '#6b7280', '#10b981'],
-                                borderWidth: 0,
-                                cutout: '75%'
-                            }]
-                        },
-                        options: {
-                            responsive: true,
-                            maintainAspectRatio: false,
-                            plugins: { legend: { display: false } }
-                        }
-                    });
-                }
-
-                // Projection Chart
-                const projCanvas = document.getElementById('projectionChart');
-                if (projCanvas) {
-                    const ctxProj = projCanvas.getContext('2d');
-                    const labels = Array.from({length: 11}, (_, i) => 2026 + i);
-                    const dataWealth = labels.map((year, i) => 142500 * Math.pow(1.24, i));
-
-                    // Custom Plugin sicher definieren
-                    const fireLinePlugin = {
-                        id: 'fireLine',
-                        beforeDraw: (chart) => {
-                            const ctx = chart.canvas.getContext('2d');
-                            const yAxis = chart.scales.y;
-                            const xAxis = chart.scales.x;
-                            // Nur zeichnen, wenn die Achse initialisiert ist
-                            if (!yAxis || !xAxis) return;
-                            
-                            const yPos = yAxis.getPixelForValue(1200000); 
-                            ctx.save();
-                            ctx.beginPath();
-                            ctx.moveTo(xAxis.left, yPos);
-                            ctx.lineTo(xAxis.right, yPos);
-                            ctx.lineWidth = 1;
-                            ctx.strokeStyle = '#8b5cf6';
-                            ctx.setLineDash([5, 5]);
-                            ctx.stroke();
-                            ctx.restore();
-                        }
-                    };
-
-                    new Chart(ctxProj, {
-                        type: 'line',
-                        data: {
-                            labels: labels,
-                            datasets: [{
-                                label: 'Vermögen',
-                                data: dataWealth,
-                                borderColor: '#10b981',
-                                backgroundColor: 'rgba(16, 185, 129, 0.1)',
-                                borderWidth: 2,
-                                fill: true,
-                                tension: 0.4,
-                                pointRadius: 0
-                            }]
-                        },
-                        options: {
-                            responsive: true,
-                            maintainAspectRatio: false,
-                            plugins: { legend: { display: false } },
-                            scales: {
-                                x: { grid: { display: false } },
-                                y: {
-                                    beginAtZero: true,
-                                    max: 2000000,
-                                    ticks: {
-                                        callback: function(value) { return '€ ' + (value / 1000000).toFixed(1) + 'M'; },
-                                        stepSize: 500000
-                                    },
-                                    grid: { color: '#1f2937', drawBorder: false }
-                                }
-                            }
-                        },
-                        plugins: [fireLinePlugin]
-                    });
-                }
-            } else {
-                console.warn("Chart.js konnte nicht geladen werden. Prüfe die Netzwerkverbindung des Viewers.");
-            }
-        });
-    </script>
-</body>
-</html>
+document.getElementById('prev').onclick=()=>shift(-1);document.getElementById('next').onclick=()=>shift(1);document.getElementById('today').onclick=()=>{UI.year=now.getFullYear();UI.month=now.getMonth()+1;getMonth();render()};document.getElementById('addQuick').onclick=openQuick;document.getElementById('theme').onclick=()=>{UI.dark=!UI.dark;localStorage.setItem(APP+'_dark',UI.dark?'1':'0');render()};document.getElementById('stealth').onclick=()=>{UI.stealth=!UI.stealth;render()};document.getElementById('openSettings').onclick=()=>navigate('settings');document.getElementById('closeModal').onclick=closeModal;document.getElementById('modal').onclick=e=>{if(e.target.id==='modal')closeModal()};
+UI.dark=localStorage.getItem(APP+'_dark')!=='0';
+render();fetchCoins();setInterval(()=>fetchCoins(),60000);
+</script></body></html>
