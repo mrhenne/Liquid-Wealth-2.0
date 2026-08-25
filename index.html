@@ -125,12 +125,69 @@ html.light body,.light body{background:#f3f6fa!important;color:var(--text)!impor
 .kicon{display:grid;place-items:center}
 .kicon .ui-ico svg{width:17px;height:17px}
 </style>
-<script type="text/javascript" nonce="f9537dd93a3a4cd8b2cb36dc28a" src="//local.adguard.org?ts=1787649569456&amp;type=content-script&amp;dmn=chatgpt.com&amp;url=https%3A%2F%2Fchatgpt.com%2Fbackend-api%2Festuary%2Fcontent%3Fid%3Dfile_000000006fc481f4966cacc8e9071c24%26ts%3D496569%26p%3Dfs%26cid%3D1%26sig%3Dc252e933a93b843ab3bb287f9572483d8f924d7a4635cd74b7c0b625129bb669%26v%3D0&amp;app=com.apple.Safari&amp;css=3&amp;js=1&amp;rel=1&amp;rji=1&amp;sbe=1"></script><script type="text/javascript" nonce="f9537dd93a3a4cd8b2cb36dc28a" src="//local.adguard.org?ts=1787649569456&amp;name=AdGuard%20Assistant&amp;name=AdGuard%20Extra&amp;name=AdGuard%20Popup%20Blocker&amp;type=user-script"></script></head>
+
+<style id="icon-system-v12">
+.ico12{width:18px;height:18px;display:inline-flex;align-items:center;justify-content:center;flex:0 0 18px;vertical-align:middle;color:currentColor}
+.ico12 svg{width:18px;height:18px;stroke:currentColor;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.iconBtn12{display:inline-flex;align-items:center;gap:7px}
+.kicon .ico12{width:20px;height:20px}.kicon .ico12 svg{width:20px;height:20px}
+.nav button .ico12{margin-right:2px}
+</style>
+
+<style id="type-scale-v12">
+:root{
+  --fs-xs:11px;--fs-sm:12px;--fs-md:14px;--fs-lg:16px;--fs-xl:20px;--fs-2xl:28px;--fs-3xl:34px;
+}
+body{font-size:var(--fs-md);line-height:1.45;letter-spacing:-.005em}
+h1{font-size:var(--fs-xl)!important;line-height:1.2!important;font-weight:700}
+h2,.card h2{font-size:var(--fs-lg)!important;line-height:1.3!important;font-weight:650}
+h3{font-size:var(--fs-md)!important;line-height:1.35!important}
+.kvalue{font-size:var(--fs-2xl)!important;line-height:1.05!important;font-weight:750}
+.klabel,.metric span,.subhead,.toolbar .subhead,.footer{font-size:var(--fs-sm)!important;line-height:1.35}
+.nav button,.btn,.topAction,.toolbar button,.toolbar select,input,select{font-size:var(--fs-md)!important}
+.table th{font-size:var(--fs-xs)!important;text-transform:uppercase;letter-spacing:.055em}
+.table td,.entry{font-size:var(--fs-md)!important}
+.small,.muted{font-size:var(--fs-sm)!important}
+@media(max-width:900px){
+ .kvalue{font-size:24px!important}
+}
+</style>
+
+<style id="live-crypto-v12">
+.liveCryptoGlobal{
+  position:sticky;top:0;z-index:30;
+  display:grid;grid-template-columns:auto 1fr;gap:12px;align-items:center;
+  padding:8px 14px;margin:0 0 14px;
+  background:rgba(7,18,32,.96);border:1px solid #23415f;border-radius:12px;
+  box-shadow:0 6px 20px rgba(0,0,0,.14);backdrop-filter:blur(12px)
+}
+.lcgHead{display:flex;align-items:center;gap:7px;white-space:nowrap;font-size:13px}
+.lcgStatus{font-size:11px;color:#91a4ba}
+.lcgItems{display:flex;gap:8px;overflow:auto;scrollbar-width:none}
+.lcgItems::-webkit-scrollbar{display:none}
+.lcgCoin{display:flex;align-items:center;gap:7px;min-width:145px;padding:7px 9px;border:1px solid #23415f;border-radius:9px;background:#0c1b2e}
+.lcgCoin b{font-size:12px}.lcgPrice{font-size:12px;font-variant-numeric:tabular-nums}.lcgChange{font-size:11px;font-weight:700}
+.lcgUp{color:#35e28f}.lcgDown{color:#ff5d78}
+html.light .liveCryptoGlobal{background:rgba(255,255,255,.96);border-color:#d3deea;box-shadow:0 6px 20px rgba(23,43,66,.08)}
+html.light .lcgCoin{background:#f7f9fc;border-color:#d3deea}
+@media(max-width:800px){
+ .liveCryptoGlobal{grid-template-columns:1fr;padding:8px 10px}
+ .lcgItems{width:100%}
+ .lcgCoin{min-width:125px}
+}
+</style>
+<script type="text/javascript" nonce="f9537dd93a3a4cd8b2cb36dc28a" src="//local.adguard.org?ts=1787649569456&amp;type=content-script&amp;dmn=chatgpt.com&amp;url=https%3A%2F%2Fchatgpt.com%2Fbackend-api%2Festuary%2Fcontent%3Fid%3Dfile_000000006d70824693b9d80372c94549%26ts%3D496569%26p%3Dfs%26cid%3D1%26sig%3D0ff64deb88e5b82bd449aded3d0b2cc4392dce96618060bafa010525f32b1eeb%26v%3D0&amp;app=com.apple.Safari&amp;css=3&amp;js=1&amp;rel=1&amp;rji=1&amp;sbe=1"></script><script type="text/javascript" nonce="f9537dd93a3a4cd8b2cb36dc28a" src="//local.adguard.org?ts=1787649569456&amp;name=AdGuard%20Assistant&amp;name=AdGuard%20Extra&amp;name=AdGuard%20Popup%20Blocker&amp;type=user-script"></script></head>
 <body>
 <div class="app">
 <aside class="sidebar"><div class="brand"><div class="mark">LW</div><div class="brandText"><b>Liquid Wealth</b><small>Tactical Engine</small></div></div>
 <nav class="nav" id="nav"><button class="active" data-view="dashboard"><span class="ico" data-icon="home"></span><span class="navText">Dashboard</span></button><button data-view="wealth"><span class="ico" data-icon="wallet"></span><span class="navText">Vermögen</span></button><button data-view="cashflow"><span class="ico" data-icon="flow"></span><span class="navText">Cashflow</span></button><button data-view="fire"><span class="ico" data-icon="fire"></span><span class="navText">FIRE</span></button><button data-view="simulator"><span class="ico" data-icon="sliders"></span><span class="navText">Simulator</span></button><button data-view="projection"><span class="ico" data-icon="chart"></span><span class="navText">Projektion</span></button><button data-view="year"><span class="ico" data-icon="calendar"></span><span class="navText">Jahresübersicht</span></button><button data-view="portfolio"><span class="ico" data-icon="pie"></span><span class="navText">Portfolio</span></button><button data-view="crypto"><span class="ico" data-icon="coin"></span><span class="navText">Krypto</span></button><button data-view="goals"><span class="ico" data-icon="target"></span><span class="navText">Ziele</span></button><button data-view="financeCheck"><span class="ico" data-icon="shield"></span><span class="navText">Finanz-Check</span></button><button data-view="risk"><span class="ico" data-icon="pulse"></span><span class="navText">Risikoanalyse</span></button><button data-view="settings"><span class="ico" data-icon="settings"></span><span class="navText">Einstellungen</span></button></nav>
 <div class="sidebarBottom"><div class="status"><h4><span class="dot"></span>Live Crypto</h4><div id="coinMini"></div><small class="muted">CoinGecko optional</small></div></div></aside>
+
+<div id="liveCryptoGlobal" class="liveCryptoGlobal" aria-live="polite">
+  <div class="lcgHead"><span class="ico12"><svg viewBox="0 0 24 24"><path d="M4 16 9 11l4 3 7-7"/><path d="M16 7h4v4"/></svg></span><strong>Live Crypto</strong><span class="lcgStatus" id="lcgStatus">Aktualisiere…</span></div>
+  <div class="lcgItems" id="lcgItems"></div>
+</div>
+
 <main class="main"><header class="top"><div class="topLeft"><button class="monthBtn" id="prev" data-action="prevMonth" title="Vorheriger Monat"><span class="icon" data-icon="chevronLeft"></span></button><button class="monthLabel ghost" id="monthLabel" data-action="calendar" title="Kalender öffnen"></button><button class="monthBtn" id="next" data-action="nextMonth" title="Nächster Monat"><span class="icon" data-icon="chevronRight"></span></button><button class="ghost hideMobile" id="today" data-action="today"><span class="icon" data-icon="today"></span>Heute</button><button class="ghost" id="calendarBtn" data-action="calendar" title="Kalender öffnen"><span class="icon" data-icon="calendar"></span><span class="hideMobile">Kalender</span></button></div><div class="topRight"><button class="topBtn hideMobile" id="addQuick" data-action="quick"><span class="icon" data-icon="plus"></span>Eintrag</button><button class="topBtn appearanceBtn" id="appearanceToggle" data-action="toggleAppearance" title="Erscheinungsbild wechseln"><span class="icon" id="appearanceIcon" data-icon="moon"></span><span class="themeText" id="appearanceText">Light Mode</span></button><button class="topBtn" id="stealth" data-action="toggleStealth"><span class="icon" data-icon="eyeOff"></span><span class="hideMobile">Stealth</span></button><button class="primary" id="openSettings" data-action="openSettings"><span class="icon" data-icon="settings"></span></button></div></header>
 <div class="content">
 <section id="dashboard" class="view active"></section><section id="wealth" class="view"></section><section id="cashflow" class="view"></section><section id="fire" class="view"></section><section id="simulator" class="view"></section><section id="projection" class="view"></section><section id="year" class="view"></section><section id="portfolio" class="view"></section><section id="crypto" class="view"></section><section id="goals" class="view"></section><section id="financeCheck" class="view"></section><section id="risk" class="view"></section><section id="settings" class="view"></section><div class="footer">Liquid Wealth Tactical Engine · lokale Daten · regelmäßig JSON Backup exportieren</div>
@@ -286,6 +343,59 @@ document.addEventListener('change',function(e){
 document.addEventListener('input',function(e){
  const t=e.target;
  if(t.id==='dashExtra'||t.id==='simExtra'){UI.sim.extra=Number(t.value);return render();}
+ if(t.id==='simReturn'){UI.sim.returnRate=Number(t.value);return render();}
+});
+UI.dark=localStorage.getItem(APP+'_dark')!=='0';
+applyAppearance();
+render();fetchCoins();setInterval(()=>fetchCoins(),60000);
+
+
+// v12 global Live Crypto bar
+const LIVE_CRYPTO_IDS = [
+  ["bitcoin","BTC"],["ethereum","ETH"],["solana","SOL"],["ripple","XRP"],["cardano","ADA"]
+];
+function fmtCryptoPrice(v){
+  if(!Number.isFinite(v)) return "—";
+  if(v >= 1000) return new Intl.NumberFormat("de-DE",{maximumFractionDigits:0}).format(v)+" €";
+  if(v >= 1) return new Intl.NumberFormat("de-DE",{maximumFractionDigits:2}).format(v)+" €";
+  return new Intl.NumberFormat("de-DE",{maximumFractionDigits:4}).format(v)+" €";
+}
+function renderGlobalCrypto(data){
+  const box=document.getElementById("lcgItems"), status=document.getElementById("lcgStatus");
+  if(!box) return;
+  if(!data || !Object.keys(data).length){
+    box.innerHTML='<div class="lcgCoin"><span class="ico12"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="8"/><path d="M8 8l8 8M16 8l-8 8"/></svg></span><span>Keine Live-Daten</span></div>';
+    if(status) status.textContent="offline / später erneut";
+    return;
+  }
+  box.innerHTML=LIVE_CRYPTO_IDS.map(([id,sym])=>{
+    const x=data[id]||{};
+    const eur=x.eur, ch=x.eur_24h_change;
+    const cls=Number(ch)>=0?"lcgUp":"lcgDown";
+    const arrow=Number(ch)>=0?"↗":"↘";
+    return `<div class="lcgCoin">
+      <span class="ico12"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="8"/><path d="M12 6v12M9 8.5c.8-.7 1.8-1 3-1 2 0 3.5 1 3.5 2.5S14 12.5 12 12.5 8.5 13 8.5 14.5 10 17 12 17c1.2 0 2.2-.3 3-.9"/></svg></span>
+      <b>${sym}</b><span class="lcgPrice">${fmtCryptoPrice(Number(eur))}</span>
+      <span class="lcgChange ${cls}">${arrow} ${Number.isFinite(Number(ch))?Math.abs(Number(ch)).toFixed(2)+" %":"—"}</span>
+    </div>`;
+  }).join("");
+  if(status) status.textContent="Live";
+}
+async function updateGlobalCrypto(){
+  const status=document.getElementById("lcgStatus");
+  try{
+    const ids=LIVE_CRYPTO_IDS.map(x=>x[0]).join(",");
+    const r=await fetch("https://api.coingecko.com/api/v3/simple/price?ids="+ids+"&vs_currencies=eur&include_24hr_change=true",{cache:"no-store"});
+    if(!r.ok) throw new Error("HTTP "+r.status);
+    const data=await r.json();
+    renderGlobalCrypto(data);
+  }catch(e){
+    if(status) status.textContent="nicht erreichbar";
+    renderGlobalCrypto(null);
+  }
+}
+window.addEventListener("DOMContentLoaded",()=>{updateGlobalCrypto();setInterval(updateGlobalCrypto,120000);});
+</script>;return render();}
  if(t.id==='simReturn'){UI.sim.returnRate=Number(t.value);return render();}
 });
 UI.dark=localStorage.getItem(APP+'_dark')!=='0';
