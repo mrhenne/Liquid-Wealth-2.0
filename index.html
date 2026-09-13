@@ -327,14 +327,154 @@ html.light .calDay.selected{background:linear-gradient(180deg,#2f7cff,#1f65ef)!i
   .content{padding:12px!important}
 }
 </style>
-<script type="text/javascript" nonce="226c09a134e44f2a9b99f5258eb" src="//local.adguard.org?ts=1789287039880&amp;type=content-script&amp;dmn=chatgpt.com&amp;url=https%3A%2F%2Fchatgpt.com%2Fbackend-api%2Festuary%2Fcontent%3Fid%3Dfile_00000000868481f4b95adc2db55f447a%26ts%3D497024%26p%3Dfs%26cid%3D1%26sig%3D869664f5cc4b189ef4fc4e1d133fd84caf4d14a3fc6beeb57f818eff24a6fe5d%26v%3D0&amp;app=com.apple.Safari&amp;css=3&amp;js=1&amp;rel=1&amp;rji=1&amp;sbe=1"></script><script type="text/javascript" nonce="226c09a134e44f2a9b99f5258eb" src="//local.adguard.org?ts=1789287039880&amp;name=AdGuard%20Assistant&amp;name=AdGuard%20Extra&amp;name=AdGuard%20Popup%20Blocker&amp;type=user-script"></script></head>
+
+<style id="v16-unified-scale">
+:root{
+  --ui-11:11px;
+  --ui-12:12px;
+  --ui-14:14px;
+  --ui-16:16px;
+  --ui-20:20px;
+  --ui-28:28px;
+}
+html,body{font-size:14px!important}
+body,button,input,select,textarea{font-family:var(--font-ui)!important}
+button,input,select,textarea{font-size:14px!important;line-height:1.3!important}
+h1,.sectionTitle{font-size:20px!important;line-height:1.25!important;letter-spacing:-.02em!important}
+h2,.toolbar h2{font-size:16px!important;line-height:1.3!important;letter-spacing:-.01em!important}
+h3{font-size:14px!important}
+.sectionSub,.sub,.muted,.ksub,.field label,.status small,.calendarHint,.notice,.footer{font-size:12px!important;line-height:1.4!important}
+.klabel,.metric span,.table th{font-size:11px!important}
+.kvalue{font-size:28px!important;line-height:1.05!important;letter-spacing:-.035em!important}
+.bigNum{font-size:26px!important;line-height:1.1!important}
+.metric b{font-size:14px!important}
+.stat,.entry,.assetCard,.goalTop,.table,.legendRow,.coinMini{font-size:12px!important}
+
+/* Consistent icons everywhere */
+.icon,.ico,.autoIcon,.kicon svg{
+  width:18px!important;height:18px!important;flex:0 0 18px!important
+}
+.icon svg,.ico svg,.autoIcon svg,.kicon svg{
+  width:18px!important;height:18px!important;
+  stroke-width:1.8!important
+}
+.kicon{
+  width:36px!important;height:36px!important;
+  border-radius:11px!important;
+  display:grid!important;place-items:center!important
+}
+button .icon,button .ico,button .autoIcon{margin:0!important}
+button{gap:7px!important}
+.topBtn,.monthBtn,.ghost,.primary,.danger,.smallBtn{
+  min-height:40px!important;padding:8px 11px!important
+}
+.nav button{min-height:44px!important;padding:10px 12px!important}
+.input{min-height:40px!important;padding:8px 10px!important}
+
+/* Unified spacing */
+.content{padding:16px 18px 26px!important}
+.card{padding:15px!important}
+.grid{gap:12px!important}
+.toolbar{margin-bottom:10px!important}
+.addRow,.actions{gap:7px!important}
+
+/* Dashboard only */
+.dashboardHero{
+  display:grid;
+  grid-template-columns:repeat(4,minmax(0,1fr));
+  gap:12px;
+  margin-bottom:12px
+}
+.dashboardHero .kpi{min-height:116px!important}
+.dashboardMain{
+  display:grid;
+  grid-template-columns:minmax(0,1.55fr) minmax(320px,.75fr);
+  gap:12px;
+  margin-bottom:12px
+}
+.dashboardSide{display:grid;gap:12px}
+.dashboardLower{
+  display:grid;
+  grid-template-columns:minmax(0,1.45fr) minmax(320px,.85fr);
+  gap:12px
+}
+.dashboardCardTall{min-height:340px}
+.dashboardCardCompact{min-height:0}
+.dashboardCashTop{
+  display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin-bottom:12px
+}
+.dashboardMicro{
+  padding:11px 12px;border:1px solid var(--line);border-radius:14px;background:var(--panel2)
+}
+.dashboardMicro span{display:block;color:var(--muted);font-size:11px}
+.dashboardMicro b{display:block;margin-top:4px;font-size:16px}
+.fireProgressBlock{display:grid;gap:10px}
+.fireProgressValue{display:flex;align-items:flex-end;justify-content:space-between;gap:12px}
+.fireProgressValue strong{font-size:26px;letter-spacing:-.03em}
+.fireProgressValue span{font-size:12px;color:var(--muted);text-align:right}
+.quickFacts{display:grid;gap:0}
+.quickFact{display:flex;justify-content:space-between;align-items:center;padding:9px 0;border-bottom:1px solid var(--line)}
+.quickFact:last-child{border-bottom:0}
+.quickFact span{color:var(--muted);font-size:12px}
+.quickFact b{font-size:13px}
+.compactActions{display:flex;gap:7px;flex-wrap:wrap;margin-top:12px}
+.compactActions button{flex:1;min-width:125px}
+.dashboardAllocation .alloc{grid-template-columns:165px 1fr!important;min-height:250px!important}
+.dashboardAllocation .donut{width:150px!important;height:150px!important}
+.dashboardAllocation .donut:after{width:92px!important;height:92px!important}
+.dashboardAllocation .donutCenter{font-size:15px!important}
+.dashboardAllocation .legend{gap:7px!important}
+.dashboardAllocation .legendRow{grid-template-columns:9px 1fr auto!important}
+.dashboardAllocation .legendRow span:last-child{display:none}
+.dashboardProjection .chart{height:230px!important}
+.dashboardCashflow svg{height:250px!important}
+.dashboardBadge{
+  display:inline-flex;align-items:center;gap:6px;
+  padding:5px 8px;border-radius:999px;
+  font-size:11px;font-weight:700;
+  border:1px solid var(--line);background:var(--panel2);color:var(--muted)
+}
+
+@media(max-width:1250px){
+  .dashboardHero{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .dashboardMain,.dashboardLower{grid-template-columns:1fr}
+  .dashboardSide{grid-template-columns:repeat(2,minmax(0,1fr))}
+}
+@media(max-width:760px){
+  .dashboardHero,.dashboardSide{grid-template-columns:1fr}
+  .dashboardAllocation .alloc{grid-template-columns:1fr!important}
+  .dashboardCashTop{grid-template-columns:1fr}
+}
+</style>
+<script type="text/javascript" nonce="226c09a134e44f2a9b99f5258eb" src="//local.adguard.org?ts=1789287039880&amp;type=content-script&amp;dmn=chatgpt.com&amp;url=https%3A%2F%2Fchatgpt.com%2Fbackend-api%2Festuary%2Fcontent%3Fid%3Dfile_000000004e4081f4a8e6da265a236a9f%26ts%3D497024%26p%3Dfs%26cid%3D1%26sig%3D772c9e86bb1abb3fbcf712fc7a455bdb536ca4ef886816a1254d795df9020647%26v%3D0&amp;app=com.apple.Safari&amp;css=3&amp;js=1&amp;rel=1&amp;rji=1&amp;sbe=1"></script><script type="text/javascript" nonce="226c09a134e44f2a9b99f5258eb" src="//local.adguard.org?ts=1789287039880&amp;name=AdGuard%20Assistant&amp;name=AdGuard%20Extra&amp;name=AdGuard%20Popup%20Blocker&amp;type=user-script"></script></head>
 <body>
 <div class="app">
 <aside class="sidebar"><div class="brand"><div class="mark">LW</div><div class="brandText"><b>Liquid Wealth</b><small>Personal Wealth OS · Tactical Engine</small></div></div>
 <nav class="nav" id="nav"><button class="active" data-view="dashboard"><span class="ico" data-icon="home"></span><span class="navText">Dashboard</span></button><button data-view="wealth"><span class="ico" data-icon="wallet"></span><span class="navText">Vermögen</span></button><button data-view="cashflow"><span class="ico" data-icon="flow"></span><span class="navText">Cashflow</span></button><button data-view="fire"><span class="ico" data-icon="fire"></span><span class="navText">FIRE</span></button><button data-view="simulator"><span class="ico" data-icon="sliders"></span><span class="navText">Simulator</span></button><button data-view="projection"><span class="ico" data-icon="chart"></span><span class="navText">Projektion</span></button><button data-view="year"><span class="ico" data-icon="calendar"></span><span class="navText">Jahresübersicht</span></button><button data-view="portfolio"><span class="ico" data-icon="pie"></span><span class="navText">Portfolio</span></button><button data-view="crypto"><span class="ico" data-icon="coin"></span><span class="navText">Krypto</span></button><button data-view="goals"><span class="ico" data-icon="target"></span><span class="navText">Ziele</span></button><button data-view="financeCheck"><span class="ico" data-icon="shield"></span><span class="navText">Finanz-Check</span></button><button data-view="risk"><span class="ico" data-icon="pulse"></span><span class="navText">Risikoanalyse</span></button><button data-view="settings"><span class="ico" data-icon="settings"></span><span class="navText">Einstellungen</span></button></nav>
 <div class="sidebarBottom"><div class="status"><h4><span class="dot"></span>Live Crypto</h4><div id="coinMini"></div><small class="muted">CoinGecko optional</small></div></div></aside>
-<main class="main"><header class="top"><div class="topLeft"><button class="monthBtn" id="prev" data-action="prevMonth" title="Vorheriger Monat"><span class="icon" data-icon="chevronLeft"></span></button><button class="monthLabel ghost" id="monthLabel" data-action="calendar" title="Kalender öffnen"></button><button class="monthBtn" id="next" data-action="nextMonth" title="Nächster Monat"><span class="icon" data-icon="chevronRight"></span></button><button class="ghost hideMobile" id="today" data-action="today"><span class="icon" data-icon="today"></span>Heute</button><button class="ghost" id="calendarBtn" data-action="calendar" title="Kalender öffnen"><span class="icon" data-icon="calendar"></span><span class="hideMobile">Kalender</span></button></div><div class="topRight"><button class="topBtn hideMobile" id="addQuick" data-action="quick"><span class="icon" data-icon="plus"></span>Eintrag</button><button class="topBtn appearanceBtn" id="appearanceToggle" data-action="toggleAppearance" title="Erscheinungsbild wechseln"><span class="icon" id="appearanceIcon" data-icon="moon"></span><span class="themeText" id="appearanceText">Light Mode</span></button><button class="topBtn" id="stealth" data-action="toggleStealth"><span class="icon" data-icon="eyeOff"></span><span class="hideMobile">Stealth</span></button><button class="primary" id="openSettings" data-action="openSettings"><span class="icon" data-icon="settings"></span></button></div></header>
-<div class="content">
+<main class="main"><header class="top">
+<div class="topLeft">
+  <button class="monthBtn" id="prev" data-action="prevMonth" title="Vorheriger Monat"><span class="icon" data-icon="chevronLeft"></span></button>
+  <button class="monthLabel ghost" id="monthLabel" data-action="calendar" title="Kalender öffnen"><span class="icon" data-icon="calendar"></span><span id="monthLabelText"></span></button>
+  <button class="monthBtn" id="next" data-action="nextMonth" title="Nächster Monat"><span class="icon" data-icon="chevronRight"></span></button>
+  <button class="ghost hideMobile" id="today" data-action="today"><span class="icon" data-icon="today"></span>Heute</button>
+</div>
+<div class="topCenter">
+  <label class="searchBar" title="Suchen im aktuellen Bereich">
+    <span class="icon" data-icon="search"></span>
+    <input id="globalSearch" type="search" placeholder="Suche in der aktuellen Ansicht">
+    <span class="keyHint">/</span>
+  </label>
+</div>
+<div class="topRight">
+  <button class="ghost" id="calendarBtn" data-action="calendar" title="Kalender öffnen"><span class="icon" data-icon="calendar"></span><span class="hideMobile">Kalender</span></button>
+  <button class="topBtn hideMobile" id="addQuick" data-action="quick"><span class="icon" data-icon="plus"></span>Eintrag</button>
+  <button class="topBtn appearanceBtn" id="appearanceToggle" data-action="toggleAppearance" title="Erscheinungsbild wechseln"><span class="icon" id="appearanceIcon" data-icon="moon"></span><span class="themeText" id="appearanceText">Light Mode</span></button>
+  <button class="topBtn" id="stealth" data-action="toggleStealth"><span class="icon" data-icon="eyeOff"></span><span class="hideMobile">Stealth</span></button>
+  <button class="primary" id="openSettings" data-action="openSettings" title="Einstellungen"><span class="icon" data-icon="settings"></span><span class="hideMobile">Einstellungen</span></button>
+  <div class="userPill"><div class="avatar">LW</div><div class="userMeta"><b>Liquid Wealth</b><small>Private Dashboard</small></div></div>
+</div>
+</header><div class="content">
 <section id="dashboard" class="view active"></section><section id="wealth" class="view"></section><section id="cashflow" class="view"></section><section id="fire" class="view"></section><section id="simulator" class="view"></section><section id="projection" class="view"></section><section id="year" class="view"></section><section id="portfolio" class="view"></section><section id="crypto" class="view"></section><section id="goals" class="view"></section><section id="financeCheck" class="view"></section><section id="risk" class="view"></section><section id="settings" class="view"></section><div class="footer">Liquid Wealth Tactical Engine · lokale Daten · regelmäßig JSON Backup exportieren</div>
 </div></main></div>
 <div class="modal" id="modal"><div class="modalBox"><div class="toolbar"><div><h2 id="modalTitle">Eintrag</h2><div class="sub" id="modalSub"></div></div><button class="ghost" id="closeModal" data-action="closeModal">Schließen</button></div><div id="modalBody"></div></div></div><div class="toast" id="toast"></div>
@@ -405,22 +545,27 @@ lock:'M8 10V8a4 4 0 1 1 8 0v2M6 10h12v10H6z'
 function paintIcons(){document.querySelectorAll('[data-icon]').forEach(el=>{if(!el.innerHTML.trim())el.innerHTML=I(el.dataset.icon)})}
 function buttonIconName(btn){
  const txt=(btn.textContent||'').replace(/\s+/g,' ').trim().toLowerCase();
+ if(btn.classList.contains('assetDel')||btn.classList.contains('debtDel')||btn.classList.contains('goalDel')||btn.classList.contains('del')) return 'trash';
+ if(btn.classList.contains('addEntry')) return 'plus';
  if(btn.dataset.view){
    const m={dashboard:'home',wealth:'wallet',cashflow:'flow',fire:'fire',simulator:'sliders',projection:'chart',year:'calendar',portfolio:'pie',crypto:'coin',goals:'target',financeCheck:'shield',risk:'pulse',settings:'settings'};
    return m[btn.dataset.view]||'list';
  }
  if(btn.dataset.nav){
-   const n={portfolio:'pie',cashflow:'flow',projection:'chart',goals:'target',settings:'settings'};return n[btn.dataset.nav]||'open';
+   const n={portfolio:'pie',cashflow:'flow',projection:'chart',goals:'target',settings:'settings',fire:'fire',simulator:'sliders',financeCheck:'shield'};
+   return n[btn.dataset.nav]||'open';
  }
  if(btn.dataset.action){
-   const a={quick:'plus',calendar:'calendar',today:'today',toggleAppearance: UI.dark ? 'sun' : 'moon', toggleStealth:'eyeOff',openSettings:'settings',closeModal:'close',export:'download',saveSettings:'save',rerunRisk:'pulse',copyRecurring:'list',resetDemo:'trash',refreshCrypto:'search',prevMonth:'chevronLeft',nextMonth:'chevronRight'};
+   const a={quick:'plus',calendar:'calendar',today:'today',toggleAppearance:UI.dark?'sun':'moon',toggleStealth:'eyeOff',openSettings:'settings',closeModal:'close',export:'download',saveSettings:'save',rerunRisk:'pulse',copyRecurring:'list',resetDemo:'trash',refreshCrypto:'search',prevMonth:'chevronLeft',nextMonth:'chevronRight',addAsset:'plus',addDebt:'plus',addGoal:'plus'};
    if(a[btn.dataset.action]) return a[btn.dataset.action];
  }
+ if(txt==='×') return 'trash';
  if(/speichern|übernehmen/.test(txt)) return 'save';
  if(/schließen|abbrechen/.test(txt)) return 'close';
  if(/löschen|entfernen/.test(txt)) return 'trash';
- if(/bearbeiten|details/.test(txt)) return 'edit';
- if(/eintrag|asset|schuld|ziel hinzufügen|hinzufügen|add/.test(txt)) return 'plus';
+ if(/bearbeiten/.test(txt)) return 'edit';
+ if(/details|vollansicht|alle/.test(txt)) return 'open';
+ if(/eintrag|asset|schuld|ziel|hinzufügen/.test(txt)) return 'plus';
  if(/kalender|monat öffnen/.test(txt)) return 'calendar';
  if(/heute/.test(txt)) return 'today';
  if(/export/.test(txt)) return 'download';
@@ -428,10 +573,12 @@ function buttonIconName(btn){
  if(/einstellungen|annahmen prüfen/.test(txt)) return 'settings';
  if(/cashflow/.test(txt)) return 'flow';
  if(/portfolio/.test(txt)) return 'pie';
- if(/alle|vollansicht/.test(txt)) return 'open';
- if(/risiko|simulieren|neu simulieren/.test(txt)) return 'pulse';
+ if(/fire/.test(txt)) return 'fire';
+ if(/simulator|simulation|simulieren/.test(txt)) return 'sliders';
+ if(/finanz-check|reserve/.test(txt)) return 'shield';
+ if(/risiko/.test(txt)) return 'pulse';
  if(/krypto|crypto/.test(txt)) return 'coin';
- return null;
+ return 'list';
 }
 function decorateButtons(root=document){
  root.querySelectorAll('button').forEach(btn=>{
@@ -477,7 +624,89 @@ function donut(){let total=Math.max(netWorth(),1);let groups={ETF:0,Crypto:0,Akt
 function allocationLegend(){let total=Math.max(netWorth(),1),groups={ETF:0,Crypto:0,Aktien:0,Cash:0,Immobilie:0,Sonstige:0},colors=['#1688ff','#ff9c24','#7d57ff','#20d8bd','#d5c7a8','#93dc35'];state.assets.forEach(a=>groups[a.type]=(groups[a.type]||0)+Number(a.value||0));return `<div class="legend">${Object.entries(groups).filter(x=>x[1]>0).map((x,i)=>`<div class="legendRow"><i class="sw" style="background:${colors[i%colors.length]}"></i><span>${x[0]}</span><b>${pct(x[1]/total*100)}</b><span class="sensitive">${euro(x[1])}</span></div>`).join('')}</div>`}
 function sankey(d){let t=totals(d),outs=[...d.expenses.map(x=>[x.name,x.val,'#ff4f70']),...d.invest.map(x=>[x.name,x.val,'#9667ff'])];let leftover=Math.max(0,t.income-t.expenses-t.invest);if(leftover)outs.push(['Liquidität',leftover,'#1688ff']);let total=outs.reduce((s,x)=>s+x[1],0)||1,y=18;let svg=`<svg class="chart" viewBox="0 0 760 250"><rect x="15" y="85" width="120" height="75" rx="12" fill="#18d9c0"/><text x="75" y="116" text-anchor="middle" fill="white" font-size="12" font-weight="800">Einnahmen</text><text x="75" y="138" text-anchor="middle" fill="white" font-size="11">${euro(t.income)}</text>`;outs.sort((a,b)=>b[1]-a[1]).slice(0,9).forEach(o=>{let h=Math.max(9,180*o[1]/total),cy=y+h/2;svg+=`<path d="M135 122 C290 ${cy},410 ${cy},500 ${cy}" fill="none" stroke="${o[2]}" stroke-width="${Math.max(4,24*o[1]/Math.max(t.income,1))}" opacity=".48" stroke-linecap="round"/><rect x="500" y="${y}" width="245" height="${h}" rx="8" fill="${o[2]}"/><text x="622" y="${cy-2}" text-anchor="middle" fill="white" font-size="10" font-weight="800">${esc(o[0])}</text><text x="622" y="${cy+12}" text-anchor="middle" fill="white" font-size="9">${euro(o[1])}</text>`;y+=h+4});return svg+'</svg>'}
 function lineChart(series,goal){let max=Math.max(goal||0,...series.map(x=>x.value),1),min=Math.min(0,...series.map(x=>x.value));let pts=series.map((x,i)=>`${35+i*(730/(series.length-1))},${215-(x.value-min)/(max-min)*180}`).join(' ');let g=goal?`<line x1="35" x2="765" y1="${215-(goal-min)/(max-min)*180}" y2="${215-(goal-min)/(max-min)*180}" stroke="#ff4f70" stroke-dasharray="6 5"/><text x="760" y="${210-(goal-min)/(max-min)*180}" text-anchor="end" fill="#ff6a85" font-size="9">FIRE Ziel ${euro(goal)}</text>`:'';return `<svg class="chart" viewBox="0 0 800 240"><line x1="35" y1="215" x2="765" y2="215" stroke="var(--line)"/>${g}<polyline points="${pts}" fill="none" stroke="#19d9c0" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>${series.map((x,i)=>`<circle cx="${35+i*(730/(series.length-1))}" cy="${215-(x.value-min)/(max-min)*180}" r="3.5" fill="#19d9c0"/><text x="${35+i*(730/(series.length-1))}" y="232" text-anchor="middle" fill="var(--muted)" font-size="9">${x.year}</text>`).join('')}</svg>`}
-function dashboard(){let d=getMonth(),t=totals(d),cash=t.income-t.expenses-t.invest,saveRate=t.income?(t.income-t.expenses)/t.income*100:0,fy=fireYears(d),target=fireTarget(d);return `<div class="grid kpis">${q('Net Worth',euro(netWorth()),'Assets minus Schulden','wallet','blue')}${q('Cashflow',euro(cash),cash>=0?'positiv':'negativ','⇆',cash>=0?'green':'red')}${q('Sparquote',pct(saveRate),'vor Investments','pie','cyan')}${q('FIRE Countdown',fy===999?'N/A':fy.toFixed(1)+' Jahre',`Ziel ${euro(target)}`,'fire','purple')}${q('Investments / Monat',euro(t.invest),'aktiver Monat','chart','blue')}${q('Daily Burn',euro(t.expenses/30),'Ausgaben pro Tag','pulse','orange')}</div><div class="grid dash"><div class="card"><div class="toolbar"><div><h2>Vermögensaufstellung</h2><span class="sub">Net Worth und Allocation</span></div><button class="ghost" data-nav="portfolio">Details</button></div><div class="alloc">${donut()}${allocationLegend()}</div></div><div class="card"><div class="toolbar"><div><h2>Cashflow Anatomy</h2><span class="sub">Wohin fließt dein Geld?</span></div><button class="ghost" data-nav="cashflow">Bearbeiten</button></div>${sankey(d,t)}</div><div class="card"><div class="toolbar"><h2>${monthName(UI.month)} ${UI.year}</h2></div>${stat('Einnahmen',euro(t.income))}${stat('Ausgaben',euro(t.expenses),'red')}${stat('Investments',euro(t.invest),'purple')}${stat('Cashflow',euro(cash),cash>=0?'green':'red')}${stat('Ausgabenquote',pct(t.income?t.expenses/t.income*100:0))}${stat('größter Ausgabenposten',largest(d.expenses))}<div class="addRow"><button class="primary" data-action="quick">＋ Eintrag</button><button class="ghost" data-nav="cashflow">Cashflow</button></div></div></div><div class="grid lower"><div class="card"><div class="toolbar"><h2>FIRE Cockpit</h2><span class="sub">4% SWR = ${euro(target)}</span></div><div class="metricGrid">${metric('Jahresausgaben',euro(annualExpenses(d)))}${metric('Zielvermögen',euro(target))}${metric('SWR',pct(state.settings.swr))}${metric('Rendite',pct(state.settings.returnRate))}${metric('Notgroschen',euro(t.expenses*state.settings.emergencyMonths))}${metric('FIRE Alter',fy===999?'N/A':Math.round(new Date().getFullYear()+fy))}</div></div><div class="card"><div class="toolbar"><h2>Tactical FIRE Simulator</h2><span class="sub">zusätzliche Monatsrate</span></div><input class="slider" id="dashExtra" type="range" min="0" max="5000" step="100" value="${UI.sim.extra}"><div class="bigNum sensitive">${euro(UI.sim.extra)}</div><div>FIRE in <b>${fireYears(d,UI.sim.extra)===999?'N/A':fireYears(d,UI.sim.extra).toFixed(1)+' Jahren'}</b></div><div class="green">Zeitgewinn ${fy===999?'N/A':Math.max(0,fy-fireYears(d,UI.sim.extra)).toFixed(1)+' Jahre'}</div></div><div class="card"><div class="toolbar"><h2>Crash Szenarien</h2><span class="sub">Auswirkung auf Net Worth</span></div><div class="scenarioGrid">${scenario('Normal',0)}${scenario('TradFi',.3)}${scenario('Crypto',.6)}</div><div class="notice" style="margin-top:10px">${UI.sim.crash?`Stress-Test: Net Worth ${euro(stressNetWorth(UI.sim.crash))}`:'Wähle ein Szenario für den Stress-Test.'}</div></div></div><div class="grid wide"><div class="card"><div class="toolbar"><div><h2>10-Jahres-Projektion</h2><span class="sub">${state.settings.returnRate}% p.a. · aktuelle Sparrate</span></div><button class="ghost" data-nav="projection">Vollansicht</button></div>${lineChart(projectedSeries(d,10,state.settings.returnRate,state.settings.monthlyExtra),target)}</div><div class="card"><div class="toolbar"><h2>Milestones</h2><button class="ghost" data-nav="goals">Alle</button></div>${goalMini()}</div></div>`}
+function dashboard(){
+ let d=getMonth(),t=totals(d),cash=t.income-t.expenses-t.invest;
+ let saveRate=t.income?(t.income-t.expenses)/t.income*100:0;
+ let fy=fireYears(d),target=fireTarget(d),nw=netWorth();
+ let fireProgress=target>0?Math.max(0,Math.min(100,nw/target*100)):0;
+ let runway=liquidityRunway();
+ let topExpense=(d.expenses||[]).slice().sort((a,b)=>b.val-a.val)[0];
+ let monthlySurplus=t.income-t.expenses;
+ let emergencyTarget=t.expenses*state.settings.emergencyMonths;
+ let currentCash=state.assets.filter(a=>a.type==='Cash').reduce((s,a)=>s+Number(a.value||0),0);
+ let emergencyProgress=emergencyTarget?Math.min(100,currentCash/emergencyTarget*100):100;
+ return `
+ <div class="dashboardHero">
+   ${q('Net Worth',euro(nw),'Assets minus Schulden','wallet','blue')}
+   ${q('Freier Cashflow',euro(cash),cash>=0?'nach Investments verfügbar':'monatliches Defizit','flow',cash>=0?'green':'red')}
+   ${q('Sparquote',pct(saveRate),'Einkommen minus Ausgaben','pie',saveRate>=25?'green':'orange')}
+   ${q('FIRE Countdown',fy===999?'N/A':fy.toFixed(1)+' Jahre',`Ziel ${euro(target)}`,'fire','purple')}
+ </div>
+
+ <div class="dashboardMain">
+   <div class="card dashboardCardTall dashboardCashflow">
+     <div class="toolbar">
+       <div><h2>Cashflow</h2><span class="sub">So verteilt sich dein Geld im ${monthName(UI.month)}.</span></div>
+       <button class="ghost" data-nav="cashflow">Bearbeiten</button>
+     </div>
+     <div class="dashboardCashTop">
+       <div class="dashboardMicro"><span>Einnahmen</span><b class="green sensitive">${euro(t.income)}</b></div>
+       <div class="dashboardMicro"><span>Ausgaben</span><b class="red sensitive">${euro(t.expenses)}</b></div>
+       <div class="dashboardMicro"><span>Investiert</span><b class="purple sensitive">${euro(t.invest)}</b></div>
+     </div>
+     ${sankey(d,t)}
+   </div>
+
+   <div class="dashboardSide">
+     <div class="card dashboardCardCompact">
+       <div class="toolbar"><div><h2>FIRE Fortschritt</h2><span class="sub">Aktueller Weg zur finanziellen Freiheit.</span></div><span class="dashboardBadge">${pct(fireProgress)}</span></div>
+       <div class="fireProgressBlock">
+         <div class="fireProgressValue"><strong class="sensitive">${euro(nw)}</strong><span>Ziel<br><b class="sensitive">${euro(target)}</b></span></div>
+         <div class="progress"><i style="width:${fireProgress}%"></i></div>
+         <div class="quickFacts">
+           <div class="quickFact"><span>Countdown</span><b>${fy===999?'N/A':fy.toFixed(1)+' Jahre'}</b></div>
+           <div class="quickFact"><span>Rendite-Annahme</span><b>${pct(state.settings.returnRate)}</b></div>
+           <div class="quickFact"><span>SWR</span><b>${pct(state.settings.swr)}</b></div>
+         </div>
+       </div>
+       <div class="compactActions"><button class="primary" data-nav="fire">FIRE öffnen</button><button class="ghost" data-nav="simulator">Simulator</button></div>
+     </div>
+
+     <div class="card dashboardCardCompact">
+       <div class="toolbar"><div><h2>Finanzielle Reserve</h2><span class="sub">Liquidität und Notgroschen.</span></div></div>
+       <div class="quickFacts">
+         <div class="quickFact"><span>Liquidität</span><b class="sensitive">${euro(currentCash)}</b></div>
+         <div class="quickFact"><span>Runway</span><b class="${runway>=state.settings.emergencyMonths?'green':runway>=state.settings.emergencyMonths*.75?'orange':'red'}">${runway.toFixed(1)} Monate</b></div>
+         <div class="quickFact"><span>Notgroschen-Ziel</span><b class="sensitive">${euro(emergencyTarget)}</b></div>
+       </div>
+       <div class="progress" style="margin-top:10px"><i style="width:${emergencyProgress}%"></i></div>
+       <div class="compactActions"><button class="ghost" data-nav="financeCheck">Finanz-Check</button></div>
+     </div>
+   </div>
+ </div>
+
+ <div class="dashboardLower">
+   <div class="card dashboardAllocation">
+     <div class="toolbar">
+       <div><h2>Portfolio</h2><span class="sub">Vermögensaufteilung auf einen Blick.</span></div>
+       <button class="ghost" data-nav="portfolio">Details</button>
+     </div>
+     <div class="alloc">${donut()}${allocationLegend()}</div>
+   </div>
+
+   <div class="card dashboardProjection">
+     <div class="toolbar">
+       <div><h2>10-Jahres-Ausblick</h2><span class="sub">${pct(state.settings.returnRate)} Rendite · aktuelle Investmentrate</span></div>
+       <button class="ghost" data-nav="projection">Vollansicht</button>
+     </div>
+     ${lineChart(projectedSeries(d,10,state.settings.returnRate,state.settings.monthlyExtra),target)}
+     <div class="quickFacts" style="margin-top:6px">
+       <div class="quickFact"><span>Monatlicher Überschuss vor Investments</span><b class="${monthlySurplus>=0?'green':'red'} sensitive">${euro(monthlySurplus)}</b></div>
+       <div class="quickFact"><span>Größter Ausgabenposten</span><b>${topExpense?esc(topExpense.name):'—'}</b></div>
+     </div>
+   </div>
+ </div>`;
+}
 function scenario(name,v){return `<button class="scenario ${UI.sim.crash===v?'active':''}" data-crash="${v}">${name}<b>${v?`-${v*100}%`:'Basis'}</b></button>`}
 function largest(a){let x=(a||[]).slice().sort((a,b)=>b.val-a.val)[0];return x?esc(x.name):'—'}
 function goalMini(){return state.goals.slice(0,4).map(g=>{let cur=goalCurrent(g),p=Math.min(100,cur/g.target*100);return `<div class="goal"><div class="goalTop"><span>${esc(g.name)}</span><b>${euro(cur)} / ${euro(g.target)}</b></div><div class="progress" style="margin-top:6px"><i style="width:${p}%"></i></div></div>`}).join('')}
