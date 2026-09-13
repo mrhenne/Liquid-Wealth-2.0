@@ -446,7 +446,7 @@ button{gap:7px!important}
   .dashboardCashTop{grid-template-columns:1fr}
 }
 </style>
-<script type="text/javascript" nonce="226c09a134e44f2a9b99f5258eb" src="//local.adguard.org?ts=1789287039880&amp;type=content-script&amp;dmn=chatgpt.com&amp;url=https%3A%2F%2Fchatgpt.com%2Fbackend-api%2Festuary%2Fcontent%3Fid%3Dfile_000000004e4081f4a8e6da265a236a9f%26ts%3D497024%26p%3Dfs%26cid%3D1%26sig%3D772c9e86bb1abb3fbcf712fc7a455bdb536ca4ef886816a1254d795df9020647%26v%3D0&amp;app=com.apple.Safari&amp;css=3&amp;js=1&amp;rel=1&amp;rji=1&amp;sbe=1"></script><script type="text/javascript" nonce="226c09a134e44f2a9b99f5258eb" src="//local.adguard.org?ts=1789287039880&amp;name=AdGuard%20Assistant&amp;name=AdGuard%20Extra&amp;name=AdGuard%20Popup%20Blocker&amp;type=user-script"></script></head>
+<script type="text/javascript" nonce="226c09a134e44f2a9b99f5258eb" src="//local.adguard.org?ts=1789287039880&amp;type=content-script&amp;dmn=chatgpt.com&amp;url=https%3A%2F%2Fchatgpt.com%2Fbackend-api%2Festuary%2Fcontent%3Fid%3Dfile_000000005ab081f4b5b6f2a14db078f5%26ts%3D497024%26p%3Dfs%26cid%3D1%26sig%3Db0901804e3cc6ec15fc71e0cd101633a9c08f424d7fa0e0f461f7a51c8d65028%26v%3D0&amp;app=com.apple.Safari&amp;css=3&amp;js=1&amp;rel=1&amp;rji=1&amp;sbe=1"></script><script type="text/javascript" nonce="226c09a134e44f2a9b99f5258eb" src="//local.adguard.org?ts=1789287039880&amp;name=AdGuard%20Assistant&amp;name=AdGuard%20Extra&amp;name=AdGuard%20Popup%20Blocker&amp;type=user-script"></script></head>
 <body>
 <div class="app">
 <aside class="sidebar"><div class="brand"><div class="mark">LW</div><div class="brandText"><b>Liquid Wealth</b><small>Personal Wealth OS · Tactical Engine</small></div></div>
@@ -469,15 +469,17 @@ button{gap:7px!important}
 <div class="topRight">
   <button class="ghost" id="calendarBtn" data-action="calendar" title="Kalender öffnen"><span class="icon" data-icon="calendar"></span><span class="hideMobile">Kalender</span></button>
   <button class="topBtn hideMobile" id="addQuick" data-action="quick"><span class="icon" data-icon="plus"></span>Eintrag</button>
+  <button class="topBtn hideMobile" id="backupTop" data-action="export" title="Backup als JSON speichern"><span class="icon" data-icon="download"></span>Backup</button>
+  <button class="topBtn hideMobile" id="importTop" data-action="chooseImport" title="Backup importieren"><span class="icon" data-icon="upload"></span>Import</button>
   <button class="topBtn appearanceBtn" id="appearanceToggle" data-action="toggleAppearance" title="Erscheinungsbild wechseln"><span class="icon" id="appearanceIcon" data-icon="moon"></span><span class="themeText" id="appearanceText">Light Mode</span></button>
   <button class="topBtn" id="stealth" data-action="toggleStealth"><span class="icon" data-icon="eyeOff"></span><span class="hideMobile">Stealth</span></button>
   <button class="primary" id="openSettings" data-action="openSettings" title="Einstellungen"><span class="icon" data-icon="settings"></span><span class="hideMobile">Einstellungen</span></button>
   <div class="userPill"><div class="avatar">LW</div><div class="userMeta"><b>Liquid Wealth</b><small>Private Dashboard</small></div></div>
 </div>
 </header><div class="content">
-<section id="dashboard" class="view active"></section><section id="wealth" class="view"></section><section id="cashflow" class="view"></section><section id="fire" class="view"></section><section id="simulator" class="view"></section><section id="projection" class="view"></section><section id="year" class="view"></section><section id="portfolio" class="view"></section><section id="crypto" class="view"></section><section id="goals" class="view"></section><section id="financeCheck" class="view"></section><section id="risk" class="view"></section><section id="settings" class="view"></section><div class="footer">Liquid Wealth Tactical Engine · lokale Daten · regelmäßig JSON Backup exportieren</div>
+<section id="dashboard" class="view active"></section><section id="wealth" class="view"></section><section id="cashflow" class="view"></section><section id="fire" class="view"></section><section id="simulator" class="view"></section><section id="projection" class="view"></section><section id="year" class="view"></section><section id="portfolio" class="view"></section><section id="crypto" class="view"></section><section id="goals" class="view"></section><section id="financeCheck" class="view"></section><section id="risk" class="view"></section><section id="settings" class="view"></section><div class="footer">Liquid Wealth Tactical Engine · lokale Speicherung · JSON Backup & Import</div>
 </div></main></div>
-<div class="modal" id="modal"><div class="modalBox"><div class="toolbar"><div><h2 id="modalTitle">Eintrag</h2><div class="sub" id="modalSub"></div></div><button class="ghost" id="closeModal" data-action="closeModal">Schließen</button></div><div id="modalBody"></div></div></div><div class="toast" id="toast"></div>
+<div class="modal" id="modal"><div class="modalBox"><div class="toolbar"><div><h2 id="modalTitle">Eintrag</h2><div class="sub" id="modalSub"></div></div><button class="ghost" id="closeModal" data-action="closeModal">Schließen</button></div><div id="modalBody"></div></div></div><input id="globalImportFile" type="file" accept=".json,application/json" hidden><div class="toast" id="toast"></div>
 <script>
 'use strict';
 const APP='LWTE_8';
@@ -489,7 +491,7 @@ function tx(name,val,recurring=false,cat=''){return{id:crypto.randomUUID?crypto.
 const defaultAssets=[{id:'a1',name:'ETF',value:57000,type:'ETF',cost:42000,rate:7},{id:'a2',name:'Bitcoin',value:35600,type:'Crypto',cost:18000,rate:12},{id:'a3',name:'Depot',value:21400,type:'Aktien',cost:16000,rate:7},{id:'a4',name:'Cash',value:14300,type:'Cash',cost:14300,rate:1},{id:'a5',name:'Immobilien',value:9800,type:'Immobilie',cost:7000,rate:3},{id:'a6',name:'Sonstige',value:4400,type:'Sonstige',cost:3000,rate:2}];
 const initial={version:8,settings:{...defaults},months:{},assets:defaultAssets,liabilities:[],goals:[{id:'g1',name:'FIRE',target:1200000,current:0,deadline:2042},{id:'g2',name:'Notgroschen',target:15000,current:0,deadline:2027}],meta:{created:new Date().toISOString()}};
 let state=loadState();let UI={year:now.getFullYear(),month:now.getMonth()+1,view:'dashboard',stealth:false,coins:[],sim:{extra:2000,returnRate:7,crash:0,years:15},risk:null};
-function loadState(){try{let raw=localStorage.getItem(APP)||localStorage.getItem('LWTE_5');let x=raw?JSON.parse(raw):null;if(x&&[4,5,6,7,8].includes(x.version))return {...x,version:8,settings:{...defaults,...(x.settings||{})},months:x.months||{},assets:x.assets||[],liabilities:x.liabilities||[],goals:x.goals||[]}}catch(e){}let x=structuredClone?structuredClone(initial):JSON.parse(JSON.stringify(initial));x.months[`${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}`]=demoMonth();return x}
+function loadState(){try{let raw=localStorage.getItem(APP)||localStorage.getItem('LWTE_5');let x=raw?JSON.parse(raw):null;if(x&&[4,5,6,7,8,9].includes(x.version))return {...x,version:9,settings:{...defaults,...(x.settings||{})},months:x.months||{},assets:x.assets||[],liabilities:x.liabilities||[],goals:x.goals||[]}}catch(e){}let x=structuredClone?structuredClone(initial):JSON.parse(JSON.stringify(initial));x.months[`${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}`]=demoMonth();return x}
 function save(){localStorage.setItem(APP,JSON.stringify(state))}
 function key(y=UI.year,m=UI.month){return `${y}-${String(m).padStart(2,'0')}`}
 function getMonth(y=UI.year,m=UI.month,create=true){let k=key(y,m);if(!state.months[k]&&create)state.months[k]={income:[],expenses:[],invest:[]};return state.months[k]||{income:[],expenses:[],invest:[]}}
@@ -750,11 +752,89 @@ function deleteGoal(b){state.goals=state.goals.filter(g=>String(g.id)!==b.closes
 function applyRecurring(){let d=getMonth();for(const cat of ['income','expenses','invest'])for(const x of d[cat])if(x.recurring&&x.val===0)x.val=0;let prev=new Date(UI.year,UI.month-2,1),p=getMonth(prev.getFullYear(),prev.getMonth()+1,false);if(!p){toast('Kein Vormonat vorhanden');return}for(const cat of ['income','expenses','invest'])for(const x of p[cat]||[])if(x.recurring&&!d[cat].some(y=>y.name===x.name))d[cat].push({...x,id:String(Date.now()+Math.random())});save();render();toast('Wiederkehrende Einträge übernommen')}
 function copyPrev(){let p=new Date(UI.year,UI.month-2,1),src=getMonth(p.getFullYear(),p.getMonth()+1,false),d=getMonth();if(!src){toast('Kein Vormonat vorhanden');return}for(const cat of ['income','expenses','invest'])d[cat]=(src[cat]||[]).map(x=>({...x,id:String(Date.now()+Math.random())}));save();render();toast('Vormonat kopiert')}
 function shift(n){let d=new Date(UI.year,UI.month-1+n,1);UI.year=d.getFullYear();UI.month=d.getMonth()+1;getMonth();render()}
+
+function settingsView(){
+ const s=state.settings;
+ return `<div class="toolbar">
+   <div><h1 class="sectionTitle">Einstellungen</h1><p class="sectionSub">FIRE-Annahmen, Sicherheitsreserve und Datensicherung.</p></div>
+   <button class="primary" data-action="saveSettings"><span class="icon" data-icon="save"></span>Speichern</button>
+ </div>
+ <div class="grid wide">
+   <div class="card">
+     <div class="toolbar"><div><h2>FIRE & Planung</h2><span class="sub">Diese Werte beeinflussen Projektion und FIRE-Berechnung.</span></div></div>
+     <div class="formGrid">
+       <div class="field"><label>SWR / Entnahmerate (%)</label><input class="input" id="setSWR" type="number" step="0.1" value="${s.swr}"></div>
+       <div class="field"><label>Erwartete Rendite p.a. (%)</label><input class="input" id="setReturn" type="number" step="0.1" value="${s.returnRate}"></div>
+       <div class="field"><label>Inflation p.a. (%)</label><input class="input" id="setInflation" type="number" step="0.1" value="${s.inflation}"></div>
+       <div class="field"><label>Notgroschen (Monate)</label><input class="input" id="setEmergency" type="number" step="1" min="0" value="${s.emergencyMonths}"></div>
+       <div class="field"><label>FIRE-Zielmodus</label><select class="input" id="setMode"><option value="expense" ${s.targetMode==='expense'?'selected':''}>Dynamisch aus Ausgaben</option><option value="fixed" ${s.targetMode==='fixed'?'selected':''}>Fixes Zielvermögen</option></select></div>
+       <div class="field"><label>Fixes FIRE-Ziel (€)</label><input class="input" id="setTarget" type="number" step="1000" value="${s.fixedTarget}"></div>
+       <div class="field full"><label>Zusätzliche monatliche Investmentrate (€)</label><input class="input" id="setExtra" type="number" step="50" value="${s.monthlyExtra}"></div>
+     </div>
+   </div>
+   <div class="card">
+     <div class="toolbar"><div><h2>Daten & Backup</h2><span class="sub">Alle Daten bleiben lokal in deinem Browser.</span></div></div>
+     <div class="quickFacts">
+       <div class="quickFact"><span>Gespeicherte Monate</span><b>${Object.keys(state.months||{}).length}</b></div>
+       <div class="quickFact"><span>Assets</span><b>${(state.assets||[]).length}</b></div>
+       <div class="quickFact"><span>Ziele</span><b>${(state.goals||[]).length}</b></div>
+       <div class="quickFact"><span>Format-Version</span><b>v9</b></div>
+     </div>
+     <div class="notice" style="margin-top:12px">Empfehlung: Nach größeren Änderungen ein JSON-Backup speichern. Die Datei enthält Monate, Assets, Schulden, Ziele und Einstellungen.</div>
+     <div class="actions">
+       <button class="primary" data-action="export"><span class="icon" data-icon="download"></span>Backup speichern</button>
+       <button class="ghost" data-action="chooseImport"><span class="icon" data-icon="upload"></span>Backup importieren</button>
+       <button class="danger" data-action="resetDemo"><span class="icon" data-icon="trash"></span>Demo zurücksetzen</button>
+     </div>
+   </div>
+ </div>`;
+}
+
 function saveSettings(){let s=state.settings;s.swr=Number(document.getElementById('setSWR').value)||4;s.returnRate=Number(document.getElementById('setReturn').value)||7;s.inflation=Number(document.getElementById('setInflation').value)||2;s.emergencyMonths=Number(document.getElementById('setEmergency').value)||6;s.targetMode=document.getElementById('setMode').value;s.fixedTarget=Number(document.getElementById('setTarget').value)||1200000;s.monthlyExtra=Number(document.getElementById('setExtra').value)||0;save();render();toast('Einstellungen gespeichert')}
-function exportData(){let blob=new Blob([JSON.stringify(state,null,2)],{type:'application/json'}),a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='liquid-wealth-backup.json';a.click();setTimeout(()=>URL.revokeObjectURL(a.href),1000);toast('Backup exportiert')}
-function importData(e){let f=e.target.files?.[0];if(!f)return;let r=new FileReader();r.onload=()=>{try{let x=JSON.parse(r.result);if(!x||![4,5,6,7,8].includes(x.version))throw Error('Unbekanntes Format');state={...initial,...x,version:8,settings:{...defaults,...(x.settings||{})},months:x.months||{},assets:x.assets||[],liabilities:x.liabilities||[],goals:x.goals||[]};save();render();toast('Backup importiert')}catch(err){toast('Import fehlgeschlagen')}};r.readAsText(f)}
+function exportData(){
+ const payload={
+   app:'Liquid Wealth Tactical Engine',
+   version:9,
+   exportedAt:new Date().toISOString(),
+   data:{...state,version:9}
+ };
+ const stamp=new Date().toISOString().slice(0,10);
+ const blob=new Blob([JSON.stringify(payload,null,2)],{type:'application/json'});
+ const url=URL.createObjectURL(blob),a=document.createElement('a');
+ a.href=url;a.download=`liquid-wealth-backup-${stamp}.json`;
+ document.body.appendChild(a);a.click();a.remove();
+ setTimeout(()=>URL.revokeObjectURL(url),1200);
+ toast('Backup gespeichert');
+}
+function chooseImport(){
+ const f=document.getElementById('globalImportFile');
+ if(f){f.value='';f.click();}
+}
+function importData(e){
+ const f=e.target.files?.[0];if(!f)return;
+ const r=new FileReader();
+ r.onload=()=>{
+   try{
+     const parsed=JSON.parse(r.result);
+     const x=parsed.data||parsed;
+     const v=Number(parsed.version||x.version||0);
+     if(!x||![4,5,6,7,8,9].includes(v))throw Error('Unbekanntes Format');
+     if(!confirm(`Backup "${f.name}" importieren? Aktuelle lokale Daten werden ersetzt.`))return;
+     state={...initial,...x,version:9,
+       settings:{...defaults,...(x.settings||{})},
+       months:x.months||{},assets:x.assets||[],liabilities:x.liabilities||[],goals:x.goals||[]};
+     save();UI.risk=null;render();toast('Backup erfolgreich importiert');
+   }catch(err){
+     console.error(err);toast('Import fehlgeschlagen: ungültige Datei');
+   }
+ };
+ r.readAsText(f);
+}
 function reset(){if(!confirm('Wirklich Demo-Daten zurücksetzen?'))return;state=structuredClone?structuredClone(initial):JSON.parse(JSON.stringify(initial));state.months[key()]=demoMonth();save();render();toast('Demo-Daten zurückgesetzt')}
 function action(a){
+ if(a==='chooseImport')return chooseImport();
+ if(a==='saveSettings')return saveSettings();
+ if(a==='resetDemo')return reset();
  if(a==='quick')return openQuick();
  if(a==='copyPrev')return copyPrev();
  if(a==='applyRecurring')return applyRecurring();
@@ -786,10 +866,31 @@ function runMonteCarlo(){let d=getMonth(),target=fireTarget(d),start=netWorth(),
 function risk(){let d=getMonth(),r=UI.risk||(UI.risk=runMonteCarlo()),fy=fireYears(d),color=r.success>=80?'green':r.success>=60?'orange':'red';let bars=[['10%',r.p10],['Median',r.p50],['90%',r.p90]];return `<div class="toolbar"><div><h1 class="sectionTitle">Risikoanalyse</h1><p class="sectionSub">Monte-Carlo-Stresstest mit 1.000 Renditepfaden. Er zeigt, wie robust dein aktueller FIRE-Plan gegen unterschiedliche Börsenverläufe ist.</p></div><button class="primary" data-action="rerunRisk"><span class="icon">${I('pulse')}</span>Neu simulieren</button></div><div class="riskGrid"><div class="riskMetric"><span>FIRE-Erreichung in ${r.horizon} Jahren</span><b class="${color}">${pct(r.success)}</b></div><div class="riskMetric"><span>Median Vermögen</span><b class="sensitive">${euro(r.p50)}</b></div><div class="riskMetric"><span>Schwaches 10%-Szenario</span><b class="sensitive red">${euro(r.p10)}</b></div><div class="riskMetric"><span>Starkes 90%-Szenario</span><b class="sensitive green">${euro(r.p90)}</b></div></div><div class="grid wide" style="margin-top:14px"><div class="card"><div class="toolbar"><div><h2>Verteilung der Ergebnisse</h2><span class="sub">Start ${euro(netWorth())} · Ziel ${euro(r.target)} · Rendite ${pct(state.settings.returnRate)} · Volatilität 16%</span></div></div><canvas id="riskCanvas" class="riskCanvas"></canvas></div><div class="card"><h2>Einordnung</h2>${stat('Konventioneller FIRE Countdown',fy===999?'N/A':fy.toFixed(1)+' Jahre')}${stat('Simulationshorizont',r.horizon+' Jahre')}${stat('Pfade',r.paths.toLocaleString('de-DE'))}${stat('FIRE Ziel',euro(r.target))}<div class="notice" style="margin-top:12px">Die Simulation ist ein Planungsmodell, keine Prognose. Sie berücksichtigt eine variable Renditereihenfolge und macht das Sequence-of-Returns-Risiko sichtbar. Inflation und Steuern sind nicht separat modelliert.</div></div></div>`}
 function drawRisk(){let c=document.getElementById('riskCanvas');if(!c)return;let r=UI.risk||(UI.risk=runMonteCarlo()),ctx=c.getContext('2d'),dpr=window.devicePixelRatio||1,w=c.clientWidth,h=c.clientHeight;c.width=w*dpr;c.height=h*dpr;ctx.scale(dpr,dpr);ctx.clearRect(0,0,w,h);let vals=[],mu=state.settings.returnRate/100,vol=.16,start=netWorth(),monthly=totals(getMonth()).invest+Number(state.settings.monthlyExtra||0),target=r.target;for(let p=0;p<500;p++){let x=start;for(let y=0;y<r.horizon;y++){let rr=Math.max(-.45,Math.min(.45,mu+vol*normalRandom()));for(let m=0;m<12;m++)x=Math.max(0,x*(1+rr/12)+monthly)}vals.push(x)}vals.sort((a,b)=>a-b);let max=Math.max(...vals,target),pad=35;ctx.strokeStyle=getComputedStyle(document.documentElement).getPropertyValue('--line');ctx.lineWidth=1;ctx.beginPath();ctx.moveTo(pad,h-28);ctx.lineTo(w-pad,h-28);ctx.stroke();let bins=28,counts=new Array(bins).fill(0);vals.forEach(v=>counts[Math.min(bins-1,Math.floor(v/max*bins))]++);let bw=(w-2*pad)/bins;counts.forEach((n,i)=>{let bh=(h-55)*n/Math.max(...counts);ctx.fillStyle='#1688ff';ctx.fillRect(pad+i*bw,h-29-bh,bw-3,bh)});let tx=pad+target/max*(w-2*pad);ctx.strokeStyle='#ff4f70';ctx.setLineDash([6,5]);ctx.beginPath();ctx.moveTo(tx,18);ctx.lineTo(tx,h-25);ctx.stroke();ctx.setLineDash([]);ctx.fillStyle='#ff6a85';ctx.font='11px Inter, sans-serif';ctx.fillText('FIRE Ziel',Math.min(tx+6,w-85),28)}
 function applyAppearance(){document.documentElement.classList.toggle('light',!UI.dark);document.documentElement.style.colorScheme=UI.dark?'dark':'light';const b=document.getElementById('appearanceToggle');if(!b)return;const icon=document.getElementById('appearanceIcon');const text=document.getElementById('appearanceText');if(icon)icon.setAttribute('data-icon',UI.dark?'sun':'moon');if(text)text.textContent=UI.dark?'Light Mode':'Dark Mode';b.title=UI.dark?'Zu Light Mode wechseln':'Zu Dark Mode wechseln';}
-function render(){const monthText=`${monthName(UI.month)} ${UI.year}`;const monthBtn=document.getElementById('monthLabel');const mt=document.getElementById('monthLabelText');if(mt)mt.textContent=monthText;else if(monthBtn)monthBtn.textContent=monthText;document.querySelectorAll('.view').forEach(v=>v.classList.toggle('active',v.id===UI.view));document.querySelectorAll('#nav button').forEach(b=>b.classList.toggle('active',b.dataset.view===UI.view));document.getElementById('dashboard').innerHTML=dashboard();document.getElementById('wealth').innerHTML=wealth();document.getElementById('cashflow').innerHTML=cashflow();document.getElementById('fire').innerHTML=fire();document.getElementById('simulator').innerHTML=simulator();document.getElementById('projection').innerHTML=projection();document.getElementById('year').innerHTML=year();document.getElementById('portfolio').innerHTML=portfolio();document.getElementById('crypto').innerHTML=crypto();document.getElementById('goals').innerHTML=goals();document.getElementById('financeCheck').innerHTML=financeCheck();document.getElementById('risk').innerHTML=risk();document.getElementById('settings').innerHTML=settings();applyAppearance();document.body.classList.toggle('stealth',UI.stealth);decorateButtons();syncSearchInput();applySearchFilter();if(UI.view==='risk')drawRisk()}
-function toast(msg){let t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');clearTimeout(window.__toast);window.__toast=setTimeout(()=>t.classList.remove('show'),1800)}
-async function fetchCoins(force=false){try{let r=await fetch('https://api.coingecko.com/api/v3/coins/markets?vs_currency=eur&order=market_cap_desc&per_page=12&page=1&sparkline=false',{cache:'no-store'});if(!r.ok)throw Error();UI.coins=await r.json();document.getElementById('coinMini').innerHTML=UI.coins.slice(0,5).map(c=>`<div class="coinMini"><b>${esc(c.symbol.toUpperCase())}</b><span>${euro(c.current_price)}</span><em>${c.price_change_percentage_24h>=0?'+':''}${(c.price_change_percentage_24h||0).toFixed(1)}%</em></div>`).join('');if(UI.view==='crypto')render()}catch(e){document.getElementById('coinMini').innerHTML='<span class="muted" style="font-size:10px">Live-Daten offline</span>';if(force)toast('CoinGecko nicht erreichbar')}}
-
+function render(){
+ const monthText=`${monthName(UI.month)} ${UI.year}`;
+ const mt=document.getElementById('monthLabelText');
+ if(mt)mt.textContent=monthText;
+ document.querySelectorAll('.view').forEach(v=>v.classList.toggle('active',v.id===UI.view));
+ document.querySelectorAll('#nav button').forEach(b=>b.classList.toggle('active',b.dataset.view===UI.view));
+ const renderers={
+   dashboard,wealth,cashflow,fire,simulator,projection,year,portfolio,crypto,goals,
+   financeCheck,risk,settings:settingsView
+ };
+ const target=document.getElementById(UI.view);
+ const fn=renderers[UI.view]||dashboard;
+ if(target)target.innerHTML=fn();
+ applyAppearance();
+ document.body.classList.toggle('stealth',UI.stealth);
+ decorateButtons(target||document);
+ syncSearchInput();
+ applySearchFilter();
+ if(UI.view==='risk')requestAnimationFrame(drawRisk);
+}
+let __renderFrame=0;
+function scheduleRender(){
+ if(__renderFrame)return;
+ __renderFrame=requestAnimationFrame(()=>{__renderFrame=0;render();});
+}
 document.addEventListener('click',function(e){
  const b=e.target.closest('button');
  if(!b)return;
@@ -810,12 +911,12 @@ document.addEventListener('change',function(e){
  if(t.matches('.debtName,.debtVal')) return updateDebt(t);
  if(t.matches('.goalName,.goalTarget,.goalDeadline')) return updateGoal(t);
  if(t.id==='yearSelect'){UI.year=Number(t.value);return render();}
- if(t.id==='importFile')return importData({target:t});
+ if(t.id==='importFile'||t.id==='globalImportFile')return importData({target:t});
 });
 document.addEventListener('input',function(e){
  const t=e.target;
- if(t.id==='dashExtra'||t.id==='simExtra'){UI.sim.extra=Number(t.value);return render();}
- if(t.id==='simReturn'){UI.sim.returnRate=Number(t.value);return render();}
+ if(t.id==='dashExtra'||t.id==='simExtra'){UI.sim.extra=Number(t.value);return scheduleRender();}
+ if(t.id==='simReturn'){UI.sim.returnRate=Number(t.value);return scheduleRender();}
 });
 
 document.addEventListener('input',function(e){
