@@ -18,7 +18,7 @@ function createCheckpoint(reason='Manuell',raw=localStorage.getItem(APP)||JSON.s
 function maybeAutoCheckpoint(previousRaw){if(!previousRaw)return;let list=checkpointList(),last=list[0];if(last&&Date.now()-last.ts<10*60*1000)return;if(last?.raw===previousRaw)return;createCheckpoint('Auto-Sicherung',previousRaw)}
 function save(skipCheckpoint=false){let next=JSON.stringify(state),prev=localStorage.getItem(APP);if(!skipCheckpoint&&prev&&prev!==next)maybeAutoCheckpoint(prev);localStorage.setItem(APP,next);window.LWCloud?.queueSave?.(state)}
 function manualCheckpoint(){createCheckpoint('Manueller Checkpoint');render();showToast('Sicherheits-Checkpoint erstellt')}
-function restoreCheckpoint(){let list=checkpointList();if(!list.length)return showToast('Noch kein Checkpoint vorhanden');let cp=list[0];if(!confirm(`Checkpoint vom ${new Date(cp.ts).toLocaleString('de-DE')} wiederherstellen?`))return;createCheckpoint('Vor Wiederherstellung');try{let x=JSON.parse(cp.raw);state={...initial,...x,version:9,settings:{...defaults,...(x.settings||{})},months:x.months||{},assets:x.assets||[],liabilities:x.liabilities||[],goals:x.goals||[]};localStorage.setItem(APP,JSON.stringify(state));window.LWCloud?.queueSave?.(state);UI.risk=null;render();showToast('Checkpoint wiederhergestellt')}catch(e){console.error(e);showToast('Checkpoint ist beschädigt')}}
+function restoreCheckpoint(){let list=checkpointList();if(!list.length)return showToast('Noch kein Checkpoint vorhanden');let cp=list[0];if(!confirm(`Checkpoint vom ${new Date(cp.ts).toLocaleString('de-DE')} wiederherstellen?`))return;createCheckpoint('Vor Wiederherstellung');try{let x=JSON.parse(cp.raw);state={...initial,...x,version:9,settings:{...defaults,...(x.settings||{})},months:x.months||{},assets:x.assets||[],liabilities:x.liabilities||[],cryptoFavorites:Array.isArray(x.cryptoFavorites)&&x.cryptoFavorites.length?x.cryptoFavorites:['bitcoin','ethereum','solana','binancecoin'],goals:x.goals||[]};localStorage.setItem(APP,JSON.stringify(state));window.LWCloud?.queueSave?.(state);UI.risk=null;render();showToast('Checkpoint wiederhergestellt')}catch(e){console.error(e);showToast('Checkpoint ist beschädigt')}}
 function key(y=UI.year,m=UI.month){return `${y}-${String(m).padStart(2,'0')}`}
 function getMonth(y=UI.year,m=UI.month,create=true){let k=key(y,m);if(!state.months[k]&&create)state.months[k]={income:[],expenses:[],invest:[]};return state.months[k]||{income:[],expenses:[],invest:[]}}
 function sum(a){return(a||[]).reduce((s,x)=>s+(Number(x.val)||0),0)}
@@ -163,7 +163,6 @@ function applySearchFilter(){
  });
 }
 
-function q(label,value,sub,icon,cls=''){return `<div class="card kpi"><span class="kicon">${I(icon)}</span><div class="klabel">${label}</div><div class="kvalue sensitive ${cls}">${value}</div><div class="ksub">${sub}</div></div>`}
 function metric(label,value){return `<div class="metric"><span>${label}</span><b class="sensitive">${value}</b></div>`}
 function stat(label,value,cls=''){return `<div class="stat"><span>${label}</span><b class="sensitive ${cls}">${value}</b></div>`}
 function infoTip(text){return `<span class="infoTip" tabindex="0" aria-label="${esc(text)}" data-tip="${esc(text)}">i</span>`}
@@ -274,11 +273,11 @@ function dashboard(){
  </div>
  <div class="dashboardGridTop">
   <div class="card dashboardCard dashboardAllocation">
-   <div class="toolbar"><div><h2><span class="icon">${I('pie')}</span>Vermögensaufstellung</h2><span class="sub">Allocation deiner Assets</span></div><button class="ghost" data-nav="portfolio">Details</button></div>
+   <div class="toolbar"><div><h2><span class="icon">${I('pie')}</span>Vermögensaufstellung ${infoTip('Zeigt, wie sich dein Nettovermögen auf die erfassten Anlageklassen verteilt.')}</h2><span class="sub">Allocation deiner Assets</span></div><button class="ghost" data-nav="portfolio">Details</button></div>
    <div class="alloc">${donut()}${allocationLegend()}</div>
   </div>
   <div class="card dashboardCard dashboardFlow">
-   <div class="toolbar"><div><h2><span class="icon">${I('flow')}</span>Cashflow Anatomy</h2><span class="sub">So fließt dein Geld im ${monthName(UI.month)}</span></div><button class="ghost" data-nav="cashflow">Bearbeiten</button></div>
+   <div class="toolbar"><div><h2><span class="icon">${I('flow')}</span>Cashflow Anatomy ${infoTip('Zeigt, wohin dein Einkommen im ausgewählten Monat fließt: Ausgaben, Investments und verbleibende Liquidität.')}</h2><span class="sub">So fließt dein Geld im ${monthName(UI.month)}</span></div><button class="ghost" data-nav="cashflow">Bearbeiten</button></div>
    ${sankey(d)}
   </div>
   <div class="card dashboardCard dashboardMonth">
@@ -295,7 +294,7 @@ function dashboard(){
  </div>
  <div class="dashboardGridMid">
   <div class="card dashboardCard">
-   <div class="toolbar"><div><h2><span class="icon">${I('target')}</span>FIRE-Ziel</h2><span class="sub">Fortschritt zur finanziellen Freiheit</span></div><span class="dashboardBadge">${pct(fireProgress)}</span></div>
+   <div class="toolbar"><div><h2><span class="icon">${I('target')}</span>FIRE-Ziel ${infoTip('Dein Zielvermögen für finanzielle Unabhängigkeit anhand deiner aktuellen FIRE-Einstellungen.')}</h2><span class="sub">Fortschritt zur finanziellen Freiheit</span></div><span class="dashboardBadge">${pct(fireProgress)}</span></div>
    <div class="fireGoalValue sensitive">${euro(target)}</div><div class="progress"><i style="width:${fireProgress}%"></i></div>
    <div class="quickFacts"><div class="quickFact"><span>Aktuell</span><b class="sensitive">${euro(nw)}</b></div><div class="quickFact"><span>SWR</span><b>${pct(state.settings.swr)}</b></div><div class="quickFact"><span>Countdown</span><b>${fy===999?'N/A':fy.toFixed(1)+' Jahre'}</b></div></div>
   </div>
@@ -310,7 +309,7 @@ function dashboard(){
    <div class="crashCards"><div class="crashCard"><span>TradFi Crash</span><strong>−30%</strong><b class="sensitive">${euro(trad)}</b><small>${baseYears!==999&&tradYears!==999?'FIRE +'+Math.max(0,tradYears-baseYears).toFixed(1)+' J.':'FIRE N/A'}</small></div><div class="crashCard"><span>Crypto Winter</span><strong>−60%</strong><b class="sensitive">${euro(crypt)}</b><small>${baseYears!==999&&cryptoYears!==999?'FIRE +'+Math.max(0,cryptoYears-baseYears).toFixed(1)+' J.':'FIRE N/A'}</small></div></div>
   </div>
   <div class="card dashboardCard">
-   <div class="toolbar"><div><h2><span class="icon">${I('shield')}</span>Notgroschen</h2><span class="sub">Ziel ${state.settings.emergencyMonths} Monatsausgaben</span></div></div>
+   <div class="toolbar"><div><h2><span class="icon">${I('shield')}</span>Notgroschen ${infoTip('Liquide Reserve im Verhältnis zu den eingestellten Monatsausgaben.')}</h2><span class="sub">Ziel ${state.settings.emergencyMonths} Monatsausgaben</span></div></div>
    <div class="emergencyBig"><strong class="sensitive">${euro(currentCash)}</strong><span>/ ${euro(emergencyTarget)}</span></div><div class="progress"><i style="width:${emergencyProgress}%"></i></div>
    <div class="quickFacts"><div class="quickFact"><span>Erreicht</span><b>${pct(emergencyProgress)}</b></div><div class="quickFact"><span>Runway</span><b>${liquidityRunway().toFixed(1)} Monate</b></div></div>
   </div>
@@ -507,7 +506,7 @@ function importData(e){
      createCheckpoint('Vor Backup-Import');
      state={...initial,...x,version:9,
        settings:{...defaults,...(x.settings||{})},
-       months:x.months||{},assets:x.assets||[],liabilities:x.liabilities||[],goals:x.goals||[]};
+       months:x.months||{},assets:x.assets||[],liabilities:x.liabilities||[],cryptoFavorites:Array.isArray(x.cryptoFavorites)&&x.cryptoFavorites.length?x.cryptoFavorites:['bitcoin','ethereum','solana','binancecoin'],goals:x.goals||[]};
      save();UI.risk=null;render();showToast('Backup erfolgreich importiert');
    }catch(err){
      console.error(err);showToast('Import fehlgeschlagen: ungültige Datei');
