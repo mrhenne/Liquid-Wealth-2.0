@@ -43,7 +43,7 @@
   <button class="topBtn appearanceBtn" id="appearanceToggle" data-action="toggleAppearance" title="Erscheinungsbild wechseln"><span class="icon" id="appearanceIcon" data-icon="moon"></span><span class="themeText" id="appearanceText">Light Mode</span></button>
   <button class="topBtn" id="stealth" data-action="toggleStealth"><span class="icon" data-icon="eyeOff"></span><span class="hideMobile">Stealth</span></button>
   <button class="primary" id="openSettings" data-action="openSettings" title="Einstellungen"><span class="icon" data-icon="settings"></span><span class="hideMobile">Einstellungen</span></button>
-  <div class="userPill"><div class="avatar">LW</div><div class="userMeta"><b>Liquid Wealth</b><small>Private Dashboard</small></div></div>
+  <button class="userPill" id="userPill" type="button" title="Konto und Cloud-Sync"><div class="avatar" id="userAvatar">LW</div><div class="userMeta"><b id="userName">Liquid Wealth</b><small id="userStatus">Lokal gespeichert</small></div></button>
 </div>
 </header><div class="content">
 <section id="dashboard" class="view active"></section><section id="wealth" class="view"></section><section id="cashflow" class="view"></section><section id="fire" class="view"></section><section id="simulator" class="view"></section><section id="projection" class="view"></section><section id="year" class="view"></section><section id="portfolio" class="view"></section><section id="crypto" class="view"></section><section id="goals" class="view"></section><section id="financeCheck" class="view"></section><section id="risk" class="view"></section><section id="settings" class="view"></section><div class="footer">Liquid Wealth · Personal Wealth OS · lokal mit Sicherheitsnetz · Cloud-ready</div>
@@ -75,6 +75,9 @@
 </div>
 <div class="modal" id="modal"><div class="modalBox"><div class="toolbar"><div><h2 id="modalTitle">Eintrag</h2><div class="sub" id="modalSub"></div></div><button class="ghost" id="closeModal" data-action="closeModal">Schließen</button></div><div id="modalBody"></div></div></div><input id="globalImportFile" type="file" accept=".json,application/json" hidden><div class="toast" id="toast"></div>
 <script src="assets/js/app.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js" crossorigin="anonymous"></script>
+<script src="assets/js/config.js"></script>
+<script src="assets/js/cloud.js"></script>
 <script>
 setTimeout(function(){
   if(!window.__LIQUID_WEALTH_BOOTED__){
