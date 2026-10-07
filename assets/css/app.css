@@ -1022,3 +1022,33 @@ html.light .chartTooltip strong{color:#17243a}
  .chartTooltip.show{transform:translateX(-50%) translateY(0)!important}
 }
 @media(prefers-reduced-motion:reduce){.chartTooltip{transition:none!important}}
+
+
+/* v29 · brand, context help, crypto holdings, month template */
+.brand{padding:10px 8px 14px!important;min-height:72px!important}
+.brandLogo{display:block;width:100%;height:auto;max-height:74px;object-fit:contain;object-position:left center}
+.authLogo{width:88px;height:88px;display:block;margin:0 auto 8px;filter:drop-shadow(0 16px 34px rgba(33,137,255,.24))}
+.authOrb{display:none!important}
+@media(max-width:720px){.brandLogo{max-height:54px}.authLogo{width:76px;height:76px}}
+
+.infoTip:after{display:none!important;content:none!important}
+.globalInfoPopover{
+ position:fixed;z-index:2147483000;display:block;opacity:0;visibility:hidden;pointer-events:none;
+ padding:10px 12px;border-radius:11px;border:1px solid rgba(132,183,232,.22);
+ background:rgba(5,17,30,.96);color:#eef6ff;box-shadow:0 18px 48px rgba(0,0,0,.36);
+ -webkit-backdrop-filter:blur(18px) saturate(150%);backdrop-filter:blur(18px) saturate(150%);
+ font-size:11px;line-height:1.5;font-weight:650;transition:opacity .12s ease,transform .12s ease;
+ transform:translateY(4px)
+}
+.globalInfoPopover.show{opacity:1;visibility:visible;transform:translateY(0)}
+html.light .globalInfoPopover{background:rgba(255,255,255,.98);color:#17243a;border-color:rgba(79,123,168,.18)}
+@media(max-width:720px){
+ .globalInfoPopover{left:12px!important;right:12px!important;top:auto!important;bottom:calc(88px + env(safe-area-inset-bottom))!important;width:auto!important;max-width:none!important;font-size:12px}
+}
+
+.cryptoSummary{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin-bottom:10px}
+.cryptoSummaryCard{display:grid;gap:4px;padding:12px 14px!important}.cryptoSummaryCard span{font-size:10px;color:var(--muted);font-weight:750}.cryptoSummaryCard strong{font-size:18px}
+.cryptoHoldingBox{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:10px;align-items:end;margin:10px 0;padding:10px;border-radius:10px;background:rgba(64,119,174,.065);border:1px solid rgba(112,158,205,.10)}
+.cryptoHoldingBox label{display:grid;gap:5px}.cryptoHoldingBox label>span,.cryptoHoldingValue span{font-size:10px;color:var(--muted);font-weight:700}
+.cryptoHoldingValue{display:grid;gap:4px;text-align:right}.cryptoHoldingValue strong{font-size:13px}
+@media(max-width:430px){.cryptoSummary{grid-template-columns:1fr 1fr}.cryptoHoldingBox{grid-template-columns:1fr}.cryptoHoldingValue{text-align:left}}
