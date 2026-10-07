@@ -1195,3 +1195,12 @@ button>.ico{
  .actions,.compactActions{width:100%}
  .actions>button,.compactActions>button{flex:1 1 auto}
 }
+
+/* v30.1 · heading baseline lock */
+.toolbar h2,.card h2{
+ display:flex!important;align-items:center!important;gap:7px!important;flex-wrap:wrap!important
+}
+.sectionTitle{
+ display:inline-flex!important;align-items:center!important;gap:7px!important;flex-wrap:wrap!important
+}
+.toolbar h2>.icon,.card h2>.icon,.sectionTitle>.icon{margin:0!important}
