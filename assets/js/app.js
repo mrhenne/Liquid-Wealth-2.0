@@ -736,11 +736,16 @@ function cryptoPriceChart(){
   data=data.slice();
   if(Date.now()-lastTs>30000)data.push([Date.now(),liveValue]);else data[data.length-1]=[Date.now(),liveValue]
  }
- const vals=data.map(p=>Number(p[1])).filter(Number.isFinite),minV=Math.min(...vals,costBasis||Infinity),maxV=Math.max(...vals,costBasis||-Infinity),min=Number.isFinite(minV)?minV:Math.min(...vals),max=Number.isFinite(maxV)?maxV:Math.max(...vals),span=Math.max(max-min,0.0000001),left=18,right=782,top=22,bottom=220;
+ const vals=data.map(p=>Number(p[1])).filter(Number.isFinite),qty=Number(state.cryptoHoldings?.[selected])||0,avgPrice=Number(state.cryptoAveragePrices?.[selected])||0;
+ const chartReference=isPortfolio?costBasis:avgPrice;
+ const minV=Math.min(...vals,chartReference||Infinity),maxV=Math.max(...vals,chartReference||-Infinity),min=Number.isFinite(minV)?minV:Math.min(...vals),max=Number.isFinite(maxV)?maxV:Math.max(...vals),span=Math.max(max-min,0.0000001),left=18,right=782,top=22,bottom=220;
  const x=i=>left+i*((right-left)/Math.max(data.length-1,1)),y=v=>bottom-(v-min)/span*(bottom-top),pts=data.map((p,i)=>`${x(i)},${y(Number(p[1]))}`).join(' ');
- const gid='cg'+Math.random().toString(36).slice(2,7),first=vals[0],last=liveValue>0?liveValue:vals[vals.length-1],periodChg=first?((last-first)/first*100):0,currentPnl=costBasis?last-costBasis:0,currentPnlPct=costBasis?currentPnl/costBasis*100:0;
- const area=`${left},${bottom} ${pts} ${right},${bottom}`,costY=costBasis?y(costBasis):null;
- const costLine=costBasis?`<line x1="${left}" x2="${right}" y1="${costY}" y2="${costY}" class="cryptoCostLine"/><text x="${right}" y="${Math.max(12,costY-6)}" text-anchor="end" class="cryptoCostLabel">Einstand ${esc(euro(costBasis))}</text>`:'';
+ const gid='cg'+Math.random().toString(36).slice(2,7),first=vals[0],last=liveValue>0?liveValue:vals[vals.length-1],periodChg=first?((last-first)/first*100):0;
+ const currentPnl=isPortfolio?(costBasis?last-costBasis:0):(qty&&avgPrice?qty*(last-avgPrice):0);
+ const currentPnlPct=isPortfolio?(costBasis?currentPnl/costBasis*100:0):(avgPrice?(last-avgPrice)/avgPrice*100:0);
+ const area=`${left},${bottom} ${pts} ${right},${bottom}`,costY=chartReference?y(chartReference):null;
+ const costLabel=isPortfolio?'Einstand':'Ø Kaufpreis';
+ const costLine=chartReference?`<line x1="${left}" x2="${right}" y1="${costY}" y2="${costY}" class="cryptoCostLine"/><text x="${right}" y="${Math.max(12,costY-6)}" text-anchor="end" class="cryptoCostLabel">${costLabel} ${esc(euro(chartReference))}</text>`:'';
  const hitStep=Math.max(1,Math.ceil(data.length/70));
  const points=data.map((p,i)=>{if(!(i%hitStep===0||i===data.length-1))return '';const v=Number(p[1]);return `<g class="chartPoint" data-chart-label="${esc(formatCryptoTime(p[0],UI.cryptoChartRange))}" data-chart-value="${esc(euro(v))}"><circle cx="${x(i)}" cy="${y(v)}" r="10" class="chartHit"/><circle cx="${x(i)}" cy="${y(v)}" r="2.8" class="cryptoChartDot"/></g>`}).join('');
  const title=isPortfolio?'Gesamtportfolio':(coin?.name||selected);
