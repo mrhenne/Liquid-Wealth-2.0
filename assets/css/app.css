@@ -1677,3 +1677,21 @@ html.light .cryptoDonutCenter{background:rgba(255,255,255,.96)}
 @media(max-width:430px){
  .cryptoSnapshotActions{grid-template-columns:1fr}
 }
+
+
+.cryptoHistoryStart{
+ min-height:220px;
+ display:flex;
+ flex-direction:column;
+ align-items:center;
+ justify-content:center;
+ gap:8px;
+ padding:24px;
+ text-align:center;
+ border:1px dashed rgba(112,160,207,.14);
+ border-radius:12px;
+ background:rgba(70,124,181,.04);
+}
+.cryptoHistoryStart strong{font-size:14px}
+.cryptoHistoryStart span{max-width:520px;color:var(--muted);font-size:11px;line-height:1.5}
+.cryptoHistoryStart b{font-size:22px;margin-top:4px}
