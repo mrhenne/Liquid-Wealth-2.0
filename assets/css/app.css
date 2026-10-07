@@ -1204,3 +1204,55 @@ button>.ico{
  display:inline-flex!important;align-items:center!important;gap:7px!important;flex-wrap:wrap!important
 }
 .toolbar h2>.icon,.card h2>.icon,.sectionTitle>.icon{margin:0!important}
+
+
+/* v31 · requested KPI icon/drag-handle parity */
+.dashboardHero .kicon,
+.dashboardHero .dragHandle{
+  width:56px!important;
+  height:56px!important;
+  min-width:56px!important;
+  min-height:56px!important;
+  border-radius:16px!important;
+  display:inline-flex!important;
+  align-items:center!important;
+  justify-content:center!important;
+}
+.dashboardHero .dragHandle{
+  top:14px!important;
+  right:14px!important;
+  opacity:.82!important;
+}
+.dashboardHero .kicon svg,
+.dashboardHero .dragHandle svg{
+  width:22px!important;
+  height:22px!important;
+}
+@media(max-width:720px){
+ .dashboardHero .kicon,
+ .dashboardHero .dragHandle{
+   width:52px!important;height:52px!important;min-width:52px!important;min-height:52px!important;border-radius:15px!important
+ }
+ .dashboardHero .dragHandle{top:12px!important;right:12px!important}
+ .dashboardHero .kicon svg,.dashboardHero .dragHandle svg{width:21px!important;height:21px!important}
+}
+
+/* v31 · CoinMarketCap-inspired crypto portfolio tracker */
+.cryptoSummary4{grid-template-columns:repeat(4,minmax(0,1fr))}
+.cryptoPortfolioGrid{display:grid;grid-template-columns:minmax(280px,.72fr) minmax(0,1.55fr);gap:10px;margin-bottom:10px}
+.cryptoDistributionCard,.cryptoChartCard{min-width:0}
+.cryptoDistribution{display:grid;grid-template-columns:190px minmax(0,1fr);gap:16px;align-items:center;min-height:290px}
+.cryptoDonut{width:184px;height:184px;position:relative;display:grid;place-items:center}
+.cryptoDonut svg{position:absolute;inset:0;width:100%;height:100%;filter:drop-shadow(0 12px 24px rgba(0,0,0,.22));overflow:visible}
+.cryptoDistTrack,.cryptoDistSegment{fill:none;stroke-width:14}.cryptoDistTrack{stroke:rgba(118,155,195,.11)}.cryptoDistSegment{stroke-linecap:round;pointer-events:stroke;transition:stroke-width .16s ease,filter .16s ease}.cryptoDistSegment:hover{stroke-width:17;filter:drop-shadow(0 0 7px rgba(89,155,255,.28))}
+.cryptoDonutCenter{width:108px;height:108px;border-radius:50%;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;background:rgba(6,18,32,.94);border:1px solid rgba(152,194,237,.15);z-index:2;text-align:center}
+.cryptoDonutCenter span,.cryptoDonutCenter small{font-size:9px;color:var(--muted);font-weight:800}.cryptoDonutCenter strong{font-size:15px}
+.cryptoDistLegend{display:grid;gap:7px}.cryptoDistLegend>div{display:grid;grid-template-columns:8px minmax(0,1fr) auto auto;gap:7px;align-items:center;padding:6px 7px;border-radius:8px}.cryptoDistLegend>div:hover{background:rgba(71,128,187,.07)}.cryptoDistLegend i{width:8px;height:8px;border-radius:50%}.cryptoDistLegend span{font-weight:750;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.cryptoDistLegend b{font-size:11px}.cryptoDistLegend em{font-size:10px;color:var(--muted);font-style:normal}
+.cryptoChartControls{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:8px}.cryptoChartControls select{max-width:180px}.cryptoRanges{display:flex;gap:4px;flex-wrap:wrap;justify-content:flex-end}.cryptoRanges button{min-height:30px;padding:0 8px;border:1px solid rgba(117,161,204,.12);border-radius:8px;background:rgba(15,34,55,.45);color:var(--muted);font-size:10px;font-weight:800}.cryptoRanges button.active{background:rgba(47,124,255,.15);border-color:rgba(70,145,233,.28);color:#77b7ff}
+.cryptoChartHeadline{display:flex;justify-content:space-between;align-items:end;gap:12px;margin:8px 0}.cryptoChartHeadline>div{display:grid;gap:2px}.cryptoChartHeadline span{font-size:10px;color:var(--muted);font-weight:700}.cryptoChartHeadline strong{font-size:20px}.cryptoChartHeadline>b{font-size:12px}
+.cryptoMarketChart{min-height:270px}.cryptoMarketChart svg{width:100%;height:auto;display:block}.cryptoMarketLine{fill:none;stroke:#2f7cff;stroke-width:3.5;stroke-linecap:round;stroke-linejoin:round;filter:drop-shadow(0 6px 9px rgba(47,124,255,.18))}.cryptoChartDot{fill:#d8efff;stroke:#2f7cff;stroke-width:2}.cryptoAxisLabel{fill:var(--muted);font-size:9px;font-family:inherit}.cryptoChartLoading,.cryptoChartEmpty{min-height:220px;display:flex;align-items:center;justify-content:center;gap:9px;color:var(--muted);font-size:11px;text-align:center}.cryptoChartLoading span{width:16px;height:16px;border:2px solid rgba(255,255,255,.12);border-top-color:#5da7ff;border-radius:50%;animation:lwspin .8s linear infinite}
+.cryptoHoldingBox{grid-template-columns:1fr 1fr!important;align-items:start!important}.cryptoHoldingBox label{min-width:0}.cryptoPositionGrid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px;margin:10px 0}.cryptoPositionGrid>div{display:grid;gap:3px;padding:8px;border-radius:9px;background:rgba(80,134,188,.055);border:1px solid rgba(116,158,203,.08)}.cryptoPositionGrid span{font-size:9px;color:var(--muted);font-weight:700}.cryptoPositionGrid strong{font-size:11px;line-height:1.35;overflow-wrap:anywhere}
+html.light .cryptoDonutCenter{background:rgba(255,255,255,.96)}
+@media(max-width:1100px){.cryptoPortfolioGrid{grid-template-columns:1fr}.cryptoDistribution{grid-template-columns:180px minmax(0,1fr)}.cryptoSummary4{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:720px){.cryptoDistribution{grid-template-columns:150px minmax(0,1fr);min-height:240px}.cryptoDonut{width:144px;height:144px}.cryptoDonutCenter{width:84px;height:84px}.cryptoDonutCenter strong{font-size:12px}.cryptoChartControls{align-items:stretch;flex-direction:column}.cryptoChartControls select{max-width:none;width:100%}.cryptoRanges{justify-content:flex-start;overflow-x:auto;flex-wrap:nowrap;padding-bottom:2px}.cryptoRanges button{flex:0 0 auto;min-height:36px}.cryptoMarketChart{min-height:230px}}
+@media(max-width:430px){.cryptoSummary4{grid-template-columns:1fr 1fr}.cryptoDistribution{grid-template-columns:1fr}.cryptoDonut{margin:auto}.cryptoDistLegend{width:100%}.cryptoHoldingBox{grid-template-columns:1fr!important}.cryptoPositionGrid{grid-template-columns:1fr 1fr}.cryptoPositionGrid>div:last-child{grid-column:1/-1}}

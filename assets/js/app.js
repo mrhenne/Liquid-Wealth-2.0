@@ -5,10 +5,10 @@ const defaults={swr:4,returnRate:7,inflation:2,retirementAge:55,targetMode:'expe
 function demoMonth(){return{income:[tx('Gehalt',6000,true),tx('Nebenjob',500,true)],expenses:[tx('Wohnen',1200,true),tx('Lebensmittel',600,true),tx('Versicherungen',400,true),tx('Mobilität',300,true),tx('Freizeit',300,false),tx('Sonstiges',200,false)],invest:[tx('ETF',1000,true),tx('Bitcoin',500,true),tx('Cash Reserve',500,true)]}}
 function tx(name,val,recurring=false,cat=''){return{id:crypto.randomUUID?crypto.randomUUID():String(Date.now()+Math.random()),name,val:+val||0,recurring,cat}}
 const defaultAssets=[{id:'a1',name:'ETF',value:57000,type:'ETF',cost:42000,rate:7},{id:'a2',name:'Bitcoin',value:35600,type:'Crypto',cost:18000,rate:12},{id:'a3',name:'Depot',value:21400,type:'Aktien',cost:16000,rate:7},{id:'a4',name:'Cash',value:14300,type:'Cash',cost:14300,rate:1},{id:'a5',name:'Immobilien',value:9800,type:'Immobilie',cost:7000,rate:3},{id:'a6',name:'Sonstige',value:4400,type:'Sonstige',cost:3000,rate:2}];
-const initial={version:8,settings:{...defaults},months:{},assets:defaultAssets,liabilities:[],cryptoFavorites:['bitcoin','ethereum','solana','binancecoin'],cryptoHoldings:{},layout:{dashboard:{}},goals:[{id:'g1',name:'FIRE',target:1200000,current:0,deadline:2042},{id:'g2',name:'Notgroschen',target:15000,current:0,deadline:2027}],meta:{created:new Date().toISOString()}};
-let state=loadState();let UI={year:now.getFullYear(),month:now.getMonth()+1,view:'dashboard',stealth:false,coins:[],cryptoSearchResults:[],cryptoSearching:false,sim:{extra:2000,returnRate:7,crash:0,years:15},risk:null};
+const initial={version:8,settings:{...defaults},months:{},assets:defaultAssets,liabilities:[],cryptoFavorites:['bitcoin','ethereum','solana','binancecoin'],cryptoHoldings:{},cryptoAveragePrices:{},layout:{dashboard:{}},goals:[{id:'g1',name:'FIRE',target:1200000,current:0,deadline:2042},{id:'g2',name:'Notgroschen',target:15000,current:0,deadline:2027}],meta:{created:new Date().toISOString()}};
+let state=loadState();let UI={year:now.getFullYear(),month:now.getMonth()+1,view:'dashboard',stealth:false,coins:[],cryptoSearchResults:[],cryptoSearching:false,cryptoChartCoin:null,cryptoChartRange:'24h',cryptoHistory:{},cryptoHistoryLoading:false,sim:{extra:2000,returnRate:7,crash:0,years:15},risk:null};
 const CHECKPOINT_KEY=APP+'_checkpoints_v1';
-function loadState(){try{let raw=localStorage.getItem(APP)||localStorage.getItem('LWTE_5');let x=raw?JSON.parse(raw):null;if(x&&[4,5,6,7,8,9].includes(x.version))return {...x,version:9,settings:{...defaults,...(x.settings||{})},months:x.months||{},assets:x.assets||[],liabilities:x.liabilities||[],cryptoFavorites:Array.isArray(x.cryptoFavorites)&&x.cryptoFavorites.length?x.cryptoFavorites:['bitcoin','ethereum','solana','binancecoin'],cryptoHoldings:(x.cryptoHoldings&&typeof x.cryptoHoldings==='object')?x.cryptoHoldings:{},layout:x.layout||{dashboard:{}},goals:x.goals||[]}}catch(e){}let x=typeof structuredClone==='function'?structuredClone(initial):JSON.parse(JSON.stringify(initial));x.months[`${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}`]=demoMonth();return x}
+function loadState(){try{let raw=localStorage.getItem(APP)||localStorage.getItem('LWTE_5');let x=raw?JSON.parse(raw):null;if(x&&[4,5,6,7,8,9].includes(x.version))return {...x,version:9,settings:{...defaults,...(x.settings||{})},months:x.months||{},assets:x.assets||[],liabilities:x.liabilities||[],cryptoFavorites:Array.isArray(x.cryptoFavorites)&&x.cryptoFavorites.length?x.cryptoFavorites:['bitcoin','ethereum','solana','binancecoin'],cryptoHoldings:(x.cryptoHoldings&&typeof x.cryptoHoldings==='object')?x.cryptoHoldings:{},cryptoAveragePrices:(x.cryptoAveragePrices&&typeof x.cryptoAveragePrices==='object')?x.cryptoAveragePrices:{},layout:x.layout||{dashboard:{}},goals:x.goals||[]}}catch(e){}let x=typeof structuredClone==='function'?structuredClone(initial):JSON.parse(JSON.stringify(initial));x.months[`${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}`]=demoMonth();return x}
 function checkpointList(){try{return JSON.parse(localStorage.getItem(CHECKPOINT_KEY)||'[]')}catch(e){return[]}}
 function writeCheckpointList(list){try{localStorage.setItem(CHECKPOINT_KEY,JSON.stringify(list.slice(0,12)))}catch(e){console.warn('Checkpoint konnte nicht gespeichert werden',e)}}
 function createCheckpoint(reason='Manuell',raw=localStorage.getItem(APP)||JSON.stringify(state)){
@@ -17,7 +17,7 @@ function createCheckpoint(reason='Manuell',raw=localStorage.getItem(APP)||JSON.s
 function maybeAutoCheckpoint(previousRaw){if(!previousRaw)return;let list=checkpointList(),last=list[0];if(last&&Date.now()-last.ts<10*60*1000)return;if(last?.raw===previousRaw)return;createCheckpoint('Auto-Sicherung',previousRaw)}
 function save(skipCheckpoint=false){let next=JSON.stringify(state),prev=localStorage.getItem(APP);if(!skipCheckpoint&&prev&&prev!==next)maybeAutoCheckpoint(prev);localStorage.setItem(APP,next);window.LWCloud?.queueSave?.(state)}
 function manualCheckpoint(){createCheckpoint('Manueller Checkpoint');render();showToast('Sicherheits-Checkpoint erstellt')}
-function restoreCheckpoint(){let list=checkpointList();if(!list.length)return showToast('Noch kein Checkpoint vorhanden');let cp=list[0];if(!confirm(`Checkpoint vom ${new Date(cp.ts).toLocaleString('de-DE')} wiederherstellen?`))return;createCheckpoint('Vor Wiederherstellung');try{let x=JSON.parse(cp.raw);state={...initial,...x,version:9,settings:{...defaults,...(x.settings||{})},months:x.months||{},assets:x.assets||[],liabilities:x.liabilities||[],cryptoFavorites:Array.isArray(x.cryptoFavorites)&&x.cryptoFavorites.length?x.cryptoFavorites:['bitcoin','ethereum','solana','binancecoin'],cryptoHoldings:(x.cryptoHoldings&&typeof x.cryptoHoldings==='object')?x.cryptoHoldings:{},layout:x.layout||{dashboard:{}},goals:x.goals||[]};localStorage.setItem(APP,JSON.stringify(state));window.LWCloud?.queueSave?.(state);UI.risk=null;render();showToast('Checkpoint wiederhergestellt')}catch(e){console.error(e);showToast('Checkpoint ist beschädigt')}}
+function restoreCheckpoint(){let list=checkpointList();if(!list.length)return showToast('Noch kein Checkpoint vorhanden');let cp=list[0];if(!confirm(`Checkpoint vom ${new Date(cp.ts).toLocaleString('de-DE')} wiederherstellen?`))return;createCheckpoint('Vor Wiederherstellung');try{let x=JSON.parse(cp.raw);state={...initial,...x,version:9,settings:{...defaults,...(x.settings||{})},months:x.months||{},assets:x.assets||[],liabilities:x.liabilities||[],cryptoFavorites:Array.isArray(x.cryptoFavorites)&&x.cryptoFavorites.length?x.cryptoFavorites:['bitcoin','ethereum','solana','binancecoin'],cryptoHoldings:(x.cryptoHoldings&&typeof x.cryptoHoldings==='object')?x.cryptoHoldings:{},cryptoAveragePrices:(x.cryptoAveragePrices&&typeof x.cryptoAveragePrices==='object')?x.cryptoAveragePrices:{},layout:x.layout||{dashboard:{}},goals:x.goals||[]};localStorage.setItem(APP,JSON.stringify(state));window.LWCloud?.queueSave?.(state);UI.risk=null;render();showToast('Checkpoint wiederhergestellt')}catch(e){console.error(e);showToast('Checkpoint ist beschädigt')}}
 function key(y=UI.year,m=UI.month){return `${y}-${String(m).padStart(2,'0')}`}
 function getMonth(y=UI.year,m=UI.month,create=true){let k=key(y,m);if(!state.months[k]&&create)state.months[k]={income:[],expenses:[],invest:[]};return state.months[k]||{income:[],expenses:[],invest:[]}}
 function sum(a){return(a||[]).reduce((s,x)=>s+(Number(x.val)||0),0)}
@@ -588,35 +588,114 @@ function cryptoHoldingValue(id){
  const qty=Math.max(0,Number(state.cryptoHoldings?.[id])||0),coin=UI.coins.find(c=>c.id===id);
  return qty*(Number(coin?.current_price)||0)
 }
+function cryptoCostBasis(id){
+ const qty=Math.max(0,Number(state.cryptoHoldings?.[id])||0),avg=Math.max(0,Number(state.cryptoAveragePrices?.[id])||0);
+ return qty*avg
+}
 function totalTrackedCryptoValue(){
  return (state.cryptoFavorites||[]).reduce((s,id)=>s+cryptoHoldingValue(id),0)
+}
+function totalCryptoCostBasis(){
+ return (state.cryptoFavorites||[]).reduce((s,id)=>s+cryptoCostBasis(id),0)
 }
 function updateCryptoHolding(input){
  const id=input.dataset.cryptoHolding,qty=Math.max(0,Number(input.value)||0);
  state.cryptoHoldings=state.cryptoHoldings||{};state.cryptoHoldings[id]=qty;save();render()
 }
+function updateCryptoAveragePrice(input){
+ const id=input.dataset.cryptoAvg,avg=Math.max(0,Number(input.value)||0);
+ state.cryptoAveragePrices=state.cryptoAveragePrices||{};state.cryptoAveragePrices[id]=avg;save();render()
+}
+function cryptoDistributionChart(){
+ const rows=(state.cryptoFavorites||[]).map(id=>{const coin=UI.coins.find(c=>c.id===id),value=cryptoHoldingValue(id);return {id,name:coin?.symbol?.toUpperCase()||id,value}}).filter(x=>x.value>0).sort((a,b)=>b.value-a.value);
+ if(!rows.length)return '<div class="cryptoChartEmpty">Trage Coin-Bestände ein, um deine Verteilung zu sehen.</div>';
+ const total=rows.reduce((s,x)=>s+x.value,0),colors=['#2f7cff','#16c8c0','#8a63ff','#ff9d3d','#ff5f7d','#67d391','#4da7ff','#d1b25c'];
+ const r=47,c=2*Math.PI*r,gap=2.6;let offset=0;
+ const arcs=rows.map((x,i)=>{const len=Math.max(0,x.value/total*c-gap),arc=`<circle class="cryptoDistSegment" data-chart-label="${esc(x.name)}" data-chart-value="${esc(euro(x.value)+' · '+pct(x.value/total*100))}" cx="60" cy="60" r="${r}" pathLength="${c.toFixed(3)}" stroke="${colors[i%colors.length]}" stroke-dasharray="${len.toFixed(3)} ${(c-len).toFixed(3)}" stroke-dashoffset="${(-offset).toFixed(3)}"></circle>`;offset+=x.value/total*c;return arc}).join('');
+ return `<div class="cryptoDistribution interactiveChart">
+   <div class="cryptoDonut"><svg viewBox="0 0 120 120" role="img" aria-label="Krypto Portfolio Verteilung"><circle class="cryptoDistTrack" cx="60" cy="60" r="${r}"></circle><g transform="rotate(-90 60 60)">${arcs}</g></svg><div class="cryptoDonutCenter"><span>Krypto</span><strong class="sensitive">${euro(total)}</strong><small>100 %</small></div><div class="chartTooltip" role="status" aria-live="polite"></div></div>
+   <div class="cryptoDistLegend">${rows.map((x,i)=>`<div><i style="background:${colors[i%colors.length]}"></i><span>${esc(x.name)}</span><b>${pct(x.value/total*100)}</b><em class="sensitive">${euro(x.value)}</em></div>`).join('')}</div>
+ </div>`
+}
+function cryptoRangeConfig(range){
+ const map={
+  '1h':{days:1,ms:60*60*1000,label:'1 Stunde'},
+  '4h':{days:1,ms:4*60*60*1000,label:'4 Stunden'},
+  '24h':{days:1,ms:24*60*60*1000,label:'24 Stunden'},
+  '7d':{days:7,ms:7*24*60*60*1000,label:'7 Tage'},
+  '30d':{days:30,ms:30*24*60*60*1000,label:'30 Tage'},
+  '1y':{days:365,ms:365*24*60*60*1000,label:'1 Jahr'},
+  'max':{days:'max',ms:Infinity,label:'Gesamt'}
+ };
+ return map[range]||map['24h']
+}
+async function fetchCryptoHistory(id=UI.cryptoChartCoin,range=UI.cryptoChartRange,force=false){
+ if(!id)return;
+ const key=id+':'+range,cached=UI.cryptoHistory[key],fresh=cached&&Date.now()-cached.ts<60000;
+ if(fresh&&!force)return;
+ UI.cryptoHistoryLoading=true;if(UI.view==='crypto')render();
+ try{
+  const cfg=cryptoRangeConfig(range),ctl=new AbortController(),timer=setTimeout(()=>ctl.abort(),9000);
+  const res=await fetch(`https://api.coingecko.com/api/v3/coins/${encodeURIComponent(id)}/market_chart?vs_currency=eur&days=${encodeURIComponent(cfg.days)}`,{signal:ctl.signal,cache:'no-store'});
+  clearTimeout(timer);if(!res.ok)throw Error('HTTP '+res.status);
+  const data=await res.json();let prices=Array.isArray(data.prices)?data.prices:[];
+  if(Number.isFinite(cfg.ms)){const cutoff=Date.now()-cfg.ms;prices=prices.filter(p=>Number(p[0])>=cutoff)}
+  if(prices.length>260){const step=Math.ceil(prices.length/260);prices=prices.filter((_,i)=>i%step===0||i===prices.length-1)}
+  UI.cryptoHistory[key]={ts:Date.now(),prices}; 
+ }catch(e){
+  console.warn('Historische Krypto-Daten nicht verfügbar',e);
+  if(force)showToast('Chart-Daten derzeit nicht erreichbar')
+ }finally{
+  UI.cryptoHistoryLoading=false;if(UI.view==='crypto')render()
+ }
+}
+function formatCryptoTime(ts,range){
+ const d=new Date(ts);
+ if(range==='1h'||range==='4h'||range==='24h')return d.toLocaleTimeString('de-DE',{hour:'2-digit',minute:'2-digit'});
+ if(range==='7d'||range==='30d')return d.toLocaleDateString('de-DE',{day:'2-digit',month:'2-digit'});
+ return d.toLocaleDateString('de-DE',{month:'short',year:'2-digit'})
+}
+function cryptoPriceChart(){
+ const favs=state.cryptoFavorites||[],selected=UI.cryptoChartCoin&&favs.includes(UI.cryptoChartCoin)?UI.cryptoChartCoin:favs[0];
+ if(!selected)return '<div class="cryptoChartEmpty">Füge zuerst einen Coin zu deinen Favoriten hinzu.</div>';
+ UI.cryptoChartCoin=selected;
+ const coin=UI.coins.find(c=>c.id===selected),key=selected+':'+UI.cryptoChartRange,data=UI.cryptoHistory[key]?.prices||[];
+ const ranges=[['1h','1h'],['4h','4h'],['24h','24h'],['7d','Woche'],['30d','Monat'],['1y','1J'],['max','Max']];
+ const selector=`<div class="cryptoChartControls"><select class="input" id="cryptoChartCoin">${favs.map(id=>{const c=UI.coins.find(x=>x.id===id);return `<option value="${esc(id)}" ${id===selected?'selected':''}>${esc(c?.name||id)}</option>`}).join('')}</select><div class="cryptoRanges">${ranges.map(([k,l])=>`<button class="${UI.cryptoChartRange===k?'active':''}" data-crypto-range="${k}">${l}</button>`).join('')}</div></div>`;
+ if(UI.cryptoHistoryLoading&&!data.length)return `${selector}<div class="cryptoChartLoading"><span></span>Chart wird geladen …</div>`;
+ if(!data.length){requestAnimationFrame(()=>fetchCryptoHistory(selected,UI.cryptoChartRange));return `${selector}<div class="cryptoChartEmpty">Chart-Daten werden geladen …</div>`}
+ const vals=data.map(p=>Number(p[1])).filter(Number.isFinite),min=Math.min(...vals),max=Math.max(...vals),span=Math.max(max-min,0.0000001),left=18,right=782,top=22,bottom=220;
+ const x=i=>left+i*((right-left)/Math.max(data.length-1,1)),y=v=>bottom-(v-min)/span*(bottom-top),pts=data.map((p,i)=>`${x(i)},${y(Number(p[1]))}`).join(' ');
+ const gid='cg'+Math.random().toString(36).slice(2,7),first=vals[0],last=vals[vals.length-1],chg=first?((last-first)/first*100):0;
+ const area=`${left},${bottom} ${pts} ${right},${bottom}`;
+ const hitStep=Math.max(1,Math.ceil(data.length/70));
+ const points=data.map((p,i)=>i%hitStep===0||i===data.length-1?`<g class="chartPoint" data-chart-label="${esc(formatCryptoTime(p[0],UI.cryptoChartRange))}" data-chart-value="${esc(euro(p[1]))}"><circle cx="${x(i)}" cy="${y(Number(p[1]))}" r="10" class="chartHit"/><circle cx="${x(i)}" cy="${y(Number(p[1]))}" r="2.8" class="cryptoChartDot"/></g>`:'').join('');
+ return `${selector}<div class="cryptoChartHeadline"><div><span>${esc(coin?.name||selected)} · ${cryptoRangeConfig(UI.cryptoChartRange).label}</span><strong class="sensitive">${euro(last)}</strong></div><b class="${chg>=0?'green':'red'}">${chg>=0?'+':''}${chg.toFixed(2)}%</b></div>
+ <div class="chartWrap interactiveChart cryptoMarketChart"><svg viewBox="0 0 800 250" role="img" aria-label="Kursverlauf ${esc(coin?.name||selected)}"><defs><linearGradient id="${gid}" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#2f7cff" stop-opacity=".32"/><stop offset="100%" stop-color="#2f7cff" stop-opacity="0"/></linearGradient></defs><polygon points="${area}" fill="url(#${gid})"/><polyline points="${pts}" class="cryptoMarketLine"/>${points}<text x="${left}" y="241" class="cryptoAxisLabel">${esc(formatCryptoTime(data[0][0],UI.cryptoChartRange))}</text><text x="${right}" y="241" text-anchor="end" class="cryptoAxisLabel">${esc(formatCryptoTime(data[data.length-1][0],UI.cryptoChartRange))}</text></svg><div class="chartTooltip" role="status" aria-live="polite"></div></div>`
+}
 function crypto(){
- const favs=state.cryptoFavorites||[],byId=new Map(UI.coins.map(c=>[c.id,c])),trackedTotal=Math.max(totalTrackedCryptoValue(),0);
- const cards=favs.map(id=>{const c=byId.get(id),qty=Math.max(0,Number(state.cryptoHoldings?.[id])||0),value=qty*(Number(c?.current_price)||0),share=trackedTotal?value/trackedTotal*100:0;return `<article class="cryptoFavCard" data-coin="${esc(id)}">${dragHandle('Coin verschieben')}
-   <div class="cryptoFavTop">
-    <div class="coinIdentity">${c?.image?`<img src="${esc(c.image)}" alt="">`:I('coin')}<div><strong>${esc(c?.name||id)}</strong><span>${esc((c?.symbol||id).toUpperCase())}</span></div></div>
-    <button class="ghost iconOnly cryptoRemove" data-coin-remove="${esc(id)}" title="Aus Favoriten entfernen" aria-label="Aus Favoriten entfernen">${I('trash')}</button>
-   </div>
+ const favs=state.cryptoFavorites||[],byId=new Map(UI.coins.map(c=>[c.id,c])),trackedTotal=Math.max(totalTrackedCryptoValue(),0),costTotal=totalCryptoCostBasis(),portfolioPnl=trackedTotal-costTotal,portfolioPnlPct=costTotal?portfolioPnl/costTotal*100:0;
+ if(!UI.cryptoChartCoin&&favs.length)UI.cryptoChartCoin=favs[0];
+ const cards=favs.map(id=>{const c=byId.get(id),qty=Math.max(0,Number(state.cryptoHoldings?.[id])||0),avg=Math.max(0,Number(state.cryptoAveragePrices?.[id])||0),value=qty*(Number(c?.current_price)||0),cost=qty*avg,pnl=value-cost,pnlPct=cost?pnl/cost*100:0,share=trackedTotal?value/trackedTotal*100:0;return `<article class="cryptoFavCard" data-coin="${esc(id)}">${dragHandle('Coin verschieben')}
+   <div class="cryptoFavTop"><div class="coinIdentity">${c?.image?`<img src="${esc(c.image)}" alt="">`:I('coin')}<div><strong>${esc(c?.name||id)}</strong><span>${esc((c?.symbol||id).toUpperCase())}</span></div></div><button class="ghost iconOnly cryptoRemove" data-coin-remove="${esc(id)}" title="Aus Favoriten entfernen" aria-label="Aus Favoriten entfernen">${I('trash')}</button></div>
    <div class="cryptoPrice sensitive">${c?euro(c.current_price):'—'}</div>
    <div class="cryptoHoldingBox">
-    <label><span>Dein Bestand ${infoTip('Hier trägst du die Anzahl deiner Coins ein. Daraus berechnet Liquid Wealth den aktuellen Wert dieser Position.')}</span><input class="input cryptoHoldingInput" data-crypto-holding="${esc(id)}" type="number" min="0" step="any" inputmode="decimal" value="${qty||''}" placeholder="0"></label>
-    <div class="cryptoHoldingValue"><span>Positionswert</span><strong class="sensitive">${c&&qty?euro(value):'—'}</strong></div>
+    <label><span>Bestand ${infoTip('Anzahl deiner Coins. Daraus berechnet Liquid Wealth den aktuellen Positionswert.')}</span><input class="input cryptoHoldingInput" data-crypto-holding="${esc(id)}" type="number" min="0" step="any" inputmode="decimal" value="${qty||''}" placeholder="0"></label>
+    <label><span>Ø Kaufpreis ${infoTip('Dein durchschnittlicher Einstandspreis pro Coin. Damit werden Einstandswert und Gewinn oder Verlust berechnet.')}</span><input class="input cryptoAvgInput" data-crypto-avg="${esc(id)}" type="number" min="0" step="any" inputmode="decimal" value="${avg||''}" placeholder="€"></label>
    </div>
+   <div class="cryptoPositionGrid"><div><span>Positionswert</span><strong class="sensitive">${c&&qty?euro(value):'—'}</strong></div><div><span>Einstand</span><strong class="sensitive">${qty&&avg?euro(cost):'—'}</strong></div><div><span>Gewinn / Verlust</span><strong class="${pnl>=0?'green':'red'}">${qty&&avg&&c?`${pnl>=0?'+':''}${euro(pnl)} · ${pnlPct>=0?'+':''}${pnlPct.toFixed(1)}%`:'—'}</strong></div></div>
    <div class="cryptoMeta"><span>24 h</span><b class="${Number(c?.price_change_percentage_24h)>=0?'green':'red'}">${c?Number(c.price_change_percentage_24h||0).toFixed(2)+'%':'—'}</b></div>
-   <div class="cryptoMeta"><span>Anteil deiner Krypto-Favoriten</span><b>${qty&&c?pct(share):'—'}</b></div>
-   <div class="cryptoMeta"><span>Market Cap</span><b class="sensitive">${c?euro(c.market_cap):'—'}</b></div>
+   <div class="cryptoMeta"><span>Portfolio-Anteil</span><b>${qty&&c?pct(share):'—'}</b></div>
   </article>`}).join('');
  const results=UI.cryptoSearchResults.length?`<div class="cryptoSearchResults">${UI.cryptoSearchResults.map(c=>`<button class="cryptoSearchRow" data-coin-add="${esc(c.id)}"><span class="coinIdentity">${c.thumb?`<img src="${esc(c.thumb)}" alt="">`:''}<span><strong>${esc(c.name)}</strong><small>${esc(c.symbol.toUpperCase())}</small></span></span><span class="addCoinMark">${I('plus')}</span></button>`).join('')}</div>`:'';
- return `<div class="toolbar cryptoToolbar"><div><h1 class="sectionTitle">Krypto ${infoTip('Deine persönliche Watchlist mit Live-Kursen und optional deinem eigenen Coin-Bestand.')}</h1><p class="sectionSub">Favoriten, Live-Kurse und deine eigenen Coin-Anteile.</p></div><button class="ghost" data-action="refreshCrypto">Aktualisieren</button></div>
- <div class="cryptoSummary">
-  <div class="card cryptoSummaryCard"><span>Getrackte Positionen</span><strong>${favs.filter(id=>(Number(state.cryptoHoldings?.[id])||0)>0).length}</strong></div>
-  <div class="card cryptoSummaryCard"><span>Aktueller Wert</span><strong class="sensitive">${trackedTotal?euro(trackedTotal):'—'}</strong></div>
+ return `<div class="toolbar cryptoToolbar"><div><h1 class="sectionTitle">Krypto Portfolio ${infoTip('Portfolio-Tracker mit Favoriten, Coin-Beständen, durchschnittlichen Kaufpreisen, Verteilung und historischem Kurschart.')}</h1><p class="sectionSub">Watchlist und Portfolio-Tracker mit Live-Kursen in EUR.</p></div><button class="ghost" data-action="refreshCrypto">Aktualisieren</button></div>
+ <div class="cryptoSummary cryptoSummary4">
+  <div class="card cryptoSummaryCard"><span>Portfoliowert</span><strong class="sensitive">${trackedTotal?euro(trackedTotal):'—'}</strong></div>
+  <div class="card cryptoSummaryCard"><span>Investiert</span><strong class="sensitive">${costTotal?euro(costTotal):'—'}</strong></div>
+  <div class="card cryptoSummaryCard"><span>Gewinn / Verlust</span><strong class="${portfolioPnl>=0?'green':'red'}">${costTotal?`${portfolioPnl>=0?'+':''}${euro(portfolioPnl)}`:'—'}</strong></div>
+  <div class="card cryptoSummaryCard"><span>Performance</span><strong class="${portfolioPnlPct>=0?'green':'red'}">${costTotal?`${portfolioPnlPct>=0?'+':''}${portfolioPnlPct.toFixed(1)}%`:'—'}</strong></div>
  </div>
+ <div class="cryptoPortfolioGrid"><div class="card cryptoDistributionCard"><div class="toolbar"><div><h2>Portfolio-Verteilung ${infoTip('Aktuelle Gewichtung deiner eingetragenen Coin-Bestände auf Basis der Live-Kurse.')}</h2><span class="sub">Nach aktuellem Positionswert</span></div></div>${cryptoDistributionChart()}</div><div class="card cryptoChartCard"><div class="toolbar"><div><h2>Kurschart ${infoTip('Historischer Kurs des ausgewählten Coins. 1h und 4h werden aus den feinsten verfügbaren CoinGecko-Daten ausgeschnitten.')}</h2><span class="sub">CoinGecko · EUR</span></div></div>${cryptoPriceChart()}</div></div>
  <div class="card cryptoFinder"><div><h2>Coin hinzufügen</h2><span class="sub">Suche nach Name oder Kürzel, z. B. Bitcoin, ETH oder TAO.</span></div><div class="cryptoSearchBar"><input class="input" id="cryptoSearch" type="search" placeholder="Coin suchen …" autocomplete="off"><button class="primary" data-action="searchCrypto">${UI.cryptoSearching?'Suche …':'Suchen'}</button></div>${results}</div>
  <div class="cryptoFavGrid">${cards||'<div class="card emptyState">Noch keine Favoriten. Suche oben nach einem Coin und füge ihn hinzu.</div>'}</div>`
 }
@@ -719,7 +798,7 @@ function settingsView(){
    <div class="actions"><button class="primary" data-action="checkpoint"><span class="icon" data-icon="save"></span>Checkpoint erstellen</button><button class="ghost" data-action="restoreCheckpoint"><span class="icon" data-icon="undo"></span>Letzten wiederherstellen</button></div>
   </div>
   <div class="card"><div class="toolbar"><div><h2>Daten & Cloud</h2><span class="sub">Geräteübergreifender Login mit lokalem Sicherheitsfallback.</span></div><span class="syncBadge"><i></i>Cloud + Lokal</span></div>
-   <div class="quickFacts"><div class="quickFact"><span>Gespeicherte Monate</span><b>${Object.keys(state.months||{}).length}</b></div><div class="quickFact"><span>Assets</span><b>${(state.assets||[]).length}</b></div><div class="quickFact"><span>Meilensteine</span><b>${(state.goals||[]).length}</b></div><div class="quickFact"><span>Datenformat</span><b>v9 · UI v29</b></div></div>
+   <div class="quickFacts"><div class="quickFact"><span>Gespeicherte Monate</span><b>${Object.keys(state.months||{}).length}</b></div><div class="quickFact"><span>Assets</span><b>${(state.assets||[]).length}</b></div><div class="quickFact"><span>Meilensteine</span><b>${(state.goals||[]).length}</b></div><div class="quickFact"><span>Datenformat</span><b>v9 · UI v31</b></div></div>
    <div class="actions"><button class="primary" data-action="export"><span class="icon" data-icon="download"></span>JSON Backup</button><button class="ghost" data-action="chooseImport"><span class="icon" data-icon="upload"></span>Import</button><button class="ghost" data-action="cloudInfo"><span class="icon" data-icon="cloud"></span>Login & Sync</button><button class="danger" data-action="resetDemo"><span class="icon" data-icon="trash"></span>Demo zurücksetzen</button></div>
   </div>
  </div>`;
@@ -757,7 +836,7 @@ function importData(e){
      createCheckpoint('Vor Backup-Import');
      state={...initial,...x,version:9,
        settings:{...defaults,...(x.settings||{})},
-       months:x.months||{},assets:x.assets||[],liabilities:x.liabilities||[],cryptoFavorites:Array.isArray(x.cryptoFavorites)&&x.cryptoFavorites.length?x.cryptoFavorites:['bitcoin','ethereum','solana','binancecoin'],cryptoHoldings:(x.cryptoHoldings&&typeof x.cryptoHoldings==='object')?x.cryptoHoldings:{},layout:x.layout||{dashboard:{}},goals:x.goals||[]};
+       months:x.months||{},assets:x.assets||[],liabilities:x.liabilities||[],cryptoFavorites:Array.isArray(x.cryptoFavorites)&&x.cryptoFavorites.length?x.cryptoFavorites:['bitcoin','ethereum','solana','binancecoin'],cryptoHoldings:(x.cryptoHoldings&&typeof x.cryptoHoldings==='object')?x.cryptoHoldings:{},cryptoAveragePrices:(x.cryptoAveragePrices&&typeof x.cryptoAveragePrices==='object')?x.cryptoAveragePrices:{},layout:x.layout||{dashboard:{}},goals:x.goals||[]};
      save();UI.risk=null;render();showToast('Backup erfolgreich importiert');
    }catch(err){
      console.error(err);showToast('Import fehlgeschlagen: ungültige Datei');
@@ -923,6 +1002,7 @@ function render(){
  setupSortable(target||document);
  bindInteractiveCharts(target||document);
  if(UI.view==='risk')requestAnimationFrame(drawRisk);
+ if(UI.view==='crypto'&&UI.cryptoChartCoin){const hk=UI.cryptoChartCoin+':'+UI.cryptoChartRange;if(!UI.cryptoHistory[hk]&&!UI.cryptoHistoryLoading)requestAnimationFrame(()=>fetchCryptoHistory(UI.cryptoChartCoin,UI.cryptoChartRange));}
 }
 let __renderFrame=0;
 function scheduleRender(){
@@ -950,6 +1030,7 @@ document.addEventListener('click',function(e){
  if(b.classList.contains('goalDel')){e.preventDefault();return deleteGoal(b);}
  if(b.dataset.coinAdd){e.preventDefault();return addCryptoFavorite(b.dataset.coinAdd);}
  if(b.dataset.coinRemove){e.preventDefault();return removeCryptoFavorite(b.dataset.coinRemove);}
+ if(b.dataset.cryptoRange){e.preventDefault();UI.cryptoChartRange=b.dataset.cryptoRange;return fetchCryptoHistory(UI.cryptoChartCoin,UI.cryptoChartRange,true);}
 });
 document.addEventListener('change',function(e){
  const t=e.target;
@@ -958,6 +1039,8 @@ document.addEventListener('change',function(e){
  if(t.matches('.debtName,.debtVal')) return updateDebt(t);
  if(t.matches('.goalName,.goalTarget,.goalDeadline')) return updateGoal(t);
  if(t.matches('.cryptoHoldingInput')) return updateCryptoHolding(t);
+ if(t.matches('.cryptoAvgInput')) return updateCryptoAveragePrice(t);
+ if(t.id==='cryptoChartCoin'){UI.cryptoChartCoin=t.value;return fetchCryptoHistory(UI.cryptoChartCoin,UI.cryptoChartRange,true);}
  if(t.id==='yearSelect'){UI.year=Number(t.value);return render();}
  if(t.id==='importFile'||t.id==='globalImportFile')return importData({target:t});
 });
