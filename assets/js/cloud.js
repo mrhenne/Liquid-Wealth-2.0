@@ -1,13 +1,11 @@
 'use strict';
 (function(){
-  const cfg=window.LW_CONFIG||{};
+  const cfg=window.LW_CONFIG||{}; const APP_URL=cfg.appUrl||window.location.origin;
   const sdk=window.supabase;
   const api={
     client:null,user:null,saveTimer:0,ready:false,syncing:false,
     async init(){
-      if(!sdk?.createClient||!cfg.supabaseUrl||!cfg.supabasePublishableKey){
-        this.setStatus('Cloud nicht verfügbar',false);return;
-      }
+      if(!sdk?.createClient||!cfg.supabaseUrl||!cfg.supabasePublishableKey){ this.showGateError('Cloud-Verbindung konnte nicht geladen werden.'); return; }
       this.client=sdk.createClient(cfg.supabaseUrl,cfg.supabasePublishableKey,{
         auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:true}
       });
@@ -29,7 +27,7 @@
     },
     async onSession(session){
       this.user=session?.user||null;
-      if(!this.user){this.setStatus('Nicht angemeldet',false);return;}
+      if(!this.user){this.setStatus('Nicht angemeldet',false);this.showLoginGate();return;} document.body.classList.remove('authPending','authRequired');document.body.classList.add('authReady');const gate=document.getElementById('authGate');if(gate)gate.hidden=true;
       this.setStatus('Cloud wird geladen …',true);
       await this.pullOrSeed();
     },
@@ -69,13 +67,9 @@
         this.setStatus('Synchronisiert',true);return true;
       }catch(err){console.error('Cloud push',err);this.setStatus('Sync fehlgeschlagen · lokal sicher',false);return false;}
     },
-    openAccount(){
-      if(!this.client)return showToast?.('Cloud-Modul ist nicht verfügbar');
-      if(this.user)return this.openSignedIn();
-      this.openLogin();
-    },
-    openLogin(){
-      const body=`
+    openAccount(){ if(!this.client)return showToast?.('Cloud-Modul ist nicht verfügbar'); if(this.user)return this.openSignedIn(); this.showLoginGate(); },
+    showLoginGate(){ document.body.classList.remove('authPending','authReady');document.body.classList.add('authRequired');const gate=document.getElementById('authGate');if(gate)gate.hidden=false; const bodyTarget=document.getElementById('authGateBody'); const textTarget=document.getElementById('authGateText'); if(textTarget)textTarget.textContent='Melde dich an, um dein privates Finanz-Dashboard zu öffnen.'; if(!bodyTarget)return; const body=
+      `
         <div class="authGlass">
           <div class="authMark">LW</div>
           <h3>Liquid Wealth Cloud</h3>
@@ -85,28 +79,24 @@
           <div class="authActions"><button class="primary" id="authLogin">Anmelden</button><button class="ghost" id="authSignup">Konto erstellen</button></div>
           <div class="authHint">Deine Finanzdaten werden deinem Benutzerkonto zugeordnet. Der Browser behält zusätzlich den lokalen Sicherheitsstand.</div>
         </div>`;
-      openModal('Anmelden','Sicherer Geräte-Sync mit Supabase',body);
-      document.getElementById('authLogin').onclick=()=>this.login();
-      document.getElementById('authSignup').onclick=()=>this.signup();
-    },
+      bodyTarget.innerHTML=body; document.getElementById('authLogin').onclick=()=>this.login(); document.getElementById('authSignup').onclick=()=>this.signup(); },
+    showGateError(message){document.body.classList.remove('authPending','authReady');document.body.classList.add('authRequired');const gate=document.getElementById('authGate');if(gate)gate.hidden=false;const t=document.getElementById('authGateText');if(t)t.textContent=message;const b=document.getElementById('authGateBody');if(b)b.innerHTML='<button class="primary" onclick="location.reload()">Neu laden</button>';},
     async login(){
       const email=document.getElementById('authEmail')?.value.trim(),password=document.getElementById('authPassword')?.value||'';
       if(!email||password.length<6)return showToast?.('E-Mail und Passwort prüfen');
       const b=document.getElementById('authLogin');if(b)b.disabled=true;
       const {error}=await this.client.auth.signInWithPassword({email,password});
       if(b)b.disabled=false;
-      if(error)return showToast?.('Anmeldung fehlgeschlagen');
-      closeModal();showToast?.('Angemeldet');
+      if(error)return showToast?.('Anmeldung fehlgeschlagen'); showToast?.('Angemeldet');
     },
     async signup(){
       const email=document.getElementById('authEmail')?.value.trim(),password=document.getElementById('authPassword')?.value||'';
       if(!email||password.length<6)return showToast?.('Mindestens 6 Zeichen beim Passwort');
       const b=document.getElementById('authSignup');if(b)b.disabled=true;
-      const {data,error}=await this.client.auth.signUp({email,password});
+      const {data,error}=await this.client.auth.signUp({email,password,options:{emailRedirectTo:APP_URL}});
       if(b)b.disabled=false;
       if(error)return showToast?.('Konto konnte nicht erstellt werden');
-      if(data?.session){closeModal();showToast?.('Konto erstellt und angemeldet');}
-      else showToast?.('Bestätigungs-Mail prüfen');
+      if(data?.session){showToast?.('Konto erstellt und angemeldet');} else {showToast?.('Bestätigungs-Mail prüfen'); const h=document.querySelector('.authHint'); if(h)h.innerHTML='Bestätige deine E-Mail. Falls Safari danach trotzdem eine localhost-Seite zeigt, ist die Bestätigung meist bereits erfolgt. Öffne anschließend einfach <b>Liquid Wealth</b> erneut und melde dich hier an.';}
     },
     openSignedIn(){
       const email=this.user?.email||'angemeldet';
@@ -124,7 +114,7 @@
       document.getElementById('syncNow').onclick=async()=>{await this.push(state);showToast?.('Synchronisiert');};
       document.getElementById('authLogout').onclick=()=>this.logout();
     },
-    async logout(){await this.client.auth.signOut();this.user=null;this.setStatus('Nicht angemeldet',false);closeModal();showToast?.('Abgemeldet');}
+    async logout(){await this.client.auth.signOut();this.user=null;this.setStatus('Nicht angemeldet',false);closeModal();this.showLoginGate();showToast?.('Abgemeldet');}
   };
   window.LWCloud=api;
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',()=>api.init());
