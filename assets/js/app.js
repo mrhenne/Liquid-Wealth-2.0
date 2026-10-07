@@ -214,15 +214,15 @@ function donut(){
  const maxVal=Math.max(...labels.map(x=>x[1]),0);
  const arcs=labels.map((x,i)=>{
    const len=Math.max(0,(x[1]/total)*c-gap);
-   const arc=`<circle class="donutSegment ${x[1]===maxVal?'pulseSegment':''}" cx="60" cy="60" r="${r}" pathLength="${c.toFixed(3)}" stroke="${colors[i%colors.length]}" stroke-dasharray="${len.toFixed(3)} ${(c-len).toFixed(3)}" stroke-dashoffset="${(-offset).toFixed(3)}"><title>${esc(x[0])}: ${euro(x[1])}</title></circle>`;
+   const arc=`<circle class="donutSegment ${x[1]===maxVal?'pulseSegment':''}" data-chart-label="${esc(x[0])}" data-chart-value="${esc(euro(x[1])+' · '+pct(x[1]/total*100))}" cx="60" cy="60" r="${r}" pathLength="${c.toFixed(3)}" stroke="${colors[i%colors.length]}" stroke-dasharray="${len.toFixed(3)} ${(c-len).toFixed(3)}" stroke-dashoffset="${(-offset).toFixed(3)}"></circle>`;
    offset+=(x[1]/total)*c;
    return arc;
  }).join('');
- return `<div class="donut donutSvg">
+ return `<div class="donut donutSvg interactiveChart">
    <svg viewBox="0 0 120 120" role="img" aria-label="Vermögensaufteilung">
      <circle class="donutTrack" cx="60" cy="60" r="${r}"></circle>
      <g transform="rotate(-90 60 60)">${arcs}</g>
-   </svg>
+   </svg><div class="chartTooltip" role="status" aria-live="polite"></div>
    <div class="donutCenter sensitive"><span>Net Worth</span><strong>${euro(netWorth())}</strong><small>100 %</small></div>
  </div>`;
 }
@@ -268,7 +268,8 @@ function lineChart(series,goal){
   const area=`${left},${bottom} ${pts} ${right},${bottom}`;
   const gid='g'+Math.random().toString(36).slice(2,8);
   const goalLine=goal?`<line x1="${left}" x2="${right}" y1="${y(goal)}" y2="${y(goal)}" class="chartGoal"/><text x="${right}" y="${Math.max(14,y(goal)-7)}" text-anchor="end" class="chartGoalLabel">FIRE Ziel ${euro(goal)}</text>`:'';
-  return `<svg class="chart modernLineChart" viewBox="0 0 800 235" role="img" aria-label="Vermögensentwicklung">
+  return `<div class="chartWrap interactiveChart">
+   <svg class="chart modernLineChart" viewBox="0 0 800 235" role="img" aria-label="Vermögensentwicklung">
     <defs>
       <linearGradient id="${gid}" x1="0" y1="0" x2="0" y2="1">
         <stop offset="0%" stop-color="#19d9c0" stop-opacity=".30"/>
@@ -279,8 +280,14 @@ function lineChart(series,goal){
     <polygon points="${area}" fill="url(#${gid})"/>
     ${goalLine}
     <polyline points="${pts}" class="chartTrend"/>
-    ${series.map((p,i)=>`<g><circle cx="${x(i)}" cy="${y(p.value)}" r="4" class="chartDot"/><text x="${x(i)}" y="226" text-anchor="middle" class="chartLabel">${p.year}</text></g>`).join('')}
-  </svg>`;
+    ${series.map((p,i)=>`<g class="chartPoint" data-chart-label="${p.year===0?'Heute':('In '+esc(p.year)+' Jahr'+(Number(p.year)===1?'':'en'))}" data-chart-value="${esc(euro(p.value))}">
+      <circle cx="${x(i)}" cy="${y(p.value)}" r="12" class="chartHit"/>
+      <circle cx="${x(i)}" cy="${y(p.value)}" r="4" class="chartDot"/>
+      <text x="${x(i)}" y="226" text-anchor="middle" class="chartLabel">${esc(p.year)}</text>
+    </g>`).join('')}
+   </svg>
+   <div class="chartTooltip" role="status" aria-live="polite"></div>
+  </div>`;
 }
 function btcPrice(){let b=UI.coins.find(c=>String(c.id).toLowerCase()==='bitcoin'||String(c.symbol).toLowerCase()==='btc');return Number(b?.current_price)||0}
 function dashboardYearRows(){let out=[];let start=Math.max(1,UI.month-7);for(let m=start;m<=UI.month;m++){let d=getMonth(UI.year,m,false),t=totals(d);out.push({m,t})}return out}
@@ -614,7 +621,17 @@ function goals(){
 function liquidityRunway(){let d=getMonth(),cash=state.assets.filter(a=>a.type==='Cash').reduce((s,a)=>s+Number(a.value||0),0),monthly=totals(d).expenses;return monthly>0?cash/monthly:0}
 function twelveMonthStats(){let income=0,expenses=0,invest=0,months=0,series=[];for(let i=0;i<12;i++){let dt=new Date(UI.year,UI.month-1-i,1),d=getMonth(dt.getFullYear(),dt.getMonth()+1,false),t=totals(d);income+=t.income;expenses+=t.expenses;invest+=t.invest;if(t.income||t.expenses||t.invest)months++;series.unshift({label:monthName(dt.getMonth()+1).slice(0,3),rate:t.income?(t.income-t.expenses)/t.income*100:0})}return {income,expenses,invest,months,series,rate:income?(income-expenses)/income*100:0}}
 function fireSafety(){let d=getMonth(),target=fireTarget(d),nw=netWorth(),base=nw/Math.max(target,1),stressNW=nw*.8,stressTarget=target*1.1;return {base,stress:stressNW/Math.max(stressTarget,1),gap:stressTarget-stressNW}}
-function savingsTrendChart(series){let max=Math.max(1,...series.map(x=>x.rate)),min=Math.min(0,...series.map(x=>x.rate)),pts=series.map((x,i)=>`${25+i*(750/Math.max(series.length-1,1))},${215-(x.rate-min)/Math.max(max-min,1)*170}`).join(' ');return `<svg class="chart" viewBox="0 0 800 240"><line x1="25" y1="215" x2="775" y2="215" stroke="var(--line)"/><line x1="25" y1="130" x2="775" y2="130" stroke="var(--line)" stroke-dasharray="5 5"/><text x="770" y="125" text-anchor="end" fill="var(--muted)" font-size="9">0%</text><polyline points="${pts}" fill="none" stroke="#1688ff" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>${series.map((x,i)=>`<circle cx="${25+i*(750/Math.max(series.length-1,1))}" cy="${215-(x.rate-min)/Math.max(max-min,1)*170}" r="3.5" fill="#1688ff"/><text x="${25+i*(750/Math.max(series.length-1,1))}" y="232" text-anchor="middle" fill="var(--muted)" font-size="9">${x.label}</text>`).join('')}</svg>`}
+function savingsTrendChart(series){
+ let max=Math.max(1,...series.map(x=>x.rate)),min=Math.min(0,...series.map(x=>x.rate)),span=Math.max(max-min,1);
+ const px=i=>25+i*(750/Math.max(series.length-1,1)),py=v=>215-(v-min)/span*170;
+ const pts=series.map((x,i)=>`${px(i)},${py(x.rate)}`).join(' ');
+ return `<div class="chartWrap interactiveChart"><svg class="chart" viewBox="0 0 800 240">
+  <line x1="25" y1="215" x2="775" y2="215" stroke="var(--line)"/><line x1="25" y1="130" x2="775" y2="130" stroke="var(--line)" stroke-dasharray="5 5"/>
+  <text x="770" y="125" text-anchor="end" fill="var(--muted)" font-size="9">0%</text>
+  <polyline points="${pts}" fill="none" stroke="#1688ff" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
+  ${series.map((x,i)=>`<g class="chartPoint" data-chart-label="${esc(x.label)}" data-chart-value="${esc(pct(x.rate))}"><circle cx="${px(i)}" cy="${py(x.rate)}" r="12" class="chartHit"/><circle cx="${px(i)}" cy="${py(x.rate)}" r="3.5" fill="#1688ff"/><text x="${px(i)}" y="232" text-anchor="middle" fill="var(--muted)" font-size="9">${esc(x.label)}</text></g>`).join('')}
+ </svg><div class="chartTooltip" role="status" aria-live="polite"></div></div>`
+}
 function financeCheck(){let d=getMonth(),t=totals(d),r=liquidityRunway(),s=twelveMonthStats(),f=fireSafety(),pace=firePace(d),ca=cryptoAllocation(),targetMonths=state.settings.emergencyMonths;let runwayClass=r>=targetMonths?'green':r>=targetMonths*.75?'orange':'red';let largestExp=(d.expenses||[]).slice().sort((a,b)=>b.val-a.val)[0];let topShare=t.expenses?largestExp.val/t.expenses*100:0;return `<div class="toolbar"><div><h1 class="sectionTitle">Finanz-Check</h1><p class="sectionSub">Zwei zusätzliche Kontrollinstrumente: Liquiditäts-Runway und FIRE-Sicherheitsmarge. Dazu ein 12-Monats-Blick auf deine Sparquote.</p></div><button class="ghost" data-nav="settings">Annahmen prüfen</button></div><div class="checkGrid"><div class="checkCard"><div class="label">LIQUIDITY RUNWAY</div><div class="value ${runwayClass}">${r.toFixed(1)} Monate</div><div class="hint">Cash / aktuelle Monatsausgaben · Ziel ${targetMonths} Monate</div><div class="progress" style="margin-top:10px"><i style="width:${Math.min(100,r/Math.max(targetMonths,1)*100)}%"></i></div></div><div class="checkCard"><div class="label">FIRE SICHERHEITSMARGE</div><div class="value ${f.stress>=1?'green':f.stress>=.8?'orange':'red'}">${pct(f.base*100)}</div><div class="hint">Basis: Net Worth / FIRE Ziel · Stress: −20% Vermögen und +10% Ziel</div><div class="progress" style="margin-top:10px"><i style="width:${Math.min(100,f.stress*100)}%"></i></div></div><div class="checkCard"><div class="label">12-MONATS-SPARQUOTE</div><div class="value ${s.rate>=25?'green':s.rate>=10?'orange':'red'}">${pct(s.rate)}</div><div class="hint">${s.months} aktive Monate · Investments ${euro(s.invest)}</div></div><div class="checkCard"><div class="label">FIRE PACE ${infoTip('Benötigte monatliche Rate bis zur Deadline des FIRE-Meilensteins.')}</div><div class="value ${pace.onTrack?'green':'red'}">${pace.deadline?(pace.onTrack?'On Track':euro(Math.abs(pace.gap))+' Lücke'):'—'}</div><div class="hint">${pace.deadline?`Benötigt ${euro(pace.required)}/Monat bis ${pace.deadline}`:'FIRE-Deadline noch nicht gesetzt'}</div></div><div class="checkCard"><div class="label">KRYPTO DRIFT ${infoTip('Abweichung des aktuellen Krypto-Anteils von deinem Zielanteil in den Einstellungen.')}</div><div class="value ${Math.abs(ca.drift)>10?'red':Math.abs(ca.drift)>5?'orange':'green'}">${ca.drift>=0?'+':''}${ca.drift.toFixed(1)} %-Pkt.</div><div class="hint">Aktuell ${pct(ca.current)} · Ziel ${pct(ca.target)}</div></div></div><div class="grid wide" style="margin-top:14px"><div class="card"><div class="toolbar"><div><h2>Sparquoten-Trend</h2><span class="sub">Rolling 12 Monate</span></div><b>${pct(s.rate)}</b></div>${savingsTrendChart(s.series)}</div><div class="card"><h2>Risiko- und Liquiditätscheck</h2>${stat('Cash verfügbar',euro(state.assets.filter(a=>a.type==='Cash').reduce((x,a)=>x+a.value,0)))}${stat('Runway',r.toFixed(1)+' Monate',runwayClass)}${stat('FIRE Ziel',euro(fireTarget(d)))}${stat('Stress Gap',f.gap>0?euro(f.gap):'kein Gap',f.gap>0?'red':'green')}${stat('Größter Ausgabenposten',largestExp?esc(largestExp.name):'—')}${stat('Anteil größter Posten',pct(topShare),topShare>35?'red':'green')}<div class="notice" style="margin-top:12px">Der Check ersetzt keine Anlageberatung. Er soll dir früh zeigen, wo Liquidität, Sparrate oder FIRE-Puffer zu knapp werden.</div></div></div>`}
 function calendarData(y,m){let first=new Date(y,m-1,1),days=new Date(y,m,0).getDate(),startDay=(first.getDay()+6)%7;let cells=[];for(let i=0;i<startDay;i++){let d=new Date(y,m-1,-(startDay-i-1));cells.push({day:d.getDate(),y:d.getFullYear(),m:d.getMonth()+1,other:true})}for(let day=1;day<=days;day++)cells.push({day,y,m,other:false});while(cells.length<42){let d=new Date(y,m-1,days+(cells.length-(startDay+days))+1);cells.push({day:d.getDate(),y:d.getFullYear(),m:d.getMonth()+1,other:true})}return cells}
 function openCalendarWith(year,month){const oldY=UI.year,oldM=UI.month;UI.year=year;UI.month=month;openCalendar();UI.year=oldY;UI.month=oldM}
@@ -768,11 +785,55 @@ function drawRisk(){
  const bins=32,counts=new Array(bins).fill(0);vals.forEach(v=>{const i=Math.max(0,Math.min(bins-1,Math.floor(v/cap*bins)));counts[i]++});
  const maxCount=Math.max(...counts,1),bw=plotW/bins;
  const grad=ctx.createLinearGradient(0,padT,0,padT+plotH);grad.addColorStop(0,'rgba(47,124,255,.92)');grad.addColorStop(1,'rgba(67,208,190,.28)');
- counts.forEach((n,i)=>{const bh=Math.max(2,n/maxCount*plotH);const x=padL+i*bw+1,y=padT+plotH-bh;ctx.fillStyle=grad;roundedRect(ctx,x,y,Math.max(2,bw-3),bh,4);ctx.fill()});
+ const hoverBins=[];
+ counts.forEach((n,i)=>{const bh=Math.max(2,n/maxCount*plotH);const x=padL+i*bw+1,y=padT+plotH-bh;ctx.fillStyle=grad;roundedRect(ctx,x,y,Math.max(2,bw-3),bh,4);ctx.fill();hoverBins.push({x,x2:x+Math.max(2,bw-3),y,y2:padT+plotH,count:n,min:i/bins*cap,max:(i+1)/bins*cap})});
  const marker=(value,color,label,offset=0)=>{const x=padL+Math.min(1,value/cap)*plotW;ctx.strokeStyle=color;ctx.lineWidth=1.5;ctx.setLineDash([4,5]);ctx.beginPath();ctx.moveTo(x,padT);ctx.lineTo(x,padT+plotH);ctx.stroke();ctx.setLineDash([]);ctx.fillStyle=color;ctx.font='700 10px system-ui';ctx.textAlign=x>w*.72?'right':'left';ctx.fillText(label,x+(x>w*.72?-5:5),padT+10+offset)};
  marker(r.p50,'#67a8ff','Median');marker(r.target,'#ff5f7d','FIRE Ziel',14);
  ctx.strokeStyle='rgba(122,158,197,.18)';ctx.beginPath();ctx.moveTo(padL,padT+plotH+.5);ctx.lineTo(w-padR,padT+plotH+.5);ctx.stroke();
- ctx.fillStyle='rgba(145,166,193,.78)';ctx.font='10px system-ui';ctx.textAlign='left';ctx.fillText(euro(0),padL,padT+plotH+22);ctx.textAlign='right';ctx.fillText(euro(cap),w-padR,padT+plotH+22)
+ ctx.fillStyle='rgba(145,166,193,.78)';ctx.font='10px system-ui';ctx.textAlign='left';ctx.fillText(euro(0),padL,padT+plotH+22);ctx.textAlign='right';ctx.fillText(euro(cap),w-padR,padT+plotH+22);
+ c.__riskHover={bins:hoverBins,padL,padT,plotH,cap,sampleSize:vals.length};
+ bindRiskTooltip(c)
+}
+function ensureChartTooltip(host){
+ let tip=host.querySelector(':scope > .chartTooltip');
+ if(!tip){tip=document.createElement('div');tip.className='chartTooltip';host.appendChild(tip)}
+ return tip
+}
+function showChartTooltip(host,label,value,clientX,clientY){
+ const tip=ensureChartTooltip(host),r=host.getBoundingClientRect();
+ tip.innerHTML=`<span>${esc(label)}</span><strong>${esc(value)}</strong>`;
+ tip.classList.add('show');
+ const x=Math.max(12,Math.min(r.width-12,clientX-r.left)),y=Math.max(10,clientY-r.top);
+ tip.style.left=x+'px';tip.style.top=y+'px'
+}
+function hideChartTooltip(host){host?.querySelector(':scope > .chartTooltip')?.classList.remove('show')}
+function bindInteractiveCharts(root=document){
+ root.querySelectorAll('.interactiveChart').forEach(host=>{
+  if(host.dataset.tipBound)return;host.dataset.tipBound='1';
+  const handler=e=>{
+   const p=e.target.closest?.('[data-chart-label]');
+   if(!p||!host.contains(p))return hideChartTooltip(host);
+   showChartTooltip(host,p.dataset.chartLabel||'',p.dataset.chartValue||'',e.clientX,e.clientY)
+  };
+  host.addEventListener('pointermove',handler);
+  host.addEventListener('pointerdown',handler,{passive:true});
+  host.addEventListener('pointerleave',()=>hideChartTooltip(host));
+ })
+}
+function bindRiskTooltip(c){
+ if(c.dataset.tipBound)return;c.dataset.tipBound='1';
+ const host=c.closest('.riskDistributionCard')||c.parentElement;
+ const handler=e=>{
+  const meta=c.__riskHover;if(!meta)return;
+  const r=c.getBoundingClientRect(),x=(e.clientX-r.left)*(c.clientWidth/r.width),y=(e.clientY-r.top)*(c.clientHeight/r.height);
+  const bin=meta.bins.find(b=>x>=b.x&&x<=b.x2);
+  if(!bin||y<meta.padT||y>meta.padT+meta.plotH)return hideChartTooltip(host);
+  const pctOf=meta.sampleSize?bin.count/meta.sampleSize*100:0;
+  showChartTooltip(host,`${euro(bin.min)} bis ${euro(bin.max)}`,`${bin.count} Simulationen · ${pct(pctOf)}`,e.clientX,e.clientY)
+ };
+ c.addEventListener('pointermove',handler);
+ c.addEventListener('pointerdown',handler,{passive:true});
+ c.addEventListener('pointerleave',()=>hideChartTooltip(host))
 }
 function applyAppearance(){document.documentElement.classList.toggle('light',!UI.dark);document.documentElement.style.colorScheme=UI.dark?'dark':'light';const b=document.getElementById('appearanceToggle');if(!b)return;const icon=document.getElementById('appearanceIcon');const text=document.getElementById('appearanceText');if(icon)icon.setAttribute('data-icon',UI.dark?'sun':'moon');if(text)text.textContent=UI.dark?'Light Mode':'Dark Mode';b.title=UI.dark?'Zu Light Mode wechseln':'Zu Dark Mode wechseln';}
 function render(){
@@ -797,6 +858,7 @@ function render(){
  renderCoinMini();
  applySavedOrder(target||document);
  setupSortable(target||document);
+ bindInteractiveCharts(target||document);
  if(UI.view==='risk')requestAnimationFrame(drawRisk);
 }
 let __renderFrame=0;
