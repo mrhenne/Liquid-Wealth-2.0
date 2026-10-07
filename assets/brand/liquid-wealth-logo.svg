@@ -1,0 +1,23 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 780 220" role="img" aria-labelledby="title desc">
+<title id="title">Liquid Wealth</title><desc id="desc">Liquid Wealth Personal Wealth OS Tactical Engine</desc>
+<defs>
+ <linearGradient id="g1" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#5CF6F1"/><stop offset=".42" stop-color="#09BBD0"/><stop offset=".72" stop-color="#096CEB"/><stop offset="1" stop-color="#4D62FF"/></linearGradient>
+ <linearGradient id="g2" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#FFFFFF"/><stop offset="1" stop-color="#CBE8FF"/></linearGradient>
+ <linearGradient id="g3" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#F5FAFF"/><stop offset=".45" stop-color="#DDEEFF"/><stop offset=".46" stop-color="#5FD6FF"/><stop offset="1" stop-color="#1670FF"/></linearGradient>
+ <filter id="glow" x="-40%" y="-40%" width="180%" height="180%"><feGaussianBlur stdDeviation="8" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+ <filter id="shadow" x="-30%" y="-30%" width="160%" height="160%"><feDropShadow dx="0" dy="8" stdDeviation="10" flood-color="#001A37" flood-opacity=".45"/></filter>
+</defs>
+<g transform="translate(18 18)" filter="url(#shadow)">
+ <rect width="184" height="184" rx="46" fill="url(#g1)"/>
+ <rect x="4" y="4" width="176" height="176" rx="42" fill="none" stroke="#8BFFFF" stroke-opacity=".65" stroke-width="2"/>
+ <path d="M8 62C48 10 110 6 176 18V92C132 66 73 76 12 132Z" fill="#9FFFFF" opacity=".28"/>
+ <path d="M8 144C52 104 116 97 176 118V176H18C11 167 8 157 8 144Z" fill="#004EC8" opacity=".42"/>
+ <text x="92" y="123" text-anchor="middle" font-family="Inter,Arial,sans-serif" font-size="76" font-weight="850" letter-spacing="-8" fill="url(#g2)">LW</text>
+</g>
+<g transform="translate(236 48)">
+ <text x="0" y="60" font-family="Inter,Arial,sans-serif" font-size="62" font-weight="850" letter-spacing="-2.5" fill="url(#g3)">Liquid Wealth</text>
+ <text x="2" y="113" font-family="Inter,Arial,sans-serif" font-size="24" font-weight="650" letter-spacing="1.8" fill="#C5DDF5">Personal Wealth OS</text>
+ <circle cx="280" cy="105" r="5.5" fill="#29CFFF" filter="url(#glow)"/>
+ <text x="300" y="113" font-family="Inter,Arial,sans-serif" font-size="24" font-weight="650" letter-spacing="1.8" fill="#C5DDF5">Tactical Engine</text>
+</g>
+</svg>
