@@ -483,7 +483,7 @@ function dashboard(){
     <div class="monthSummaryRow"><span>Netto Cashflow</span><b class="${cash>=0?'green':'red'} sensitive">${euro(cash)}</b></div>
     <div class="monthSummaryRow"><span>Sparquote</span><b>${pct(saveRate)}</b></div>
    </div>
-   <div class="compactActions"><button class="primary" data-action="quick">Eintrag</button><button class="ghost" data-action="copyPrev">Vormonat kopieren</button></div>
+   <div class="compactActions"><button class="primary" data-action="quick">Eintrag</button><button class="ghost" data-action="copyFromMonth">Monat übernehmen</button></div>
   </div>
  </div>
  <div class="dashboardGridMid">
@@ -673,7 +673,7 @@ function addGoal(){state.goals.push({id:String(Date.now()),name:'Neues Ziel',tar
 function updateGoal(el){let g=state.goals.find(x=>String(x.id)===el.closest('.goal').dataset.goal);if(!g)return;if(el.classList.contains('goalName'))g.name=el.value;if(el.classList.contains('goalTarget'))g.target=Number(el.value)||0;if(el.classList.contains('goalDeadline'))g.deadline=Number(el.value)||0;save();render()}
 function deleteGoal(b){state.goals=state.goals.filter(g=>String(g.id)!==b.closest('.goal').dataset.goal);save();render()}
 function applyRecurring(){let d=getMonth();for(const cat of ['income','expenses','invest'])for(const x of d[cat])if(x.recurring&&x.val===0)x.val=0;let prev=new Date(UI.year,UI.month-2,1),p=getMonth(prev.getFullYear(),prev.getMonth()+1,false);if(!p){showToast('Kein Vormonat vorhanden');return}for(const cat of ['income','expenses','invest'])for(const x of p[cat]||[])if(x.recurring&&!d[cat].some(y=>y.name===x.name))d[cat].push({...x,id:String(Date.now()+Math.random())});save();render();showToast('Wiederkehrende Einträge übernommen')}
-function copyPrev(){let p=new Date(UI.year,UI.month-2,1),src=getMonth(p.getFullYear(),p.getMonth()+1,false),d=getMonth();if(!src){showToast('Kein Vormonat vorhanden');return}for(const cat of ['income','expenses','invest'])d[cat]=(src[cat]||[]).map(x=>({...x,id:String(Date.now()+Math.random())}));save();render();showToast('Vormonat kopiert')}
+function copyPrev(){let p=new Date(UI.year,UI.month-2,1),src=getMonth(p.getFullYear(),p.getMonth()+1,false),d=getMonth();if(!src||!monthHasData(src)){showToast('Kein gefüllter Vormonat vorhanden');return}if(monthHasData(d)){showToast('Der aktuelle Monat ist nicht leer');return}createCheckpoint('Vor Vormonatsübernahme');for(const cat of ['income','expenses','invest'])d[cat]=(src[cat]||[]).map(x=>({...x,id:crypto.randomUUID?crypto.randomUUID():String(Date.now()+Math.random())}));save();render();showToast('Vormonat übernommen')}
 
 function monthHasData(d){return ['income','expenses','invest'].some(cat=>(d?.[cat]||[]).length>0)}
 function availableSourceMonths(){
@@ -933,7 +933,7 @@ document.addEventListener('pointerover',e=>{const t=e.target.closest('.infoTip')
 document.addEventListener('pointerout',e=>{const t=e.target.closest('.infoTip');if(t&&!t.contains(e.relatedTarget))hideInfoPopover(t)});
 document.addEventListener('focusin',e=>{const t=e.target.closest('.infoTip');if(t)showInfoPopover(t)});
 document.addEventListener('focusout',e=>{const t=e.target.closest('.infoTip');if(t)hideInfoPopover(t)});
-document.addEventListener('click',e=>{const t=e.target.closest('.infoTip');if(t){e.preventDefault();e.stopPropagation();if(__infoOwner===t&&getInfoPopover().classList.contains('show'))hideInfoPopover(t);else showInfoPopover(t)}});
+document.addEventListener('click',e=>{const t=e.target.closest('.infoTip');if(t){e.preventDefault();e.stopPropagation();if(__infoOwner===t&&getInfoPopover().classList.contains('show'))hideInfoPopover(t);else showInfoPopover(t)}else if(__infoOwner)hideInfoPopover()});
 document.addEventListener('scroll',()=>hideInfoPopover(),true);
 window.addEventListener('resize',()=>hideInfoPopover());
 document.addEventListener('click',function(e){
