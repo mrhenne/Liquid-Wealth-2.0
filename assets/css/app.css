@@ -724,3 +724,123 @@ body.authReady .authGate{display:none!important}
  .flowTargets{gap:7px}.flowTarget{padding:9px 10px}.flowTarget small{display:none}
  .flowTargetTop span{white-space:normal;line-height:1.2}
 }
+
+
+/* v21 · ZNA Core Projects inspired refinement */
+:root{
+  --zna-radius:13px;
+  --zna-radius-sm:9px;
+  --zna-gap:8px;
+  --zna-accent:#d8891c;
+  --zna-accent-soft:rgba(216,137,28,.12);
+  --zna-line:rgba(136,174,214,.16);
+}
+.card{
+  border-radius:var(--zna-radius)!important;
+  padding:14px!important;
+  box-shadow:0 12px 34px rgba(0,0,0,.18),inset 0 1px 0 rgba(255,255,255,.045)!important;
+}
+.dashboardGridTop,.dashboardGridMid,.dashboardGridBottom,.grid{gap:10px!important}
+.toolbar{gap:8px!important;margin-bottom:11px!important}
+.toolbar h2{font-size:15px!important;font-weight:800!important;letter-spacing:-.012em!important}
+.sectionTitle{font-size:22px!important;font-weight:850!important}
+.sectionSub{font-size:11.5px!important}
+.metric,.quickFact,.crashCard,.checkpointRow,.scenario{border-radius:11px!important}
+.primary,.ghost,.danger,.smallBtn,.topBtn,.monthBtn{
+  display:inline-flex!important;align-items:center!important;justify-content:center!important;gap:7px!important;
+  min-height:36px!important;padding:0 11px!important;border-radius:9px!important;
+  font-size:12px!important;font-weight:750!important;white-space:nowrap!important;
+}
+.primary{box-shadow:0 8px 22px rgba(47,124,255,.18),inset 0 1px 0 rgba(255,255,255,.16)!important}
+.danger{box-shadow:none!important}
+.icon,.ico{
+  width:18px!important;height:18px!important;min-width:18px!important;display:inline-flex!important;
+  align-items:center!important;justify-content:center!important;transition:transform .16s ease,color .16s ease,filter .16s ease!important
+}
+.icon svg,.ico svg{width:18px!important;height:18px!important;stroke:currentColor!important;fill:none!important;stroke-width:1.8!important;stroke-linecap:round!important;stroke-linejoin:round!important}
+.iconOnly{width:36px!important;min-width:36px!important;height:36px!important;min-height:36px!important;padding:0!important;border-radius:9px!important}
+.iconOnly .icon{margin:0!important}
+@media(hover:hover){
+  button{transition:transform .16s ease,border-color .16s ease,background .16s ease,box-shadow .16s ease!important}
+  button:hover{transform:translateY(-1px)}
+  button:hover .icon,button:hover .ico,.nav button:hover .ico{transform:scale(1.09);filter:drop-shadow(0 2px 5px rgba(90,160,255,.28))}
+  .ghost:hover,.topBtn:hover,.monthBtn:hover{border-color:rgba(91,155,221,.30)!important;background:rgba(45,91,139,.10)!important}
+  .primary:hover{box-shadow:0 11px 26px rgba(47,124,255,.24),inset 0 1px 0 rgba(255,255,255,.20)!important}
+  .danger:hover{border-color:rgba(255,78,111,.38)!important;background:rgba(255,78,111,.10)!important}
+}
+.nav button{border-radius:10px!important;min-height:41px!important;padding:9px 10px!important;gap:9px!important}
+.nav button.active{box-shadow:inset 3px 0 0 rgba(70,151,255,.85)!important}
+.kicon{border-radius:9px!important;transition:transform .18s ease,box-shadow .18s ease!important}
+.kpi:hover .kicon{transform:translateY(-1px) scale(1.04);box-shadow:0 7px 18px rgba(47,124,255,.18)}
+.compactActions{display:flex!important;gap:7px!important;flex-wrap:wrap!important}
+
+/* Delete controls: one recognizable icon only, with proper breathing room */
+.entry .del,.assetDel,.debtDel,.goalDel{
+  width:36px!important;min-width:36px!important;height:36px!important;min-height:36px!important;
+  padding:0!important;margin:0!important;border-radius:9px!important;
+}
+.entry,.assetCard{column-gap:8px!important;padding-right:2px!important}
+.assetCard{grid-template-columns:minmax(0,1fr) minmax(118px,140px) minmax(88px,105px) 40px!important}
+.entry{grid-template-columns:minmax(0,1fr) minmax(96px,112px) minmax(82px,94px) 40px!important}
+
+/* True SVG donut: better contrast and interactive segments */
+.donutSvg{
+  width:178px!important;height:178px!important;background:none!important;position:relative!important;
+  display:grid!important;place-items:center!important;border-radius:50%!important;overflow:visible!important;
+  box-shadow:none!important;
+}
+.donutSvg:after,.donutSvg:before{display:none!important}
+.donutSvg svg{position:absolute;inset:0;width:100%;height:100%;overflow:visible;filter:drop-shadow(0 12px 24px rgba(0,0,0,.22))}
+.donutTrack{fill:none;stroke:rgba(118,155,195,.11);stroke-width:14}
+.donutSegment{fill:none;stroke-width:14;stroke-linecap:round;transition:stroke-width .18s ease,filter .18s ease,opacity .18s ease;cursor:default}
+@media(hover:hover){.donutSegment:hover{stroke-width:17;filter:drop-shadow(0 0 7px currentColor);opacity:1}}
+.pulseSegment{animation:wealthPulse 3.6s ease-in-out infinite}
+@keyframes wealthPulse{0%,100%{opacity:.9;filter:none}50%{opacity:1;filter:drop-shadow(0 0 6px rgba(64,139,255,.28))}}
+.donutCenter{
+  width:104px!important;height:104px!important;border-radius:50%!important;z-index:3!important;
+  display:flex!important;flex-direction:column!important;align-items:center!important;justify-content:center!important;gap:2px!important;
+  color:#f5f9ff!important;background:rgba(6,18,32,.93)!important;border:1px solid rgba(162,199,238,.17)!important;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.06),0 8px 30px rgba(0,0,0,.28)!important;
+  text-shadow:0 1px 2px rgba(0,0,0,.28)!important;text-align:center!important;
+}
+.donutCenter span{font-size:9px!important;color:#9fb3ca!important;font-weight:750!important;text-transform:uppercase!important;letter-spacing:.06em!important}
+.donutCenter strong{font-size:15px!important;line-height:1.1!important;color:#fff!important;font-weight:900!important;letter-spacing:-.025em!important}
+.donutCenter small{font-size:9px!important;color:#8fa6bf!important}
+html.light .donutCenter{
+  color:#17243a!important;background:rgba(255,255,255,.94)!important;border-color:rgba(66,109,154,.14)!important;
+  box-shadow:inset 0 1px 0 #fff,0 9px 26px rgba(38,72,112,.13)!important;text-shadow:none!important
+}
+html.light .donutCenter strong{color:#17243a!important}
+html.light .donutCenter span,html.light .donutCenter small{color:#647890!important}
+.legendRow{border-radius:8px!important;padding:5px 6px!important;margin:0 -6px!important;transition:background .16s ease,transform .16s ease}
+@media(hover:hover){.legendRow:hover{background:rgba(67,126,187,.08);transform:translateX(2px)}}
+.sw{border-radius:50%!important;box-shadow:0 0 0 3px rgba(255,255,255,.025)}
+
+/* Accent treatment borrowed from ZNA Core's project module, used sparingly */
+.dashboardBadge,.syncBadge{
+  border-radius:999px!important;border:1px solid rgba(216,137,28,.18)!important;
+  background:var(--zna-accent-soft)!important;color:#e9a543!important
+}
+html.light .dashboardBadge,html.light .syncBadge{color:#9a5d08!important;background:rgba(216,137,28,.10)!important}
+
+/* Mobile spacing and edge safety */
+@media(max-width:720px){
+ .card{padding:13px!important;border-radius:13px!important}
+ .primary,.ghost,.danger,.smallBtn,.topBtn,.monthBtn{min-height:40px!important;padding:0 10px!important}
+ .iconOnly{width:40px!important;min-width:40px!important;height:40px!important;min-height:40px!important}
+ .assetCard{grid-template-columns:minmax(0,1fr) minmax(88px,98px) 40px!important;column-gap:7px!important}
+ .assetCard .assetType{display:none!important}
+ .entry{grid-template-columns:minmax(0,1fr) 82px 40px!important;column-gap:7px!important}
+ .entry .toggle{display:none!important}
+ .dashboardAllocation .alloc{grid-template-columns:142px minmax(0,1fr)!important;gap:12px!important}
+ .dashboardAllocation .donutSvg{width:136px!important;height:136px!important}
+ .dashboardAllocation .donutCenter{width:80px!important;height:80px!important}
+ .dashboardAllocation .donutCenter strong{font-size:12px!important}
+}
+@media(max-width:430px){
+ .dashboardAllocation .alloc{grid-template-columns:1fr!important}
+ .dashboardAllocation .donutSvg{width:156px!important;height:156px!important;margin:auto!important}
+ .dashboardAllocation .donutCenter{width:92px!important;height:92px!important}
+ .dashboardAllocation .donutCenter strong{font-size:13px!important}
+ .toolbar{align-items:flex-start!important}
+}
