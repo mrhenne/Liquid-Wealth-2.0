@@ -771,7 +771,10 @@ function action(a){
  if(a==='checkpoint')return manualCheckpoint();
  if(a==='restoreCheckpoint')return restoreCheckpoint();
  if(a==='toggleMobileMenu')return toggleMobileMenu();
- if(a==='cloudInfo')return window.LWCloud?.openAccount?.()||showToast('Cloud-Modul lädt noch');
+ if(a==='cloudInfo'){
+   if(window.LWCloud?.openAccount){window.LWCloud.openAccount();return}
+   return showToast('Cloud-Modul lädt noch')
+ }
  if(a==='saveSettings')return saveSettings();
  if(a==='resetDemo')return reset();
  if(a==='quick')return openQuick();
@@ -973,8 +976,18 @@ document.addEventListener('keydown',function(e){
  if(e.key==='/' && !/input|textarea|select/i.test(document.activeElement.tagName)){e.preventDefault();const s=document.getElementById('globalSearch');if(s){s.focus();s.select();}}
 });
 
+function runtimeSanityCheck(){
+ const problems=[];
+ const requiredIds=['nav','monthLabel','monthLabelText','toast'];
+ requiredIds.forEach(id=>{if(!document.getElementById(id))problems.push('Fehlt: #'+id)});
+ document.querySelectorAll('[data-icon]').forEach(el=>{if(!el.dataset.icon)problems.push('Icon ohne Namen')});
+ document.querySelectorAll('button').forEach(btn=>{if(!btn.textContent.trim()&&!btn.querySelector('svg,.icon,[data-icon]')&&!btn.getAttribute('aria-label'))problems.push('Leerer Button ohne Label')});
+ if(problems.length)console.warn('Liquid Wealth UI-Check:',problems);
+ else console.info('Liquid Wealth UI-Check: OK');
+ return problems
+}
 UI.dark=localStorage.getItem(APP+'_dark')!=='0';
 applyAppearance();
-render();fetchCoins();setInterval(()=>fetchCoins(),60000);
+render();runtimeSanityCheck();fetchCoins();setInterval(()=>fetchCoins(),60000);
 
 window.__LIQUID_WEALTH_BOOTED__ = true;
