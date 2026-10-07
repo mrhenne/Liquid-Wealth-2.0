@@ -345,29 +345,98 @@ function setupSortable(root=document){
 }
 function startPointerSort(e){
  if(e.button!==undefined&&e.button!==0)return;
- const handle=e.currentTarget,item=handle.closest('.sortableItem'),container=item?.parentElement;if(!item||!container)return;
- e.preventDefault();handle.setPointerCapture?.(e.pointerId);
+ const handle=e.currentTarget,item=handle.closest('.sortableItem'),container=item?.parentElement;
+ if(!item||!container)return;
+ e.preventDefault();
  const rect=item.getBoundingClientRect(),ghost=item.cloneNode(true);
- ghost.classList.add('dragGhost');ghost.style.width=rect.width+'px';ghost.style.height=rect.height+'px';ghost.style.left=rect.left+'px';ghost.style.top=rect.top+'px';
- document.body.appendChild(ghost);item.classList.add('dragOrigin');
- dragState={handle,item,container,ghost,pointerId:e.pointerId,dx:e.clientX-rect.left,dy:e.clientY-rect.top,moved:false};
- handle.addEventListener('pointermove',movePointerSort,{passive:false});handle.addEventListener('pointerup',endPointerSort,{once:true});handle.addEventListener('pointercancel',endPointerSort,{once:true});
+ ghost.classList.add('dragGhost');
+ Object.assign(ghost.style,{width:rect.width+'px',height:rect.height+'px',left:rect.left+'px',top:rect.top+'px'});
+ document.body.appendChild(ghost);
+ item.classList.add('dragOrigin');
+ item.style.minHeight=rect.height+'px';
+ dragState={
+  handle,item,container,ghost,pointerId:e.pointerId,
+  dx:e.clientX-rect.left,dy:e.clientY-rect.top,
+  startX:e.clientX,startY:e.clientY,moved:false,lastTarget:null
+ };
+ try{handle.setPointerCapture?.(e.pointerId)}catch(_){}
+ window.addEventListener('pointermove',movePointerSort,{passive:false});
+ window.addEventListener('pointerup',endPointerSort,{once:true});
+ window.addEventListener('pointercancel',endPointerSort,{once:true});
+ document.body.classList.add('sortingActive');
 }
-function movePointerSort(e){
- if(!dragState||e.pointerId!==dragState.pointerId)return;e.preventDefault();const d=dragState;d.moved=true;
- d.ghost.style.left=(e.clientX-d.dx)+'px';d.ghost.style.top=(e.clientY-d.dy)+'px';
- d.ghost.style.pointerEvents='none';
- const els=[...d.container.children].filter(x=>x!==d.item&&!x.classList.contains('emptyState'));
- let nearest=null,best=Infinity;
- els.forEach(el=>{const r=el.getBoundingClientRect(),cx=r.left+r.width/2,cy=r.top+r.height/2,dist=Math.hypot(e.clientX-cx,e.clientY-cy);if(dist<best){best=dist;nearest=el}});
- if(nearest){
-  const r=nearest.getBoundingClientRect(),before=(e.clientY<r.top+r.height/2)||(Math.abs(e.clientY-(r.top+r.height/2))<r.height*.25&&e.clientX<r.left+r.width/2);
-  d.container.insertBefore(d.item,before?nearest:nearest.nextSibling)
+function dragAxis(container){
+ const group=container?.dataset.sortGroup||'';
+ if(group==='dashboard-hero')return 'x';
+ if(group.startsWith('cashflow-')||group.startsWith('wealth-')||group==='goals')return 'y';
+ return 'auto';
+}
+function sortableSiblings(container,item){
+ return [...container.children].filter(el=>el!==item&&!el.classList.contains('emptyState')&&el.classList.contains('sortableItem'));
+}
+function autoScrollDrag(y){
+ const edge=Math.min(92,window.innerHeight*.16);
+ let delta=0;
+ if(y<edge)delta=-Math.ceil((edge-y)/edge*18);
+ else if(y>window.innerHeight-edge)delta=Math.ceil((y-(window.innerHeight-edge))/edge*18);
+ if(delta)window.scrollBy(0,delta);
+}
+function reorderAtPointer(d,x,y){
+ const siblings=sortableSiblings(d.container,d.item);
+ if(!siblings.length)return;
+ let target=document.elementFromPoint(x,y)?.closest('.sortableItem');
+ if(target===d.item||target?.parentElement!==d.container)target=null;
+ if(!target){
+   let best=Infinity;
+   for(const el of siblings){
+     const r=el.getBoundingClientRect();
+     const cx=Math.max(r.left,Math.min(x,r.right)),cy=Math.max(r.top,Math.min(y,r.bottom));
+     const dist=Math.hypot(x-cx,y-cy);
+     if(dist<best){best=dist;target=el}
+   }
+ }
+ if(!target)return;
+ const r=target.getBoundingClientRect(),axis=dragAxis(d.container);
+ let after=false;
+ if(axis==='x')after=x>r.left+r.width/2;
+ else if(axis==='y')after=y>r.top+r.height/2;
+ else{
+   const verticalDistance=Math.abs(y-(r.top+r.height/2))/(r.height||1);
+   const horizontalDistance=Math.abs(x-(r.left+r.width/2))/(r.width||1);
+   after=verticalDistance>.34?y>r.top+r.height/2:x>r.left+r.width/2;
+ }
+ const reference=after?target.nextSibling:target;
+ if(reference!==d.item&&target!==d.lastTarget){
+   d.container.insertBefore(d.item,reference);
+   d.lastTarget=target;
+   d.item.classList.add('dropPulse');
+   clearTimeout(d.pulseTimer);
+   d.pulseTimer=setTimeout(()=>d.item.classList.remove('dropPulse'),120);
  }
 }
+function movePointerSort(e){
+ const d=dragState;
+ if(!d||e.pointerId!==d.pointerId)return;
+ e.preventDefault();
+ const dist=Math.hypot(e.clientX-d.startX,e.clientY-d.startY);
+ if(dist<5&&!d.moved)return;
+ d.moved=true;
+ d.ghost.style.left=(e.clientX-d.dx)+'px';
+ d.ghost.style.top=(e.clientY-d.dy)+'px';
+ autoScrollDrag(e.clientY);
+ reorderAtPointer(d,e.clientX,e.clientY);
+}
 function endPointerSort(e){
- const d=dragState;if(!d)return;try{d.handle.releasePointerCapture?.(d.pointerId)}catch(_){}
- d.handle.removeEventListener('pointermove',movePointerSort);d.ghost.remove();d.item.classList.remove('dragOrigin');dragState=null;
+ const d=dragState;if(!d)return;
+ if(e?.pointerId!==undefined&&e.pointerId!==d.pointerId)return;
+ try{d.handle.releasePointerCapture?.(d.pointerId)}catch(_){}
+ window.removeEventListener('pointermove',movePointerSort);
+ d.ghost?.remove();
+ d.item.classList.remove('dragOrigin','dropPulse');
+ d.item.style.minHeight='';
+ clearTimeout(d.pulseTimer);
+ document.body.classList.remove('sortingActive');
+ dragState=null;
  if(d.moved)persistGroupOrder(d.container)
 }
 function dashboard(){
