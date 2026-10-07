@@ -947,7 +947,7 @@ html.light .infoTip:after{background:rgba(255,255,255,.98);color:#17243a}
 .firePaceCard{overflow:hidden}
 .paceGauge{display:grid;grid-template-columns:1fr 1fr;gap:10px;position:relative;padding-top:14px}
 .paceGauge:before{content:"";position:absolute;left:0;right:0;top:0;height:7px;border-radius:99px;background:rgba(112,151,194,.10)}
-.paceGaugeFill{position:absolute;left:0;top:0;height:7px;width:calc(min(100,var(--pace))*1%);border-radius:99px;background:linear-gradient(90deg,#2f7cff,#25cdb8);box-shadow:0 0 14px rgba(47,124,255,.22);transition:width .3s ease}
+.paceGaugeFill{position:absolute;left:0;top:0;height:7px;width:auto;border-radius:99px;background:linear-gradient(90deg,#2f7cff,#25cdb8);box-shadow:0 0 14px rgba(47,124,255,.22);transition:width .3s ease}
 .paceGauge>div{display:grid;gap:3px}.paceGauge span{font-size:10px;color:var(--muted);font-weight:700}.paceGauge strong{font-size:14px}
 .paceDelta{margin-top:11px;font-size:11px;font-weight:800}
 .dashboardBadge.paceGood{color:#36d6a2!important;border-color:rgba(54,214,162,.20)!important;background:rgba(54,214,162,.08)!important}
