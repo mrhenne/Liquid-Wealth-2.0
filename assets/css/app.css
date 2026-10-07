@@ -547,3 +547,128 @@ html.light .top{background:rgba(248,252,255,.72)!important}.light .sidebar{backg
   .footer{padding-bottom:14px!important}.table{min-width:640px}.assetCard{grid-template-columns:1fr 86px 34px!important}.assetCard .assetType{display:none!important}.goalTop{align-items:center;gap:8px}.goalTop input{min-width:0}
 }
 @media(max-width:430px){.crashCards{grid-template-columns:1fr}.dashboardAllocation .alloc{grid-template-columns:1fr!important}.dashboardAllocation .legend{margin-top:6px}.mobileSheetGrid{grid-template-columns:1fr 1fr}}
+
+
+/* v19 · unified typography + frosted liquid glass + mobile scale fixes */
+:root{
+  --fs-2xs:clamp(10px,.16vw + 9.5px,11px);
+  --fs-xs:clamp(11px,.18vw + 10px,12px);
+  --fs-sm:clamp(12px,.20vw + 11px,13px);
+  --fs-md:clamp(13px,.22vw + 12px,15px);
+  --fs-lg:clamp(16px,.45vw + 14px,19px);
+  --fs-xl:clamp(20px,.75vw + 17px,27px);
+  --glass-bg:rgba(10,24,42,.66);
+  --glass-bg-strong:rgba(8,21,37,.78);
+  --glass-line:rgba(126,176,230,.18);
+  --glass-highlight:rgba(255,255,255,.055);
+  --glass-shadow:0 18px 55px rgba(0,0,0,.24);
+}
+html{font-size:16px}
+body{font-size:var(--fs-md);line-height:1.48;letter-spacing:-.006em}
+.sectionTitle{font-size:var(--fs-xl);line-height:1.12;letter-spacing:-.025em}
+.sectionSub,.sub{font-size:var(--fs-xs);line-height:1.45}
+.toolbar h2,.card h2{font-size:var(--fs-lg);line-height:1.2;letter-spacing:-.018em}
+.table,.stat,.entry,.assetCard,.goal,.monthSummaryRow,.legendRow,.milestoneItem,.quickFact,.checkpointRow{font-size:var(--fs-sm)}
+.field label,.klabel,.ksub,.footer,.toggle,.keyHint,.dashboardSliderScale,.coinMini,.userMeta small{font-size:var(--fs-2xs)}
+.kvalue,.bigNum,.fireGoalValue,.emergencyBig strong{font-size:var(--fs-xl)}
+button,input,select{font-size:var(--fs-sm);line-height:1.25}
+
+/* Frosted glass, deliberately subtle rather than glossy everywhere */
+.card,.metric,.status,.scenario,.calendarBox,.riskCanvas,.quickFact,.crashCard,.checkpointRow,.mobileSheetPanel,.modalBox,.searchBar,.topBtn,.monthBtn,.ghost,.input,.userPill{
+  background:linear-gradient(145deg,rgba(16,34,57,.72),rgba(7,20,35,.62));
+  border-color:var(--glass-line);
+  box-shadow:inset 0 1px 0 var(--glass-highlight),var(--glass-shadow);
+  -webkit-backdrop-filter:blur(18px) saturate(135%);
+  backdrop-filter:blur(18px) saturate(135%);
+}
+.card{position:relative;overflow:hidden}
+.card:before{
+  content:"";position:absolute;inset:0;pointer-events:none;
+  background:linear-gradient(130deg,rgba(255,255,255,.045),transparent 30%,transparent 70%,rgba(83,157,255,.025));
+}
+.sidebar,.top,.mobileDock{
+  -webkit-backdrop-filter:blur(22px) saturate(145%);
+  backdrop-filter:blur(22px) saturate(145%);
+}
+html.light{
+  --glass-bg:rgba(255,255,255,.70);
+  --glass-bg-strong:rgba(255,255,255,.84);
+  --glass-line:rgba(70,114,160,.16);
+  --glass-highlight:rgba(255,255,255,.75);
+  --glass-shadow:0 18px 45px rgba(30,61,98,.10);
+}
+html.light .card,html.light .metric,html.light .status,html.light .scenario,html.light .calendarBox,
+html.light .quickFact,html.light .crashCard,html.light .checkpointRow,html.light .modalBox,
+html.light .searchBar,html.light .topBtn,html.light .monthBtn,html.light .ghost,html.light .input,html.light .userPill{
+  background:linear-gradient(145deg,rgba(255,255,255,.82),rgba(244,249,255,.66))!important;
+  border-color:var(--glass-line)!important;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.9),var(--glass-shadow)!important;
+}
+
+/* User pill becomes an actual account control */
+.userPill{appearance:none;color:var(--text);text-align:left;cursor:pointer}
+.userPill:hover{border-color:rgba(85,169,255,.42);transform:translateY(-1px)}
+.userPill .avatar{flex:0 0 auto}
+
+/* Fix narrow destructive controls shown in the screenshot */
+.entry{grid-template-columns:minmax(0,1fr) minmax(92px,110px) minmax(74px,88px) 40px}
+.entry .del,.assetDel,.debtDel,.goalDel{
+  width:36px!important;height:36px!important;min-width:36px!important;min-height:36px!important;
+  padding:0!important;display:inline-flex!important;align-items:center!important;justify-content:center!important;
+  border-radius:11px!important;line-height:1!important;white-space:nowrap!important;
+}
+.entry .del .icon,.assetDel .icon,.debtDel .icon,.goalDel .icon{width:18px!important;height:18px!important;margin:0!important}
+.entry .del svg,.assetDel svg,.debtDel svg,.goalDel svg{width:18px!important;height:18px!important}
+
+/* SVG charts must not distort or push typography into neighboring controls */
+.chart{display:block;max-width:100%;height:auto;min-height:220px;overflow:visible}
+.dashboardFlow .chart{width:100%;aspect-ratio:760/250;min-height:0}
+
+/* Mobile: replace crowded Sankey labels with a readable stacked representation */
+@media(max-width:720px){
+  body{padding:0!important;font-size:14px!important}
+  .app{min-height:100vh!important;border-radius:0!important;border-left:0!important;border-right:0!important}
+  .content{padding:12px 12px calc(92px + env(safe-area-inset-bottom))!important}
+  .sectionTitle{font-size:21px!important}
+  .toolbar h2,.card h2{font-size:16px!important}
+  .sectionSub,.sub{font-size:11px!important}
+  .table,.stat,.entry,.assetCard,.goal,.monthSummaryRow,.legendRow,.milestoneItem,.quickFact,.checkpointRow{font-size:12px!important}
+  .kvalue,.bigNum,.fireGoalValue,.emergencyBig strong{font-size:23px!important}
+  .card{padding:14px!important;border-radius:18px!important}
+  .entry{grid-template-columns:minmax(0,1fr) 82px 72px 38px!important;gap:6px!important}
+  .entry .name,.entry .amount{font-size:16px!important} /* prevents iOS input zoom */
+  input,select,textarea{font-size:16px!important}
+  .dashboardFlow{overflow:hidden}
+  .dashboardFlow .chart{
+    width:100%!important;
+    min-width:0!important;
+    height:auto!important;
+    aspect-ratio:760/250;
+    overflow:visible;
+  }
+  .dashboardFlow svg text{font-size:11px!important}
+  .userPill{padding:7px!important;border-radius:14px!important}
+  .userMeta{display:none}
+}
+@media(max-width:430px){
+  .dashboardFlow .chart{display:none!important}
+  .dashboardFlow:after{
+    content:"Cashflow-Diagramm ist auf kleinen Displays bewusst kompakt. Öffne „Bearbeiten“ für die vollständige Aufschlüsselung.";
+    display:block;padding:14px;border:1px solid var(--glass-line);border-radius:14px;
+    background:rgba(30,119,255,.08);color:var(--muted);font-size:12px;line-height:1.45;
+  }
+  .entry{grid-template-columns:minmax(0,1fr) 78px 38px!important}
+  .entry .toggle{display:none!important}
+  .assetCard{grid-template-columns:minmax(0,1fr) 88px 38px!important}
+  .assetCard .assetType{display:none!important}
+}
+
+.authGlass{max-width:520px;margin:auto;text-align:center;padding:8px 2px}
+.authMark{width:58px;height:58px;margin:0 auto 12px;border-radius:19px;display:grid;place-items:center;font-weight:900;font-size:18px;color:white;background:linear-gradient(145deg,#2588ff,#7a5cff);box-shadow:0 12px 32px rgba(37,136,255,.28)}
+.authGlass h3{font-size:22px;margin:0 0 6px}.authGlass p{color:var(--muted);margin:0 0 18px}
+.authGlass .field{text-align:left;margin:10px 0}.authGlass .input{min-height:48px;font-size:16px}
+.authActions{display:flex;gap:8px;margin-top:16px}.authActions>*{flex:1;min-height:44px}
+.authHint{font-size:11px;color:var(--muted);line-height:1.5;margin-top:14px}
+.cloudOnline .userPill{border-color:rgba(41,223,140,.30)}
+.cloudOnline .userPill .avatar{box-shadow:0 0 0 3px rgba(41,223,140,.10)}
+@media(max-width:520px){.authActions{flex-direction:column}.authGlass h3{font-size:20px}}
