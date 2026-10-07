@@ -8,6 +8,8 @@ const defaultAssets=[{id:'a1',name:'ETF',value:57000,type:'ETF',cost:42000,rate:
 const initial={version:8,settings:{...defaults},months:{},assets:defaultAssets,liabilities:[],cryptoFavorites:['bitcoin','ethereum','solana','binancecoin'],cryptoHoldings:{},cryptoAveragePrices:{},layout:{dashboard:{}},goals:[{id:'g1',name:'FIRE',target:1200000,current:0,deadline:2042},{id:'g2',name:'Notgroschen',target:15000,current:0,deadline:2027}],meta:{created:new Date().toISOString()}};
 let state=loadState();let UI={year:now.getFullYear(),month:now.getMonth()+1,view:'dashboard',stealth:false,coins:[],cryptoSearchResults:[],cryptoSearching:false,cryptoChartCoin:null,cryptoChartRange:'24h',cryptoHistory:{},cryptoHistoryInflight:{},cryptoHistoryLoading:false,sim:{extra:2000,returnRate:7,crash:0,years:15},risk:null};
 const CHECKPOINT_KEY=APP+'_checkpoints_v1';
+const CRYPTO_HISTORY_CACHE=APP+'_crypto_history_v2';
+try{const cached=JSON.parse(sessionStorage.getItem(CRYPTO_HISTORY_CACHE)||'{}');if(cached&&typeof cached==='object')UI.cryptoHistory=cached}catch(e){}
 function loadState(){try{let raw=localStorage.getItem(APP)||localStorage.getItem('LWTE_5');let x=raw?JSON.parse(raw):null;if(x&&[4,5,6,7,8,9].includes(x.version))return {...x,version:9,settings:{...defaults,...(x.settings||{})},months:x.months||{},assets:x.assets||[],liabilities:x.liabilities||[],cryptoFavorites:Array.isArray(x.cryptoFavorites)&&x.cryptoFavorites.length?x.cryptoFavorites:['bitcoin','ethereum','solana','binancecoin'],cryptoHoldings:(x.cryptoHoldings&&typeof x.cryptoHoldings==='object')?x.cryptoHoldings:{},cryptoAveragePrices:(x.cryptoAveragePrices&&typeof x.cryptoAveragePrices==='object')?x.cryptoAveragePrices:{},layout:x.layout||{dashboard:{}},goals:x.goals||[]}}catch(e){}let x=typeof structuredClone==='function'?structuredClone(initial):JSON.parse(JSON.stringify(initial));x.months[`${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}`]=demoMonth();return x}
 function checkpointList(){try{return JSON.parse(localStorage.getItem(CHECKPOINT_KEY)||'[]')}catch(e){return[]}}
 function writeCheckpointList(list){try{localStorage.setItem(CHECKPOINT_KEY,JSON.stringify(list.slice(0,12)))}catch(e){console.warn('Checkpoint konnte nicht gespeichert werden',e)}}
@@ -630,6 +632,17 @@ function cryptoRangeConfig(range){
  return map[range]||map['24h']
 }
 function cryptoHistoryKey(id,range){return id+':'+cryptoRangeConfig(range).bucket}
+function compactCryptoHistory(prices,max=900){
+ if(!Array.isArray(prices)||prices.length<=max)return prices||[];
+ const step=Math.ceil(prices.length/max);
+ return prices.filter((_,i)=>i%step===0||i===prices.length-1)
+}
+function persistCryptoHistoryCache(){
+ try{
+  const entries=Object.entries(UI.cryptoHistory).sort((a,b)=>(b[1]?.ts||0)-(a[1]?.ts||0)).slice(0,28);
+  sessionStorage.setItem(CRYPTO_HISTORY_CACHE,JSON.stringify(Object.fromEntries(entries)))
+ }catch(e){}
+}
 function sliceCryptoPrices(prices,range){
  const cfg=cryptoRangeConfig(range);let out=Array.isArray(prices)?prices:[];
  if(Number.isFinite(cfg.ms)){const cutoff=Date.now()-cfg.ms;out=out.filter(p=>Number(p[0])>=cutoff)}
@@ -645,8 +658,8 @@ async function fetchCryptoHistoryData(id,range,force=false){
   try{
    const res=await fetch(`https://api.coingecko.com/api/v3/coins/${encodeURIComponent(id)}/market_chart?vs_currency=eur&days=${encodeURIComponent(cfg.days)}`,{signal:ctl.signal,cache:'no-store'});
    if(!res.ok)throw Error('HTTP '+res.status);
-   const data=await res.json(),prices=Array.isArray(data.prices)?data.prices:[];
-   UI.cryptoHistory[key]={ts:Date.now(),prices};
+   const data=await res.json(),prices=compactCryptoHistory(Array.isArray(data.prices)?data.prices:[]);
+   UI.cryptoHistory[key]={ts:Date.now(),prices};persistCryptoHistoryCache();
    return prices
   }finally{clearTimeout(timer)}
  })();
