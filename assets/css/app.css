@@ -995,3 +995,30 @@ html.light .infoTip:after{background:rgba(255,255,255,.98);color:#17243a}
  .dragHandle{opacity:.92!important}
  .dragGhost{transform:scale(1.01)!important}
 }
+
+
+/* v28 · interactive chart tooltips */
+.chartWrap{position:relative;min-width:0}
+.interactiveChart{position:relative}
+.chartTooltip{
+ position:absolute;z-index:120;min-width:118px;max-width:220px;padding:8px 10px;border-radius:10px;
+ border:1px solid rgba(126,178,229,.18);background:rgba(6,18,31,.94);color:#eef6ff;
+ box-shadow:0 14px 36px rgba(0,0,0,.30);-webkit-backdrop-filter:blur(16px);backdrop-filter:blur(16px);
+ pointer-events:none;opacity:0;transform:translate(-50%,-115%) scale(.98);transition:opacity .12s ease,transform .12s ease;
+ font-size:10px;line-height:1.35
+}
+.chartTooltip.show{opacity:1;transform:translate(-50%,-115%) scale(1)}
+.chartTooltip span{display:block;color:#9fb3ca;font-weight:700;margin-bottom:2px}
+.chartTooltip strong{display:block;color:#fff;font-size:12px;font-weight:900;white-space:normal}
+html.light .chartTooltip{background:rgba(255,255,255,.97);color:#17243a;box-shadow:0 14px 34px rgba(38,72,112,.16)}
+html.light .chartTooltip strong{color:#17243a}
+.chartHit{fill:transparent;stroke:none;pointer-events:all;cursor:crosshair}
+.chartPoint:hover .chartDot{r:6;filter:drop-shadow(0 0 5px rgba(57,219,195,.5))}
+.donutSegment{pointer-events:stroke}
+.riskDistributionCard{position:relative}
+.riskCanvas{cursor:crosshair}
+@media(max-width:720px){
+ .chartTooltip{position:fixed;left:50%!important;top:auto!important;bottom:calc(82px + env(safe-area-inset-bottom));transform:translateX(-50%) translateY(6px)!important;max-width:calc(100vw - 28px);width:max-content}
+ .chartTooltip.show{transform:translateX(-50%) translateY(0)!important}
+}
+@media(prefers-reduced-motion:reduce){.chartTooltip{transition:none!important}}
