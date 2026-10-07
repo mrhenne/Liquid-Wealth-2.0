@@ -1279,3 +1279,9 @@ html.light .cryptoDonutCenter{background:rgba(255,255,255,.96)}
 @media(max-width:720px){
  .cryptoHoldingBox{grid-template-columns:1fr!important}
 }
+
+
+/* v33 · faster crypto chart switching */
+.cryptoRanges button,.cryptoChartControls select{transition:border-color .12s ease,background .12s ease,color .12s ease}
+.cryptoChartLoading{min-height:180px!important}
+.cryptoChartNote b{color:var(--text)}
