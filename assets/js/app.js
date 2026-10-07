@@ -5,10 +5,10 @@ const defaults={swr:4,returnRate:7,inflation:2,retirementAge:55,targetMode:'expe
 function demoMonth(){return{income:[tx('Gehalt',6000,true),tx('Nebenjob',500,true)],expenses:[tx('Wohnen',1200,true),tx('Lebensmittel',600,true),tx('Versicherungen',400,true),tx('Mobilität',300,true),tx('Freizeit',300,false),tx('Sonstiges',200,false)],invest:[tx('ETF',1000,true),tx('Bitcoin',500,true),tx('Cash Reserve',500,true)]}}
 function tx(name,val,recurring=false,cat=''){return{id:crypto.randomUUID?crypto.randomUUID():String(Date.now()+Math.random()),name,val:+val||0,recurring,cat}}
 const defaultAssets=[{id:'a1',name:'ETF',value:57000,type:'ETF',cost:42000,rate:7},{id:'a2',name:'Bitcoin',value:35600,type:'Crypto',cost:18000,rate:12},{id:'a3',name:'Depot',value:21400,type:'Aktien',cost:16000,rate:7},{id:'a4',name:'Cash',value:14300,type:'Cash',cost:14300,rate:1},{id:'a5',name:'Immobilien',value:9800,type:'Immobilie',cost:7000,rate:3},{id:'a6',name:'Sonstige',value:4400,type:'Sonstige',cost:3000,rate:2}];
-const initial={version:8,settings:{...defaults},months:{},assets:defaultAssets,liabilities:[],cryptoFavorites:['bitcoin','ethereum','solana','binancecoin'],layout:{dashboard:{}},goals:[{id:'g1',name:'FIRE',target:1200000,current:0,deadline:2042},{id:'g2',name:'Notgroschen',target:15000,current:0,deadline:2027}],meta:{created:new Date().toISOString()}};
+const initial={version:8,settings:{...defaults},months:{},assets:defaultAssets,liabilities:[],cryptoFavorites:['bitcoin','ethereum','solana','binancecoin'],cryptoHoldings:{},layout:{dashboard:{}},goals:[{id:'g1',name:'FIRE',target:1200000,current:0,deadline:2042},{id:'g2',name:'Notgroschen',target:15000,current:0,deadline:2027}],meta:{created:new Date().toISOString()}};
 let state=loadState();let UI={year:now.getFullYear(),month:now.getMonth()+1,view:'dashboard',stealth:false,coins:[],cryptoSearchResults:[],cryptoSearching:false,sim:{extra:2000,returnRate:7,crash:0,years:15},risk:null};
 const CHECKPOINT_KEY=APP+'_checkpoints_v1';
-function loadState(){try{let raw=localStorage.getItem(APP)||localStorage.getItem('LWTE_5');let x=raw?JSON.parse(raw):null;if(x&&[4,5,6,7,8,9].includes(x.version))return {...x,version:9,settings:{...defaults,...(x.settings||{})},months:x.months||{},assets:x.assets||[],liabilities:x.liabilities||[],cryptoFavorites:Array.isArray(x.cryptoFavorites)&&x.cryptoFavorites.length?x.cryptoFavorites:['bitcoin','ethereum','solana','binancecoin'],layout:x.layout||{dashboard:{}},goals:x.goals||[]}}catch(e){}let x=typeof structuredClone==='function'?structuredClone(initial):JSON.parse(JSON.stringify(initial));x.months[`${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}`]=demoMonth();return x}
+function loadState(){try{let raw=localStorage.getItem(APP)||localStorage.getItem('LWTE_5');let x=raw?JSON.parse(raw):null;if(x&&[4,5,6,7,8,9].includes(x.version))return {...x,version:9,settings:{...defaults,...(x.settings||{})},months:x.months||{},assets:x.assets||[],liabilities:x.liabilities||[],cryptoFavorites:Array.isArray(x.cryptoFavorites)&&x.cryptoFavorites.length?x.cryptoFavorites:['bitcoin','ethereum','solana','binancecoin'],cryptoHoldings:(x.cryptoHoldings&&typeof x.cryptoHoldings==='object')?x.cryptoHoldings:{},layout:x.layout||{dashboard:{}},goals:x.goals||[]}}catch(e){}let x=typeof structuredClone==='function'?structuredClone(initial):JSON.parse(JSON.stringify(initial));x.months[`${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}`]=demoMonth();return x}
 function checkpointList(){try{return JSON.parse(localStorage.getItem(CHECKPOINT_KEY)||'[]')}catch(e){return[]}}
 function writeCheckpointList(list){try{localStorage.setItem(CHECKPOINT_KEY,JSON.stringify(list.slice(0,12)))}catch(e){console.warn('Checkpoint konnte nicht gespeichert werden',e)}}
 function createCheckpoint(reason='Manuell',raw=localStorage.getItem(APP)||JSON.stringify(state)){
@@ -17,7 +17,7 @@ function createCheckpoint(reason='Manuell',raw=localStorage.getItem(APP)||JSON.s
 function maybeAutoCheckpoint(previousRaw){if(!previousRaw)return;let list=checkpointList(),last=list[0];if(last&&Date.now()-last.ts<10*60*1000)return;if(last?.raw===previousRaw)return;createCheckpoint('Auto-Sicherung',previousRaw)}
 function save(skipCheckpoint=false){let next=JSON.stringify(state),prev=localStorage.getItem(APP);if(!skipCheckpoint&&prev&&prev!==next)maybeAutoCheckpoint(prev);localStorage.setItem(APP,next);window.LWCloud?.queueSave?.(state)}
 function manualCheckpoint(){createCheckpoint('Manueller Checkpoint');render();showToast('Sicherheits-Checkpoint erstellt')}
-function restoreCheckpoint(){let list=checkpointList();if(!list.length)return showToast('Noch kein Checkpoint vorhanden');let cp=list[0];if(!confirm(`Checkpoint vom ${new Date(cp.ts).toLocaleString('de-DE')} wiederherstellen?`))return;createCheckpoint('Vor Wiederherstellung');try{let x=JSON.parse(cp.raw);state={...initial,...x,version:9,settings:{...defaults,...(x.settings||{})},months:x.months||{},assets:x.assets||[],liabilities:x.liabilities||[],cryptoFavorites:Array.isArray(x.cryptoFavorites)&&x.cryptoFavorites.length?x.cryptoFavorites:['bitcoin','ethereum','solana','binancecoin'],layout:x.layout||{dashboard:{}},goals:x.goals||[]};localStorage.setItem(APP,JSON.stringify(state));window.LWCloud?.queueSave?.(state);UI.risk=null;render();showToast('Checkpoint wiederhergestellt')}catch(e){console.error(e);showToast('Checkpoint ist beschädigt')}}
+function restoreCheckpoint(){let list=checkpointList();if(!list.length)return showToast('Noch kein Checkpoint vorhanden');let cp=list[0];if(!confirm(`Checkpoint vom ${new Date(cp.ts).toLocaleString('de-DE')} wiederherstellen?`))return;createCheckpoint('Vor Wiederherstellung');try{let x=JSON.parse(cp.raw);state={...initial,...x,version:9,settings:{...defaults,...(x.settings||{})},months:x.months||{},assets:x.assets||[],liabilities:x.liabilities||[],cryptoFavorites:Array.isArray(x.cryptoFavorites)&&x.cryptoFavorites.length?x.cryptoFavorites:['bitcoin','ethereum','solana','binancecoin'],cryptoHoldings:(x.cryptoHoldings&&typeof x.cryptoHoldings==='object')?x.cryptoHoldings:{},layout:x.layout||{dashboard:{}},goals:x.goals||[]};localStorage.setItem(APP,JSON.stringify(state));window.LWCloud?.queueSave?.(state);UI.risk=null;render();showToast('Checkpoint wiederhergestellt')}catch(e){console.error(e);showToast('Checkpoint ist beschädigt')}}
 function key(y=UI.year,m=UI.month){return `${y}-${String(m).padStart(2,'0')}`}
 function getMonth(y=UI.year,m=UI.month,create=true){let k=key(y,m);if(!state.months[k]&&create)state.months[k]={income:[],expenses:[],invest:[]};return state.months[k]||{income:[],expenses:[],invest:[]}}
 function sum(a){return(a||[]).reduce((s,x)=>s+(Number(x.val)||0),0)}
@@ -124,7 +124,7 @@ function buttonIconName(btn){
    return n[btn.dataset.nav]||'open';
  }
  if(btn.dataset.action){
-   const a={quick:'plus',calendar:'calendar',today:'today',toggleAppearance:UI.dark?'sun':'moon',toggleStealth:'eyeOff',openSettings:'settings',closeModal:'close',export:'download',chooseImport:'upload',checkpoint:'save',restoreCheckpoint:'undo',cloudInfo:'cloud',saveSettings:'save',rerunRisk:'refresh',copyPrev:'copy',applyRecurring:'refresh',resetDemo:'trash',refreshCrypto:'refresh',prevMonth:'chevronLeft',nextMonth:'chevronRight',addAsset:'plus',addDebt:'plus',addGoal:'plus'};
+   const a={quick:'plus',calendar:'calendar',today:'today',toggleAppearance:UI.dark?'sun':'moon',toggleStealth:'eyeOff',openSettings:'settings',closeModal:'close',export:'download',chooseImport:'upload',checkpoint:'save',restoreCheckpoint:'undo',cloudInfo:'cloud',saveSettings:'save',rerunRisk:'refresh',copyPrev:'copy',copyFromMonth:'calendar',applyRecurring:'refresh',resetDemo:'trash',refreshCrypto:'refresh',prevMonth:'chevronLeft',nextMonth:'chevronRight',addAsset:'plus',addDebt:'plus',addGoal:'plus'};
    if(a[btn.dataset.action]) return a[btn.dataset.action];
  }
  if(/speichern|übernehmen/.test(txt)) return 'save';
@@ -532,7 +532,7 @@ function scenario(name,v){return `<button class="scenario ${UI.sim.crash===v?'ac
 function largest(a){let x=(a||[]).slice().sort((a,b)=>b.val-a.val)[0];return x?esc(x.name):'—'}
 function goalMini(){return state.goals.slice(0,4).map(g=>{let cur=goalCurrent(g),p=Math.min(100,cur/g.target*100);return `<div class="goal"><div class="goalTop"><span>${esc(g.name)}</span><b>${euro(cur)} / ${euro(g.target)}</b></div><div class="progress" style="margin-top:6px"><i style="width:${p}%"></i></div></div>`}).join('')}
 function entries(cat){let d=getMonth(),arr=d[cat]||[];return `<div class="cashflowEntries" data-cashflow-list="${cat}">${arr.map(x=>`<div class="entry cashflowEntry sortableItem" data-cat="${cat}" data-id="${x.id}">${dragHandle('Eintrag verschieben')}<input class="input name" value="${esc(x.name)}"><input class="input amount sensitive" type="number" step="0.01" value="${x.val}"><label class="toggle"><input class="rec" type="checkbox" ${x.recurring?'checked':''}>wiederkehrend</label><button class="danger del" title="Löschen" aria-label="Löschen"></button></div>`).join('')}</div><div class="addRow"><input class="input grow newName" placeholder="Bezeichnung"><input class="input" style="width:120px" type="number" step="0.01" placeholder="€" data-new="val"><label class="toggle"><input type="checkbox" data-new="rec">wiederkehrend</label><button class="primary addEntry iconOnly" data-cat="${cat}" title="Eintrag hinzufügen" aria-label="Eintrag hinzufügen"></button></div>`}
-function cashflow(){let d=getMonth(),t=totals(d);return `<div class="toolbar"><div><h1 class="sectionTitle">Cashflow</h1><p class="sectionSub">Monatliche Einnahmen, Ausgaben und Investments verwalten.</p></div><div><button class="ghost" data-action="applyRecurring">↻ Recurring anwenden</button><button class="primary" data-action="copyPrev">Kopiere Vormonat</button></div></div><div class="grid monthGrid" style="grid-template-columns:repeat(3,1fr)"><div class="card"><div class="toolbar"><h2>Einnahmen</h2><b class="green">${euro(t.income)}</b></div>${entries('income')}</div><div class="card"><div class="toolbar"><h2>Ausgaben</h2><b class="red">${euro(t.expenses)}</b></div>${entries('expenses')}</div><div class="card"><div class="toolbar"><h2>Investments</h2><b class="purple">${euro(t.invest)}</b></div>${entries('invest')}</div></div>`}
+function cashflow(){let d=getMonth(),t=totals(d);return `<div class="toolbar"><div><h1 class="sectionTitle">Cashflow</h1><p class="sectionSub">Monatliche Einnahmen, Ausgaben und Investments verwalten.</p></div><div><button class="ghost" data-action="applyRecurring">↻ Recurring anwenden</button><button class="primary" data-action="copyFromMonth">Monat übernehmen</button></div></div><div class="grid monthGrid" style="grid-template-columns:repeat(3,1fr)"><div class="card"><div class="toolbar"><h2>Einnahmen</h2><b class="green">${euro(t.income)}</b></div>${entries('income')}</div><div class="card"><div class="toolbar"><h2>Ausgaben</h2><b class="red">${euro(t.expenses)}</b></div>${entries('expenses')}</div><div class="card"><div class="toolbar"><h2>Investments</h2><b class="purple">${euro(t.invest)}</b></div>${entries('invest')}</div></div>`}
 function wealth(){return `<div class="toolbar"><div><h1 class="sectionTitle">Vermögen</h1><p class="sectionSub">Assets, Einstandswerte, erwartete Renditen und Schulden.</p></div><button class="primary" data-action="addAsset">Asset</button></div><div class="grid wide"><div class="card"><div class="toolbar"><h2>Assets</h2><b>${euro(assetsTotal())}</b></div><div class="wealthList" data-wealth-list="assets">${state.assets.map(a=>`<div class="assetCard wealthEntry sortableItem" data-asset="${a.id}">${dragHandle('Asset verschieben')}<input class="input assetName" value="${esc(a.name)}"><input class="input assetVal sensitive" type="number" value="${a.value}"><select class="input assetType"><option ${a.type==='ETF'?'selected':''}>ETF</option><option ${a.type==='Crypto'?'selected':''}>Crypto</option><option ${a.type==='Aktien'?'selected':''}>Aktien</option><option ${a.type==='Cash'?'selected':''}>Cash</option><option ${a.type==='Immobilie'?'selected':''}>Immobilie</option><option ${a.type==='Sonstige'?'selected':''}>Sonstige</option></select><button class="danger assetDel" title="Asset löschen" aria-label="Asset löschen"></button></div>`).join('')}</div></div><div class="card"><div class="toolbar"><h2>Schulden</h2><button class="primary" data-action="addDebt">Schuld</button></div><div class="wealthList" data-wealth-list="debts">${state.liabilities.map(a=>`<div class="assetCard wealthEntry sortableItem" data-debt="${a.id}">${dragHandle('Schuld verschieben')}<input class="input debtName" value="${esc(a.name)}"><input class="input debtVal sensitive" type="number" value="${a.value}"><span class="assetType">${esc(a.type||'Schuld')}</span><button class="danger debtDel" title="Schuld löschen" aria-label="Schuld löschen"></button></div>`).join('')}</div><div class="sub" style="margin-top:8px">Gesamt: ${euro(debtTotal())}</div></div><div class="card"><h2>Vermögenskennzahlen</h2>${stat('Assets',euro(assetsTotal()))}${stat('Schulden',euro(debtTotal()),'red')}${stat('Net Worth',euro(netWorth()),'green')}${stat('Liquidität',euro(state.assets.filter(a=>a.type==='Cash').reduce((s,a)=>s+a.value,0)))}${stat('FIRE Fortschritt',pct(netWorth()/fireTarget(getMonth())*100))}</div></div>`}
 function portfolio(){return `<div class="grid wide"><div class="card"><div class="toolbar"><div><h1 class="sectionTitle">Portfolio</h1><p class="sectionSub">Allocation und Konzentrationsrisiko.</p></div></div>${donut()}<div style="margin-top:10px">${allocationLegend()}</div></div><div class="card"><h2>Risiko-Check</h2>${riskRows()}</div></div>`}
 function riskRows(){let total=Math.max(netWorth(),1),cash=state.assets.filter(a=>a.type==='Cash').reduce((s,a)=>s+a.value,0),ca=cryptoAllocation(),drift=Math.abs(ca.drift);return `${stat('Crypto Anteil',pct(ca.current),drift>10?'red':drift>5?'orange':'green')}${stat('Crypto Ziel',pct(ca.target))}${stat('Abweichung',`${ca.drift>=0?'+':''}${ca.drift.toFixed(1)} %-Pkt.`,drift>10?'red':drift>5?'orange':'green')}${stat('Cash Anteil',pct(cash/total*100),cash/total<.05?'red':'green')}${stat('Größte Position',largestAsset())}${stat('FIRE Ziel',euro(fireTarget(getMonth())))}`}
@@ -584,20 +584,39 @@ function removeCryptoFavorite(id){
  state.cryptoFavorites=(state.cryptoFavorites||[]).filter(x=>x!==id);
  UI.coins=UI.coins.filter(x=>x.id!==id);save();fetchCoins(true);render();showToast('Coin aus Favoriten entfernt')
 }
+function cryptoHoldingValue(id){
+ const qty=Math.max(0,Number(state.cryptoHoldings?.[id])||0),coin=UI.coins.find(c=>c.id===id);
+ return qty*(Number(coin?.current_price)||0)
+}
+function totalTrackedCryptoValue(){
+ return (state.cryptoFavorites||[]).reduce((s,id)=>s+cryptoHoldingValue(id),0)
+}
+function updateCryptoHolding(input){
+ const id=input.dataset.cryptoHolding,qty=Math.max(0,Number(input.value)||0);
+ state.cryptoHoldings=state.cryptoHoldings||{};state.cryptoHoldings[id]=qty;save();render()
+}
 function crypto(){
- const favs=state.cryptoFavorites||[];
- const byId=new Map(UI.coins.map(c=>[c.id,c]));
- const cards=favs.map(id=>{const c=byId.get(id);return `<article class="cryptoFavCard" data-coin="${esc(id)}">${dragHandle('Coin verschieben')}
+ const favs=state.cryptoFavorites||[],byId=new Map(UI.coins.map(c=>[c.id,c])),trackedTotal=Math.max(totalTrackedCryptoValue(),0);
+ const cards=favs.map(id=>{const c=byId.get(id),qty=Math.max(0,Number(state.cryptoHoldings?.[id])||0),value=qty*(Number(c?.current_price)||0),share=trackedTotal?value/trackedTotal*100:0;return `<article class="cryptoFavCard" data-coin="${esc(id)}">${dragHandle('Coin verschieben')}
    <div class="cryptoFavTop">
     <div class="coinIdentity">${c?.image?`<img src="${esc(c.image)}" alt="">`:I('coin')}<div><strong>${esc(c?.name||id)}</strong><span>${esc((c?.symbol||id).toUpperCase())}</span></div></div>
     <button class="ghost iconOnly cryptoRemove" data-coin-remove="${esc(id)}" title="Aus Favoriten entfernen" aria-label="Aus Favoriten entfernen">${I('trash')}</button>
    </div>
    <div class="cryptoPrice sensitive">${c?euro(c.current_price):'—'}</div>
+   <div class="cryptoHoldingBox">
+    <label><span>Dein Bestand ${infoTip('Hier trägst du die Anzahl deiner Coins ein. Daraus berechnet Liquid Wealth den aktuellen Wert dieser Position.')}</span><input class="input cryptoHoldingInput" data-crypto-holding="${esc(id)}" type="number" min="0" step="any" inputmode="decimal" value="${qty||''}" placeholder="0"></label>
+    <div class="cryptoHoldingValue"><span>Positionswert</span><strong class="sensitive">${c&&qty?euro(value):'—'}</strong></div>
+   </div>
    <div class="cryptoMeta"><span>24 h</span><b class="${Number(c?.price_change_percentage_24h)>=0?'green':'red'}">${c?Number(c.price_change_percentage_24h||0).toFixed(2)+'%':'—'}</b></div>
+   <div class="cryptoMeta"><span>Anteil deiner Krypto-Favoriten</span><b>${qty&&c?pct(share):'—'}</b></div>
    <div class="cryptoMeta"><span>Market Cap</span><b class="sensitive">${c?euro(c.market_cap):'—'}</b></div>
   </article>`}).join('');
  const results=UI.cryptoSearchResults.length?`<div class="cryptoSearchResults">${UI.cryptoSearchResults.map(c=>`<button class="cryptoSearchRow" data-coin-add="${esc(c.id)}"><span class="coinIdentity">${c.thumb?`<img src="${esc(c.thumb)}" alt="">`:''}<span><strong>${esc(c.name)}</strong><small>${esc(c.symbol.toUpperCase())}</small></span></span><span class="addCoinMark">${I('plus')}</span></button>`).join('')}</div>`:'';
- return `<div class="toolbar cryptoToolbar"><div><h1 class="sectionTitle">Krypto ${infoTip('Deine persönliche Watchlist. Kurse und 24-Stunden-Veränderungen kommen live von CoinGecko.')}</h1><p class="sectionSub">Deine eigene Favoritenliste mit Live-Kursen in Euro.</p></div><button class="ghost" data-action="refreshCrypto">Aktualisieren</button></div>
+ return `<div class="toolbar cryptoToolbar"><div><h1 class="sectionTitle">Krypto ${infoTip('Deine persönliche Watchlist mit Live-Kursen und optional deinem eigenen Coin-Bestand.')}</h1><p class="sectionSub">Favoriten, Live-Kurse und deine eigenen Coin-Anteile.</p></div><button class="ghost" data-action="refreshCrypto">Aktualisieren</button></div>
+ <div class="cryptoSummary">
+  <div class="card cryptoSummaryCard"><span>Getrackte Positionen</span><strong>${favs.filter(id=>(Number(state.cryptoHoldings?.[id])||0)>0).length}</strong></div>
+  <div class="card cryptoSummaryCard"><span>Aktueller Wert</span><strong class="sensitive">${trackedTotal?euro(trackedTotal):'—'}</strong></div>
+ </div>
  <div class="card cryptoFinder"><div><h2>Coin hinzufügen</h2><span class="sub">Suche nach Name oder Kürzel, z. B. Bitcoin, ETH oder TAO.</span></div><div class="cryptoSearchBar"><input class="input" id="cryptoSearch" type="search" placeholder="Coin suchen …" autocomplete="off"><button class="primary" data-action="searchCrypto">${UI.cryptoSearching?'Suche …':'Suchen'}</button></div>${results}</div>
  <div class="cryptoFavGrid">${cards||'<div class="card emptyState">Noch keine Favoriten. Suche oben nach einem Coin und füge ihn hinzu.</div>'}</div>`
 }
@@ -655,6 +674,30 @@ function updateGoal(el){let g=state.goals.find(x=>String(x.id)===el.closest('.go
 function deleteGoal(b){state.goals=state.goals.filter(g=>String(g.id)!==b.closest('.goal').dataset.goal);save();render()}
 function applyRecurring(){let d=getMonth();for(const cat of ['income','expenses','invest'])for(const x of d[cat])if(x.recurring&&x.val===0)x.val=0;let prev=new Date(UI.year,UI.month-2,1),p=getMonth(prev.getFullYear(),prev.getMonth()+1,false);if(!p){showToast('Kein Vormonat vorhanden');return}for(const cat of ['income','expenses','invest'])for(const x of p[cat]||[])if(x.recurring&&!d[cat].some(y=>y.name===x.name))d[cat].push({...x,id:String(Date.now()+Math.random())});save();render();showToast('Wiederkehrende Einträge übernommen')}
 function copyPrev(){let p=new Date(UI.year,UI.month-2,1),src=getMonth(p.getFullYear(),p.getMonth()+1,false),d=getMonth();if(!src){showToast('Kein Vormonat vorhanden');return}for(const cat of ['income','expenses','invest'])d[cat]=(src[cat]||[]).map(x=>({...x,id:String(Date.now()+Math.random())}));save();render();showToast('Vormonat kopiert')}
+
+function monthHasData(d){return ['income','expenses','invest'].some(cat=>(d?.[cat]||[]).length>0)}
+function availableSourceMonths(){
+ return Object.keys(state.months||{}).filter(k=>k!==key()&&monthHasData(state.months[k])).sort().reverse()
+}
+function openCopyMonth(){
+ const dest=getMonth();
+ if(monthHasData(dest))return showToast('Der aktuelle Monat ist nicht leer');
+ const months=availableSourceMonths();
+ if(!months.length)return showToast('Kein anderer gefüllter Monat vorhanden');
+ const options=months.map(k=>{const [y,m]=k.split('-').map(Number);return `<option value="${k}">${monthName(m)} ${y}</option>`}).join('');
+ const body=`<div class="field"><label>Quelle auswählen</label><select class="input" id="copyMonthSource">${options}</select></div><div class="notice">Einnahmen, Ausgaben und Investments werden vollständig in <b>${monthName(UI.month)} ${UI.year}</b> kopiert. Der Zielmonat muss leer sein.</div><div class="actions"><button class="primary" id="copyMonthConfirm">Monat übernehmen</button></div>`;
+ openModal('Monat übernehmen','Gefüllten Monat als Vorlage verwenden',body);
+ document.getElementById('copyMonthConfirm').onclick=copySelectedMonth
+}
+function copySelectedMonth(){
+ const srcKey=document.getElementById('copyMonthSource')?.value,src=state.months?.[srcKey],dest=getMonth();
+ if(!src||!monthHasData(src))return showToast('Quellmonat nicht gefunden');
+ if(monthHasData(dest))return showToast('Der Zielmonat ist nicht mehr leer');
+ createCheckpoint('Vor Monatsübernahme');
+ for(const cat of ['income','expenses','invest'])dest[cat]=(src[cat]||[]).map(x=>({...x,id:crypto.randomUUID?crypto.randomUUID():String(Date.now()+Math.random())}));
+ save();closeModal();render();
+ const [y,m]=srcKey.split('-').map(Number);showToast(`${monthName(m)} ${y} übernommen`)
+}
 function shift(n){let d=new Date(UI.year,UI.month-1+n,1);UI.year=d.getFullYear();UI.month=d.getMonth()+1;getMonth();render()}
 
 function settingsView(){
@@ -676,7 +719,7 @@ function settingsView(){
    <div class="actions"><button class="primary" data-action="checkpoint"><span class="icon" data-icon="save"></span>Checkpoint erstellen</button><button class="ghost" data-action="restoreCheckpoint"><span class="icon" data-icon="undo"></span>Letzten wiederherstellen</button></div>
   </div>
   <div class="card"><div class="toolbar"><div><h2>Daten & Cloud</h2><span class="sub">Geräteübergreifender Login mit lokalem Sicherheitsfallback.</span></div><span class="syncBadge"><i></i>Cloud + Lokal</span></div>
-   <div class="quickFacts"><div class="quickFact"><span>Gespeicherte Monate</span><b>${Object.keys(state.months||{}).length}</b></div><div class="quickFact"><span>Assets</span><b>${(state.assets||[]).length}</b></div><div class="quickFact"><span>Meilensteine</span><b>${(state.goals||[]).length}</b></div><div class="quickFact"><span>Datenformat</span><b>v9 · UI v24</b></div></div>
+   <div class="quickFacts"><div class="quickFact"><span>Gespeicherte Monate</span><b>${Object.keys(state.months||{}).length}</b></div><div class="quickFact"><span>Assets</span><b>${(state.assets||[]).length}</b></div><div class="quickFact"><span>Meilensteine</span><b>${(state.goals||[]).length}</b></div><div class="quickFact"><span>Datenformat</span><b>v9 · UI v29</b></div></div>
    <div class="actions"><button class="primary" data-action="export"><span class="icon" data-icon="download"></span>JSON Backup</button><button class="ghost" data-action="chooseImport"><span class="icon" data-icon="upload"></span>Import</button><button class="ghost" data-action="cloudInfo"><span class="icon" data-icon="cloud"></span>Login & Sync</button><button class="danger" data-action="resetDemo"><span class="icon" data-icon="trash"></span>Demo zurücksetzen</button></div>
   </div>
  </div>`;
@@ -714,7 +757,7 @@ function importData(e){
      createCheckpoint('Vor Backup-Import');
      state={...initial,...x,version:9,
        settings:{...defaults,...(x.settings||{})},
-       months:x.months||{},assets:x.assets||[],liabilities:x.liabilities||[],cryptoFavorites:Array.isArray(x.cryptoFavorites)&&x.cryptoFavorites.length?x.cryptoFavorites:['bitcoin','ethereum','solana','binancecoin'],layout:x.layout||{dashboard:{}},goals:x.goals||[]};
+       months:x.months||{},assets:x.assets||[],liabilities:x.liabilities||[],cryptoFavorites:Array.isArray(x.cryptoFavorites)&&x.cryptoFavorites.length?x.cryptoFavorites:['bitcoin','ethereum','solana','binancecoin'],cryptoHoldings:(x.cryptoHoldings&&typeof x.cryptoHoldings==='object')?x.cryptoHoldings:{},layout:x.layout||{dashboard:{}},goals:x.goals||[]};
      save();UI.risk=null;render();showToast('Backup erfolgreich importiert');
    }catch(err){
      console.error(err);showToast('Import fehlgeschlagen: ungültige Datei');
@@ -733,6 +776,7 @@ function action(a){
  if(a==='resetDemo')return reset();
  if(a==='quick')return openQuick();
  if(a==='copyPrev')return copyPrev();
+ if(a==='copyFromMonth')return openCopyMonth();
  if(a==='applyRecurring')return applyRecurring();
  if(a==='addAsset')return addAsset();
  if(a==='addDebt')return addDebt();
@@ -836,6 +880,22 @@ function bindRiskTooltip(c){
  c.addEventListener('pointerleave',()=>hideChartTooltip(host))
 }
 function applyAppearance(){document.documentElement.classList.toggle('light',!UI.dark);document.documentElement.style.colorScheme=UI.dark?'dark':'light';const b=document.getElementById('appearanceToggle');if(!b)return;const icon=document.getElementById('appearanceIcon');const text=document.getElementById('appearanceText');if(icon)icon.setAttribute('data-icon',UI.dark?'sun':'moon');if(text)text.textContent=UI.dark?'Light Mode':'Dark Mode';b.title=UI.dark?'Zu Light Mode wechseln':'Zu Dark Mode wechseln';}
+let __infoPopover=null,__infoOwner=null;
+function getInfoPopover(){
+ if(__infoPopover&&document.body.contains(__infoPopover))return __infoPopover;
+ __infoPopover=document.createElement('div');__infoPopover.className='globalInfoPopover';__infoPopover.setAttribute('role','tooltip');document.body.appendChild(__infoPopover);return __infoPopover
+}
+function showInfoPopover(el){
+ if(!el)return;const tip=getInfoPopover(),text=el.dataset.tip||el.getAttribute('aria-label')||'';
+ __infoOwner=el;tip.textContent=text;tip.classList.add('show');el.setAttribute('aria-expanded','true');
+ const r=el.getBoundingClientRect(),margin=12,tw=Math.min(320,window.innerWidth-24);
+ tip.style.width=Math.min(tw,Math.max(210,tw))+'px';
+ requestAnimationFrame(()=>{const tr=tip.getBoundingClientRect();let left=Math.max(margin,Math.min(window.innerWidth-tr.width-margin,r.left+r.width/2-tr.width/2));let top=r.top-tr.height-10;if(top<margin)top=r.bottom+10;tip.style.left=left+'px';tip.style.top=Math.max(margin,Math.min(window.innerHeight-tr.height-margin,top))+'px'})
+}
+function hideInfoPopover(el){
+ if(el&&__infoOwner&&el!==__infoOwner)return;
+ const tip=getInfoPopover();tip.classList.remove('show');if(__infoOwner)__infoOwner.setAttribute('aria-expanded','false');__infoOwner=null
+}
 function render(){
  const monthText=`${monthName(UI.month)} ${UI.year}`;
  const mt=document.getElementById('monthLabelText');
@@ -866,6 +926,13 @@ function scheduleRender(){
  if(__renderFrame)return;
  __renderFrame=requestAnimationFrame(()=>{__renderFrame=0;render();});
 }
+document.addEventListener('pointerover',e=>{const t=e.target.closest('.infoTip');if(t)showInfoPopover(t)});
+document.addEventListener('pointerout',e=>{const t=e.target.closest('.infoTip');if(t&&!t.contains(e.relatedTarget))hideInfoPopover(t)});
+document.addEventListener('focusin',e=>{const t=e.target.closest('.infoTip');if(t)showInfoPopover(t)});
+document.addEventListener('focusout',e=>{const t=e.target.closest('.infoTip');if(t)hideInfoPopover(t)});
+document.addEventListener('click',e=>{const t=e.target.closest('.infoTip');if(t){e.preventDefault();e.stopPropagation();if(__infoOwner===t&&getInfoPopover().classList.contains('show'))hideInfoPopover(t);else showInfoPopover(t)}});
+document.addEventListener('scroll',()=>hideInfoPopover(),true);
+window.addEventListener('resize',()=>hideInfoPopover());
 document.addEventListener('click',function(e){
  const b=e.target.closest('button');
  if(!b)return;
@@ -887,6 +954,7 @@ document.addEventListener('change',function(e){
  if(t.matches('.assetName,.assetVal,.assetType')) return updateAsset(t);
  if(t.matches('.debtName,.debtVal')) return updateDebt(t);
  if(t.matches('.goalName,.goalTarget,.goalDeadline')) return updateGoal(t);
+ if(t.matches('.cryptoHoldingInput')) return updateCryptoHolding(t);
  if(t.id==='yearSelect'){UI.year=Number(t.value);return render();}
  if(t.id==='importFile'||t.id==='globalImportFile')return importData({target:t});
 });

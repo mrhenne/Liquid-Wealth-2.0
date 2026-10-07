@@ -40,7 +40,7 @@
         if(data?.app_state&&Object.keys(data.app_state).length){
           try{createCheckpoint('Vor Cloud-Sync');}catch(_){}
           state={...initial,...data.app_state,version:9,settings:{...defaults,...(data.app_state.settings||{})},
-            months:data.app_state.months||{},assets:data.app_state.assets||[],liabilities:data.app_state.liabilities||[],cryptoFavorites:Array.isArray(data.app_state.cryptoFavorites)&&data.app_state.cryptoFavorites.length?data.app_state.cryptoFavorites:['bitcoin','ethereum','solana','binancecoin'],layout:data.app_state.layout||{dashboard:{}},goals:data.app_state.goals||[]};
+            months:data.app_state.months||{},assets:data.app_state.assets||[],liabilities:data.app_state.liabilities||[],cryptoFavorites:Array.isArray(data.app_state.cryptoFavorites)&&data.app_state.cryptoFavorites.length?data.app_state.cryptoFavorites:['bitcoin','ethereum','solana','binancecoin'],cryptoHoldings:(data.app_state.cryptoHoldings&&typeof data.app_state.cryptoHoldings==='object')?data.app_state.cryptoHoldings:{},layout:data.app_state.layout||{dashboard:{}},goals:data.app_state.goals||[]};
           localStorage.setItem(APP,JSON.stringify(state));
           UI.risk=null;render();
           this.setStatus('Synchronisiert',true);
@@ -71,7 +71,7 @@
     showLoginGate(){ document.body.classList.remove('authPending','authReady');document.body.classList.add('authRequired');const gate=document.getElementById('authGate');if(gate)gate.hidden=false; const bodyTarget=document.getElementById('authGateBody'); const textTarget=document.getElementById('authGateText'); if(textTarget)textTarget.textContent='Melde dich an, um dein privates Finanz-Dashboard zu öffnen.'; if(!bodyTarget)return; const body=
       `
         <div class="authGlass">
-          <div class="authMark">LW</div>
+          <img class="authMiniLogo" src="assets/brand/liquid-wealth-icon.svg" alt="Liquid Wealth">
           <h3>Liquid Wealth Cloud</h3>
           <p>Ein Login für iPhone, Mac und alle weiteren Geräte.</p>
           <div class="field"><label>E-Mail</label><input class="input" id="authEmail" type="email" autocomplete="email" placeholder="name@example.de"></div>

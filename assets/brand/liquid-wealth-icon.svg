@@ -1,0 +1,5 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 220 220" role="img" aria-label="Liquid Wealth">
+<defs><linearGradient id="g" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#5CF6F1"/><stop offset=".42" stop-color="#09BBD0"/><stop offset=".72" stop-color="#096CEB"/><stop offset="1" stop-color="#4D62FF"/></linearGradient><linearGradient id="t" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#fff"/><stop offset="1" stop-color="#CBE8FF"/></linearGradient></defs>
+<rect x="12" y="12" width="196" height="196" rx="50" fill="url(#g)"/><rect x="17" y="17" width="186" height="186" rx="45" fill="none" stroke="#A3FFFF" stroke-opacity=".7" stroke-width="2"/>
+<path d="M18 68C60 14 132 15 202 28V99C151 67 86 82 21 141Z" fill="#B9FFFF" opacity=".27"/><path d="M18 151C64 109 133 105 202 126V198H28C20 185 18 167 18 151Z" fill="#004EC8" opacity=".42"/>
+<text x="110" y="145" text-anchor="middle" font-family="Inter,Arial,sans-serif" font-size="90" font-weight="850" letter-spacing="-9" fill="url(#t)">LW</text></svg>
