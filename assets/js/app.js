@@ -155,8 +155,61 @@ function metric(label,value){return `<div class="metric"><span>${label}</span><b
 function stat(label,value,cls=''){return `<div class="stat"><span>${label}</span><b class="sensitive ${cls}">${value}</b></div>`}
 function donut(){let total=Math.max(netWorth(),1);let groups={ETF:0,Crypto:0,Aktien:0,Cash:0,Immobilie:0,Sonstige:0};state.assets.forEach(a=>groups[a.type]=(groups[a.type]||0)+Number(a.value||0));let colors=['#1688ff','#ff9c24','#7d57ff','#20d8bd','#d5c7a8','#93dc35'];let labels=Object.entries(groups).filter(x=>x[1]>0);let deg=0;let stops=labels.map((x,i)=>{let s=deg;deg+=x[1]/total*360;return `${colors[i%colors.length]} ${s}deg ${deg}deg`}).join(',');return `<div class="donut" style="background:conic-gradient(${stops})"><div class="donutCenter sensitive">${euro(netWorth())}<small>${pct(100)}</small></div></div>`}
 function allocationLegend(){let total=Math.max(netWorth(),1),groups={ETF:0,Crypto:0,Aktien:0,Cash:0,Immobilie:0,Sonstige:0},colors=['#1688ff','#ff9c24','#7d57ff','#20d8bd','#d5c7a8','#93dc35'];state.assets.forEach(a=>groups[a.type]=(groups[a.type]||0)+Number(a.value||0));return `<div class="legend">${Object.entries(groups).filter(x=>x[1]>0).map((x,i)=>`<div class="legendRow"><i class="sw" style="background:${colors[i%colors.length]}"></i><span>${x[0]}</span><b>${pct(x[1]/total*100)}</b><span class="sensitive">${euro(x[1])}</span></div>`).join('')}</div>`}
-function sankey(d){let t=totals(d),outs=[...d.expenses.map(x=>[x.name,x.val,'#ff4f70']),...d.invest.map(x=>[x.name,x.val,'#9667ff'])];let leftover=Math.max(0,t.income-t.expenses-t.invest);if(leftover)outs.push(['Liquidität',leftover,'#1688ff']);let total=outs.reduce((s,x)=>s+x[1],0)||1,y=18;let svg=`<svg class="chart" viewBox="0 0 760 250"><rect x="15" y="85" width="120" height="75" rx="12" fill="#18d9c0"/><text x="75" y="116" text-anchor="middle" fill="white" font-size="12" font-weight="800">Einnahmen</text><text x="75" y="138" text-anchor="middle" fill="white" font-size="11">${euro(t.income)}</text>`;outs.sort((a,b)=>b[1]-a[1]).slice(0,9).forEach(o=>{let h=Math.max(9,180*o[1]/total),cy=y+h/2;svg+=`<path d="M135 122 C290 ${cy},410 ${cy},500 ${cy}" fill="none" stroke="${o[2]}" stroke-width="${Math.max(4,24*o[1]/Math.max(t.income,1))}" opacity=".48" stroke-linecap="round"/><rect x="500" y="${y}" width="245" height="${h}" rx="8" fill="${o[2]}"/><text x="622" y="${cy-2}" text-anchor="middle" fill="white" font-size="10" font-weight="800">${esc(o[0])}</text><text x="622" y="${cy+12}" text-anchor="middle" fill="white" font-size="9">${euro(o[1])}</text>`;y+=h+4});return svg+'</svg>'}
-function lineChart(series,goal){let max=Math.max(goal||0,...series.map(x=>x.value),1),min=Math.min(0,...series.map(x=>x.value));let pts=series.map((x,i)=>`${35+i*(730/(series.length-1))},${215-(x.value-min)/(max-min)*180}`).join(' ');let g=goal?`<line x1="35" x2="765" y1="${215-(goal-min)/(max-min)*180}" y2="${215-(goal-min)/(max-min)*180}" stroke="#ff4f70" stroke-dasharray="6 5"/><text x="760" y="${210-(goal-min)/(max-min)*180}" text-anchor="end" fill="#ff6a85" font-size="9">FIRE Ziel ${euro(goal)}</text>`:'';return `<svg class="chart" viewBox="0 0 800 240"><line x1="35" y1="215" x2="765" y2="215" stroke="var(--line)"/>${g}<polyline points="${pts}" fill="none" stroke="#19d9c0" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>${series.map((x,i)=>`<circle cx="${35+i*(730/(series.length-1))}" cy="${215-(x.value-min)/(max-min)*180}" r="3.5" fill="#19d9c0"/><text x="${35+i*(730/(series.length-1))}" y="232" text-anchor="middle" fill="var(--muted)" font-size="9">${x.year}</text>`).join('')}</svg>`}
+function sankey(d){
+  const t=totals(d);
+  const outs=[
+    ...d.expenses.map(x=>({name:x.name,val:Number(x.val)||0,kind:'expense'})),
+    ...d.invest.map(x=>({name:x.name,val:Number(x.val)||0,kind:'invest'}))
+  ];
+  const leftover=Math.max(0,t.income-t.expenses-t.invest);
+  if(leftover)outs.push({name:'Liquidität',val:leftover,kind:'liquidity'});
+  const sorted=outs.filter(x=>x.val>0).sort((a,b)=>b.val-a.val).slice(0,9);
+  const max=Math.max(...sorted.map(x=>x.val),1);
+  const total=Math.max(sorted.reduce((s,x)=>s+x.val,0),1);
+  return `<div class="flowViz">
+    <div class="flowSource glassNode">
+      <span class="flowEyebrow">Einnahmen</span>
+      <strong class="sensitive">${euro(t.income)}</strong>
+      <small>100 % verfügbar</small>
+    </div>
+    <div class="flowSpine" aria-hidden="true"><i></i></div>
+    <div class="flowTargets">
+      ${sorted.map((o,i)=>{
+        const pctShare=o.val/total*100;
+        const width=Math.max(18,o.val/max*100);
+        return `<div class="flowTarget ${o.kind}" style="--flow-w:${width.toFixed(1)}%">
+          <div class="flowTargetTop"><span>${esc(o.name)}</span><b class="sensitive">${euro(o.val)}</b></div>
+          <div class="flowTrack"><i></i></div>
+          <small>${pct(pctShare)} des Abflusses</small>
+        </div>`;
+      }).join('')}
+    </div>
+  </div>`;
+}
+function lineChart(series,goal){
+  if(!series?.length)return '';
+  const max=Math.max(goal||0,...series.map(x=>x.value),1),min=Math.min(0,...series.map(x=>x.value));
+  const span=Math.max(max-min,1), left=44,right=770,top=22,bottom=204;
+  const x=i=>left+i*((right-left)/Math.max(series.length-1,1));
+  const y=v=>bottom-(v-min)/span*(bottom-top);
+  const pts=series.map((p,i)=>`${x(i)},${y(p.value)}`).join(' ');
+  const area=`${left},${bottom} ${pts} ${right},${bottom}`;
+  const gid='g'+Math.random().toString(36).slice(2,8);
+  const goalLine=goal?`<line x1="${left}" x2="${right}" y1="${y(goal)}" y2="${y(goal)}" class="chartGoal"/><text x="${right}" y="${Math.max(14,y(goal)-7)}" text-anchor="end" class="chartGoalLabel">FIRE Ziel ${euro(goal)}</text>`:'';
+  return `<svg class="chart modernLineChart" viewBox="0 0 800 235" role="img" aria-label="Vermögensentwicklung">
+    <defs>
+      <linearGradient id="${gid}" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0%" stop-color="#19d9c0" stop-opacity=".30"/>
+        <stop offset="100%" stop-color="#19d9c0" stop-opacity="0"/>
+      </linearGradient>
+    </defs>
+    <line x1="${left}" y1="${bottom}" x2="${right}" y2="${bottom}" class="chartAxis"/>
+    <polygon points="${area}" fill="url(#${gid})"/>
+    ${goalLine}
+    <polyline points="${pts}" class="chartTrend"/>
+    ${series.map((p,i)=>`<g><circle cx="${x(i)}" cy="${y(p.value)}" r="4" class="chartDot"/><text x="${x(i)}" y="226" text-anchor="middle" class="chartLabel">${p.year}</text></g>`).join('')}
+  </svg>`;
+}
 function btcPrice(){let b=UI.coins.find(c=>String(c.id).toLowerCase()==='bitcoin'||String(c.symbol).toLowerCase()==='btc');return Number(b?.current_price)||0}
 function dashboardYearRows(){let out=[];let start=Math.max(1,UI.month-7);for(let m=start;m<=UI.month;m++){let d=getMonth(UI.year,m,false),t=totals(d);out.push({m,t})}return out}
 function dashboardMilestones(){return state.goals.slice(0,5).map(g=>{let cur=goalCurrent(g),p=Math.min(100,cur/Math.max(Number(g.target)||1,1)*100),done=cur>=Number(g.target||0);return `<div class="milestoneItem"><div class="milestoneTop"><span>${done?'✓ ':''}${esc(g.name)}</span><b class="${done?'green':''}">${p.toFixed(0)}%</b></div><div class="progress" style="margin-top:6px"><i style="width:${p}%"></i></div><div class="milestoneMeta"><span class="sensitive">${euro(cur)} / ${euro(g.target)}</span><span>${g.deadline||'ohne Deadline'}</span></div></div>`}).join('')||'<div class="sub">Noch keine Meilensteine angelegt.</div>'}
