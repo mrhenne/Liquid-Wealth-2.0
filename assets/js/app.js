@@ -357,7 +357,7 @@ function startPointerSort(e){
  dragState={
   handle,item,container,ghost,pointerId:e.pointerId,
   dx:e.clientX-rect.left,dy:e.clientY-rect.top,
-  startX:e.clientX,startY:e.clientY,moved:false,lastTarget:null
+  startX:e.clientX,startY:e.clientY,moved:false,lastPlacement:null
  };
  try{handle.setPointerCapture?.(e.pointerId)}catch(_){}
  window.addEventListener('pointermove',movePointerSort,{passive:false});
@@ -406,9 +406,10 @@ function reorderAtPointer(d,x,y){
    after=verticalDistance>.34?y>r.top+r.height/2:x>r.left+r.width/2;
  }
  const reference=after?target.nextSibling:target;
- if(reference!==d.item&&target!==d.lastTarget){
+ const placement=(target.dataset.id||target.dataset.asset||target.dataset.debt||target.dataset.coin||target.dataset.goal||dashboardKey(target))+':' +(after?'after':'before');
+ if(reference!==d.item&&placement!==d.lastPlacement){
    d.container.insertBefore(d.item,reference);
-   d.lastTarget=target;
+   d.lastPlacement=placement;
    d.item.classList.add('dropPulse');
    clearTimeout(d.pulseTimer);
    d.pulseTimer=setTimeout(()=>d.item.classList.remove('dropPulse'),120);
@@ -431,6 +432,8 @@ function endPointerSort(e){
  if(e?.pointerId!==undefined&&e.pointerId!==d.pointerId)return;
  try{d.handle.releasePointerCapture?.(d.pointerId)}catch(_){}
  window.removeEventListener('pointermove',movePointerSort);
+ window.removeEventListener('pointerup',endPointerSort);
+ window.removeEventListener('pointercancel',endPointerSort);
  d.ghost?.remove();
  d.item.classList.remove('dragOrigin','dropPulse');
  d.item.style.minHeight='';
