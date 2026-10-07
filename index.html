@@ -446,11 +446,124 @@ button{gap:7px!important}
   .dashboardCashTop{grid-template-columns:1fr}
 }
 </style>
-<script type="text/javascript" nonce="226c09a134e44f2a9b99f5258eb" src="//local.adguard.org?ts=1789287039880&amp;type=content-script&amp;dmn=chatgpt.com&amp;url=https%3A%2F%2Fchatgpt.com%2Fbackend-api%2Festuary%2Fcontent%3Fid%3Dfile_000000005ab081f4b5b6f2a14db078f5%26ts%3D497024%26p%3Dfs%26cid%3D1%26sig%3Db0901804e3cc6ec15fc71e0cd101633a9c08f424d7fa0e0f461f7a51c8d65028%26v%3D0&amp;app=com.apple.Safari&amp;css=3&amp;js=1&amp;rel=1&amp;rji=1&amp;sbe=1"></script><script type="text/javascript" nonce="226c09a134e44f2a9b99f5258eb" src="//local.adguard.org?ts=1789287039880&amp;name=AdGuard%20Assistant&amp;name=AdGuard%20Extra&amp;name=AdGuard%20Popup%20Blocker&amp;type=user-script"></script></head>
+
+<meta name="theme-color" content="#07111f">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Liquid Wealth">
+
+<style id="v18-liquid-glass">
+:root{
+  --glass:rgba(10,25,44,.64);
+  --glass-strong:rgba(9,23,40,.82);
+  --glass-soft:rgba(17,39,64,.52);
+  --glass-line:rgba(130,178,231,.18);
+  --glass-highlight:rgba(255,255,255,.055);
+  --glass-shadow:0 22px 70px rgba(0,0,0,.28);
+  --dock-h:74px;
+}
+body{
+  background:
+    radial-gradient(circle at 16% -8%,rgba(25,119,255,.22),transparent 27%),
+    radial-gradient(circle at 88% 12%,rgba(0,210,190,.10),transparent 25%),
+    radial-gradient(circle at 78% 86%,rgba(129,72,255,.11),transparent 30%),
+    linear-gradient(160deg,#06101d 0%,#07111e 48%,#081522 100%)!important;
+}
+.app{background:rgba(4,13,25,.72)!important;backdrop-filter:blur(24px) saturate(135%)}
+.sidebar,.top,.card,.status,.searchBar,.userPill,.topBtn,.monthBtn,.monthLabel,.ghost,.smallBtn,.scenario,.modalBox,.dashboardMicro,.quickFact,.checkCard,.riskMetric,.calendarBox{
+  backdrop-filter:blur(24px) saturate(150%);
+  -webkit-backdrop-filter:blur(24px) saturate(150%);
+}
+.sidebar{background:linear-gradient(180deg,rgba(3,11,22,.86),rgba(5,15,27,.76))!important;border-right-color:var(--glass-line)!important}
+.top{background:rgba(5,15,28,.62)!important;border-bottom-color:var(--glass-line)!important}
+.card,.status,.calendarBox,.checkCard,.riskMetric{
+  position:relative;
+  background:linear-gradient(145deg,rgba(15,34,57,.72),rgba(8,22,38,.58))!important;
+  border:1px solid var(--glass-line)!important;
+  box-shadow:inset 0 1px 0 var(--glass-highlight),var(--glass-shadow)!important;
+}
+.card:before,.status:before,.calendarBox:before,.checkCard:before,.riskMetric:before{
+  content:"";position:absolute;inset:0;border-radius:inherit;pointer-events:none;
+  background:linear-gradient(120deg,rgba(255,255,255,.045),transparent 20%,transparent 78%,rgba(62,132,255,.035));
+}
+.nav button{transition:.18s ease;position:relative;overflow:hidden}
+.nav button:hover{transform:translateX(2px)}
+.nav button.active{background:linear-gradient(90deg,rgba(42,119,255,.24),rgba(18,60,111,.24))!important;box-shadow:inset 3px 0 0 #3991ff,0 8px 30px rgba(16,98,255,.12)}
+.mark{background:linear-gradient(145deg,#2498ff,#14d7cf 58%,#675bff)!important;box-shadow:0 0 30px rgba(37,139,255,.32)!important}
+.primary{box-shadow:0 10px 24px rgba(30,112,255,.22);transition:.18s ease}
+.primary:hover{transform:translateY(-1px)}
+.topBtn,.monthBtn,.monthLabel,.ghost,.smallBtn,.searchBar,.userPill,.scenario,.input{
+  background:linear-gradient(180deg,rgba(18,38,61,.68),rgba(10,27,46,.58))!important;
+  border-color:var(--glass-line)!important;
+}
+.input:focus{border-color:rgba(78,149,255,.75)!important;box-shadow:0 0 0 3px rgba(47,124,255,.10)}
+.dashboardHero{grid-template-columns:repeat(5,minmax(0,1fr))!important;gap:12px}
+.dashboardHero .kpi{min-height:122px!important}
+.kpi{overflow:hidden}.kpi:after{background:radial-gradient(circle,rgba(39,128,255,.18),transparent 68%)!important;filter:none!important}
+.kicon{background:linear-gradient(145deg,rgba(47,124,255,.24),rgba(23,102,208,.13))!important;border:1px solid rgba(102,165,255,.16);box-shadow:inset 0 1px 0 rgba(255,255,255,.05)}
+.kicon svg{stroke:currentColor!important;fill:none!important;stroke-linecap:round;stroke-linejoin:round}
+.dashboardGridTop{display:grid;grid-template-columns:1.02fr 1.2fr .72fr;gap:12px;margin-bottom:12px}
+.dashboardGridMid{display:grid;grid-template-columns:.85fr 1.2fr 1.05fr .82fr;gap:12px;margin-bottom:12px}
+.dashboardGridBottom{display:grid;grid-template-columns:1.4fr .86fr .84fr;gap:12px}
+.dashboardCard{min-width:0;overflow:hidden}
+.dashboardCard .toolbar{position:relative;z-index:2}
+.dashboardCard h2{display:flex;align-items:center;gap:8px}
+.dashboardCard h2 .icon{color:#6aaeff}
+.dashboardAllocation .alloc{grid-template-columns:160px 1fr!important;min-height:248px!important}
+.dashboardAllocation .donut{width:148px!important;height:148px!important;box-shadow:0 0 42px rgba(47,124,255,.12)}
+.dashboardAllocation .donut:after{width:92px!important;height:92px!important;background:rgba(8,23,40,.92)!important;box-shadow:inset 0 0 0 1px rgba(126,177,230,.12)}
+.dashboardFlow .chart{height:250px!important}
+.monthSummary{display:grid;gap:0}
+.monthSummaryRow{display:flex;justify-content:space-between;align-items:center;padding:9px 0;border-bottom:1px solid rgba(125,173,225,.12);font-size:12px}
+.monthSummaryRow span{color:var(--muted)}
+.monthSummaryRow b{font-size:13px}
+.monthNavMini{display:flex;gap:6px}.monthNavMini button{width:34px;height:34px;padding:0!important;display:grid;place-items:center}
+.fireGoalValue{font-size:23px;font-weight:900;letter-spacing:-.03em;margin:8px 0 6px}
+.dashboardSliderTop{display:flex;justify-content:space-between;gap:10px;align-items:flex-end}.dashboardSliderTop b{font-size:20px}
+.dashboardSliderWrap{padding:8px 0 2px}.dashboardSliderScale{display:flex;justify-content:space-between;color:var(--muted);font-size:10px;margin-top:2px}
+.crashCards{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.crashCard{padding:11px;border:1px solid rgba(255,92,118,.14);border-radius:15px;background:rgba(60,18,33,.22)}
+.crashCard span{font-size:11px;color:var(--muted)}.crashCard strong{display:block;font-size:20px;color:var(--red);margin:4px 0}.crashCard small{font-size:10px;color:#f0b4bf}
+.emergencyBig{display:flex;align-items:baseline;gap:6px;margin:7px 0}.emergencyBig strong{font-size:24px}.emergencyBig span{font-size:11px;color:var(--muted)}
+.yearMini{width:100%;border-collapse:collapse;font-size:11px}.yearMini th,.yearMini td{padding:7px 4px;border-bottom:1px solid rgba(125,173,225,.12);text-align:right}.yearMini th:first-child,.yearMini td:first-child{text-align:left}.yearMini th{color:var(--muted);font-weight:700}.yearMini tr.active{background:rgba(47,124,255,.14)}
+.milestoneItem{padding:9px 0;border-bottom:1px solid rgba(125,173,225,.12)}.milestoneItem:last-child{border-bottom:0}.milestoneTop{display:flex;justify-content:space-between;gap:10px;font-size:12px}.milestoneTop span{font-weight:700}.milestoneTop b{font-size:11px}.milestoneMeta{display:flex;justify-content:space-between;color:var(--muted);font-size:10px;margin-top:5px}
+.syncBadge{display:inline-flex;align-items:center;gap:6px;padding:5px 9px;border:1px solid var(--glass-line);border-radius:999px;background:rgba(11,29,49,.5);color:var(--muted);font-size:11px}.syncBadge i{width:7px;height:7px;border-radius:50%;background:var(--orange)}
+.settingsGridV18{display:grid;grid-template-columns:1.1fr .9fr .9fr;gap:12px}.checkpointList{display:grid;gap:7px;margin-top:10px}.checkpointRow{display:flex;justify-content:space-between;gap:10px;font-size:11px;padding:8px 0;border-bottom:1px solid rgba(125,173,225,.12)}.checkpointRow span{color:var(--muted)}
+.table{min-width:560px}.card:has(> .table){overflow-x:auto}
+.mobileDock,.mobileSheet{display:none}
+html.light body{background:linear-gradient(160deg,#edf5fd,#f4f8fc 48%,#edf2f8)!important}
+html.light .card,html.light .status,html.light .calendarBox,html.light .checkCard,html.light .riskMetric,
+html.light .topBtn,html.light .monthBtn,html.light .monthLabel,html.light .ghost,html.light .smallBtn,html.light .searchBar,html.light .userPill,html.light .scenario,html.light .input{
+  background:linear-gradient(145deg,rgba(255,255,255,.84),rgba(244,249,255,.72))!important;border-color:rgba(94,130,172,.17)!important
+}
+html.light .top{background:rgba(248,252,255,.72)!important}.light .sidebar{background:rgba(248,252,255,.76)!important}
+@media(max-width:1450px){.dashboardHero{grid-template-columns:repeat(3,minmax(0,1fr))!important}.dashboardGridTop{grid-template-columns:1fr 1.15fr}.dashboardMonth{grid-column:1/-1}.dashboardGridMid{grid-template-columns:repeat(2,minmax(0,1fr))}.dashboardGridBottom{grid-template-columns:1.2fr 1fr}.dashboardMilestones{grid-column:1/-1}.settingsGridV18{grid-template-columns:1fr 1fr}.settingsGridV18>.card:first-child{grid-column:1/-1}}
+@media(max-width:900px){.dashboardGridTop,.dashboardGridBottom{grid-template-columns:1fr}.dashboardMonth,.dashboardMilestones{grid-column:auto}.dashboardHero{grid-template-columns:repeat(2,minmax(0,1fr))!important}.dashboardGridMid{grid-template-columns:1fr 1fr}}
+@media(max-width:760px){
+  body{padding:0!important;padding-bottom:calc(var(--dock-h) + env(safe-area-inset-bottom))!important}
+  .app{border:0!important;min-height:100vh!important}
+  .sidebar{display:none!important}
+  .top{position:sticky!important;top:0;grid-template-columns:1fr auto!important;gap:8px!important;padding:calc(8px + env(safe-area-inset-top)) 10px 9px!important;background:rgba(5,15,28,.72)!important}
+  .topLeft{grid-column:1/-1;justify-content:space-between;width:100%}.topLeft .monthLabel{flex:1;min-width:0!important}.topLeft #today{display:none!important}
+  .topCenter{display:none!important}.topRight{grid-column:1/-1;justify-content:flex-end;width:100%}.topRight #calendarBtn,.topRight #appearanceToggle,.topRight #stealth,.topRight #openSettings{display:flex!important}.topRight #calendarBtn span.hideMobile,.topRight #stealth span.hideMobile,.topRight #openSettings span.hideMobile,.topRight #appearanceToggle .themeText{display:none!important}.topRight button{width:42px!important;padding:0!important;justify-content:center}.topRight .userPill{display:none!important}
+  .content{padding:10px 10px 18px!important}
+  .dashboardHero{display:flex!important;overflow-x:auto;scroll-snap-type:x mandatory;gap:9px;padding-bottom:2px;margin:0 -10px 10px;padding-left:10px;padding-right:10px;scrollbar-width:none}.dashboardHero::-webkit-scrollbar{display:none}.dashboardHero .kpi{min-width:168px!important;scroll-snap-align:start;min-height:112px!important}.dashboardHero .kvalue{font-size:23px!important}
+  .dashboardGridTop,.dashboardGridMid,.dashboardGridBottom{grid-template-columns:1fr!important;gap:10px;margin-bottom:10px}.dashboardMonth,.dashboardMilestones{grid-column:auto}
+  .card{border-radius:20px!important;padding:14px!important}.dashboardAllocation .alloc{grid-template-columns:130px 1fr!important}.dashboardAllocation .donut{width:122px!important;height:122px!important}.dashboardAllocation .donut:after{width:76px!important;height:76px!important}.dashboardAllocation .legendRow{font-size:11px!important}.dashboardFlow .chart{height:220px!important}
+  .crashCards{grid-template-columns:1fr 1fr}.settingsGridV18{grid-template-columns:1fr}.settingsGridV18>.card:first-child{grid-column:auto}
+  .mobileDock{position:fixed;left:8px;right:8px;bottom:calc(8px + env(safe-area-inset-bottom));height:62px;z-index:80;display:grid;grid-template-columns:repeat(5,1fr);padding:6px;border:1px solid rgba(123,177,233,.18);border-radius:22px;background:rgba(6,18,32,.78);backdrop-filter:blur(28px) saturate(160%);-webkit-backdrop-filter:blur(28px) saturate(160%);box-shadow:0 16px 50px rgba(0,0,0,.38),inset 0 1px 0 rgba(255,255,255,.05)}
+  .mobileDock button{border:0;background:transparent;color:#8296b1;border-radius:16px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;font-size:9px;font-weight:700}.mobileDock button .icon{width:20px!important;height:20px!important}.mobileDock button.active{background:rgba(47,124,255,.18);color:#70b1ff}
+  .mobileSheet{position:fixed;inset:0;z-index:90}.mobileSheet.show{display:block}.mobileSheet .scrim{position:absolute;inset:0;background:rgba(0,0,0,.48);backdrop-filter:blur(6px)}.mobileSheetPanel{position:absolute;left:8px;right:8px;bottom:calc(8px + env(safe-area-inset-bottom));padding:12px;border:1px solid var(--glass-line);border-radius:24px;background:rgba(7,20,35,.94);backdrop-filter:blur(30px) saturate(160%);-webkit-backdrop-filter:blur(30px) saturate(160%);box-shadow:0 24px 70px rgba(0,0,0,.5)}.mobileSheetHead{display:flex;justify-content:space-between;align-items:center;padding:4px 4px 10px}.mobileSheetHead b{font-size:15px}.mobileSheetHead button{width:38px;height:38px;border-radius:12px;border:1px solid var(--glass-line);background:rgba(17,38,60,.7);color:var(--text)}.mobileSheetGrid{display:grid;grid-template-columns:1fr 1fr;gap:8px}.mobileSheetGrid button{min-height:58px;border:1px solid var(--glass-line);border-radius:16px;background:rgba(15,34,55,.72);color:var(--text);display:flex;align-items:center;gap:10px;padding:11px;text-align:left;font-weight:700}.mobileSheetGrid button .icon{color:#6aaeff}
+  .toast{bottom:calc(var(--dock-h) + 18px + env(safe-area-inset-bottom));left:12px;right:12px;text-align:center}
+  .footer{padding-bottom:14px!important}.table{min-width:640px}.assetCard{grid-template-columns:1fr 86px 34px!important}.assetCard .assetType{display:none!important}.goalTop{align-items:center;gap:8px}.goalTop input{min-width:0}
+}
+@media(max-width:430px){.crashCards{grid-template-columns:1fr}.dashboardAllocation .alloc{grid-template-columns:1fr!important}.dashboardAllocation .legend{margin-top:6px}.mobileSheetGrid{grid-template-columns:1fr 1fr}}
+</style>
+</head>
 <body>
 <div class="app">
 <aside class="sidebar"><div class="brand"><div class="mark">LW</div><div class="brandText"><b>Liquid Wealth</b><small>Personal Wealth OS · Tactical Engine</small></div></div>
-<nav class="nav" id="nav"><button class="active" data-view="dashboard"><span class="ico" data-icon="home"></span><span class="navText">Dashboard</span></button><button data-view="wealth"><span class="ico" data-icon="wallet"></span><span class="navText">Vermögen</span></button><button data-view="cashflow"><span class="ico" data-icon="flow"></span><span class="navText">Cashflow</span></button><button data-view="fire"><span class="ico" data-icon="fire"></span><span class="navText">FIRE</span></button><button data-view="simulator"><span class="ico" data-icon="sliders"></span><span class="navText">Simulator</span></button><button data-view="projection"><span class="ico" data-icon="chart"></span><span class="navText">Projektion</span></button><button data-view="year"><span class="ico" data-icon="calendar"></span><span class="navText">Jahresübersicht</span></button><button data-view="portfolio"><span class="ico" data-icon="pie"></span><span class="navText">Portfolio</span></button><button data-view="crypto"><span class="ico" data-icon="coin"></span><span class="navText">Krypto</span></button><button data-view="goals"><span class="ico" data-icon="target"></span><span class="navText">Ziele</span></button><button data-view="financeCheck"><span class="ico" data-icon="shield"></span><span class="navText">Finanz-Check</span></button><button data-view="risk"><span class="ico" data-icon="pulse"></span><span class="navText">Risikoanalyse</span></button><button data-view="settings"><span class="ico" data-icon="settings"></span><span class="navText">Einstellungen</span></button></nav>
+<nav class="nav" id="nav"><button class="active" data-view="dashboard"><span class="ico" data-icon="home"></span><span class="navText">Dashboard</span></button><button data-view="wealth"><span class="ico" data-icon="wallet"></span><span class="navText">Vermögen</span></button><button data-view="cashflow"><span class="ico" data-icon="flow"></span><span class="navText">Cashflow</span></button><button data-view="fire"><span class="ico" data-icon="fire"></span><span class="navText">FIRE</span></button><button data-view="simulator"><span class="ico" data-icon="sliders"></span><span class="navText">Simulator</span></button><button data-view="projection"><span class="ico" data-icon="chart"></span><span class="navText">Projektion</span></button><button data-view="year"><span class="ico" data-icon="calendar"></span><span class="navText">Jahresübersicht</span></button><button data-view="portfolio"><span class="ico" data-icon="pie"></span><span class="navText">Portfolio</span></button><button data-view="crypto"><span class="ico" data-icon="coin"></span><span class="navText">Krypto</span></button><button data-view="goals"><span class="ico" data-icon="target"></span><span class="navText">Meilensteine</span></button><button data-view="financeCheck"><span class="ico" data-icon="shield"></span><span class="navText">Finanz-Check</span></button><button data-view="risk"><span class="ico" data-icon="pulse"></span><span class="navText">Risikoanalyse</span></button><button data-view="settings"><span class="ico" data-icon="settings"></span><span class="navText">Einstellungen</span></button></nav>
 <div class="sidebarBottom"><div class="status"><h4><span class="dot"></span>Live Crypto</h4><div id="coinMini"></div><small class="muted">CoinGecko optional</small></div></div></aside>
 <main class="main"><header class="top">
 <div class="topLeft">
@@ -477,8 +590,33 @@ button{gap:7px!important}
   <div class="userPill"><div class="avatar">LW</div><div class="userMeta"><b>Liquid Wealth</b><small>Private Dashboard</small></div></div>
 </div>
 </header><div class="content">
-<section id="dashboard" class="view active"></section><section id="wealth" class="view"></section><section id="cashflow" class="view"></section><section id="fire" class="view"></section><section id="simulator" class="view"></section><section id="projection" class="view"></section><section id="year" class="view"></section><section id="portfolio" class="view"></section><section id="crypto" class="view"></section><section id="goals" class="view"></section><section id="financeCheck" class="view"></section><section id="risk" class="view"></section><section id="settings" class="view"></section><div class="footer">Liquid Wealth Tactical Engine · lokale Speicherung · JSON Backup & Import</div>
+<section id="dashboard" class="view active"></section><section id="wealth" class="view"></section><section id="cashflow" class="view"></section><section id="fire" class="view"></section><section id="simulator" class="view"></section><section id="projection" class="view"></section><section id="year" class="view"></section><section id="portfolio" class="view"></section><section id="crypto" class="view"></section><section id="goals" class="view"></section><section id="financeCheck" class="view"></section><section id="risk" class="view"></section><section id="settings" class="view"></section><div class="footer">Liquid Wealth · Personal Wealth OS · lokal mit Sicherheitsnetz · Cloud-ready</div>
 </div></main></div>
+
+<nav class="mobileDock" id="mobileDock" aria-label="Mobile Navigation">
+  <button data-view="dashboard"><span class="icon" data-icon="home"></span><span>Home</span></button>
+  <button data-view="wealth"><span class="icon" data-icon="wallet"></span><span>Vermögen</span></button>
+  <button data-view="cashflow"><span class="icon" data-icon="flow"></span><span>Cashflow</span></button>
+  <button data-view="fire"><span class="icon" data-icon="fire"></span><span>FIRE</span></button>
+  <button data-action="toggleMobileMenu"><span class="icon" data-icon="menu"></span><span>Mehr</span></button>
+</nav>
+<div class="mobileSheet" id="mobileMenu" aria-hidden="true">
+  <div class="scrim" data-action="toggleMobileMenu"></div>
+  <div class="mobileSheetPanel">
+    <div class="mobileSheetHead"><b>Liquid Wealth</b><button data-action="toggleMobileMenu" aria-label="Schließen"><span class="icon" data-icon="close"></span></button></div>
+    <div class="mobileSheetGrid">
+      <button data-view="simulator"><span class="icon" data-icon="sliders"></span>Simulator</button>
+      <button data-view="projection"><span class="icon" data-icon="chart"></span>Projektion</button>
+      <button data-view="year"><span class="icon" data-icon="calendar"></span>Jahresübersicht</button>
+      <button data-view="portfolio"><span class="icon" data-icon="pie"></span>Portfolio</button>
+      <button data-view="crypto"><span class="icon" data-icon="btc"></span>Krypto</button>
+      <button data-view="goals"><span class="icon" data-icon="milestone"></span>Meilensteine</button>
+      <button data-view="financeCheck"><span class="icon" data-icon="shield"></span>Finanz-Check</button>
+      <button data-view="risk"><span class="icon" data-icon="pulse"></span>Risikoanalyse</button>
+      <button data-view="settings"><span class="icon" data-icon="settings"></span>Einstellungen</button>
+    </div>
+  </div>
+</div>
 <div class="modal" id="modal"><div class="modalBox"><div class="toolbar"><div><h2 id="modalTitle">Eintrag</h2><div class="sub" id="modalSub"></div></div><button class="ghost" id="closeModal" data-action="closeModal">Schließen</button></div><div id="modalBody"></div></div></div><input id="globalImportFile" type="file" accept=".json,application/json" hidden><div class="toast" id="toast"></div>
 <script>
 'use strict';
@@ -491,8 +629,17 @@ function tx(name,val,recurring=false,cat=''){return{id:crypto.randomUUID?crypto.
 const defaultAssets=[{id:'a1',name:'ETF',value:57000,type:'ETF',cost:42000,rate:7},{id:'a2',name:'Bitcoin',value:35600,type:'Crypto',cost:18000,rate:12},{id:'a3',name:'Depot',value:21400,type:'Aktien',cost:16000,rate:7},{id:'a4',name:'Cash',value:14300,type:'Cash',cost:14300,rate:1},{id:'a5',name:'Immobilien',value:9800,type:'Immobilie',cost:7000,rate:3},{id:'a6',name:'Sonstige',value:4400,type:'Sonstige',cost:3000,rate:2}];
 const initial={version:8,settings:{...defaults},months:{},assets:defaultAssets,liabilities:[],goals:[{id:'g1',name:'FIRE',target:1200000,current:0,deadline:2042},{id:'g2',name:'Notgroschen',target:15000,current:0,deadline:2027}],meta:{created:new Date().toISOString()}};
 let state=loadState();let UI={year:now.getFullYear(),month:now.getMonth()+1,view:'dashboard',stealth:false,coins:[],sim:{extra:2000,returnRate:7,crash:0,years:15},risk:null};
+const CHECKPOINT_KEY=APP+'_checkpoints_v1';
 function loadState(){try{let raw=localStorage.getItem(APP)||localStorage.getItem('LWTE_5');let x=raw?JSON.parse(raw):null;if(x&&[4,5,6,7,8,9].includes(x.version))return {...x,version:9,settings:{...defaults,...(x.settings||{})},months:x.months||{},assets:x.assets||[],liabilities:x.liabilities||[],goals:x.goals||[]}}catch(e){}let x=structuredClone?structuredClone(initial):JSON.parse(JSON.stringify(initial));x.months[`${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}`]=demoMonth();return x}
-function save(){localStorage.setItem(APP,JSON.stringify(state))}
+function checkpointList(){try{return JSON.parse(localStorage.getItem(CHECKPOINT_KEY)||'[]')}catch(e){return[]}}
+function writeCheckpointList(list){try{localStorage.setItem(CHECKPOINT_KEY,JSON.stringify(list.slice(0,12)))}catch(e){console.warn('Checkpoint konnte nicht gespeichert werden',e)}}
+function createCheckpoint(reason='Manuell',raw=localStorage.getItem(APP)||JSON.stringify(state)){
+ try{if(!raw)return false;let list=checkpointList();if(list[0]?.raw===raw&&list[0]?.reason===reason)return true;list.unshift({ts:Date.now(),reason,raw});writeCheckpointList(list);return true}catch(e){console.warn(e);return false}
+}
+function maybeAutoCheckpoint(previousRaw){if(!previousRaw)return;let list=checkpointList(),last=list[0];if(last&&Date.now()-last.ts<10*60*1000)return;if(last?.raw===previousRaw)return;createCheckpoint('Auto-Sicherung',previousRaw)}
+function save(skipCheckpoint=false){let next=JSON.stringify(state),prev=localStorage.getItem(APP);if(!skipCheckpoint&&prev&&prev!==next)maybeAutoCheckpoint(prev);localStorage.setItem(APP,next)}
+function manualCheckpoint(){createCheckpoint('Manueller Checkpoint');render();showToast('Sicherheits-Checkpoint erstellt')}
+function restoreCheckpoint(){let list=checkpointList();if(!list.length)return showToast('Noch kein Checkpoint vorhanden');let cp=list[0];if(!confirm(`Checkpoint vom ${new Date(cp.ts).toLocaleString('de-DE')} wiederherstellen?`))return;createCheckpoint('Vor Wiederherstellung');try{let x=JSON.parse(cp.raw);state={...initial,...x,version:9,settings:{...defaults,...(x.settings||{})},months:x.months||{},assets:x.assets||[],liabilities:x.liabilities||[],goals:x.goals||[]};localStorage.setItem(APP,JSON.stringify(state));UI.risk=null;render();showToast('Checkpoint wiederhergestellt')}catch(e){console.error(e);showToast('Checkpoint ist beschädigt')}}
 function key(y=UI.year,m=UI.month){return `${y}-${String(m).padStart(2,'0')}`}
 function getMonth(y=UI.year,m=UI.month,create=true){let k=key(y,m);if(!state.months[k]&&create)state.months[k]={income:[],expenses:[],invest:[]};return state.months[k]||{income:[],expenses:[],invest:[]}}
 function sum(a){return(a||[]).reduce((s,x)=>s+(Number(x.val)||0),0)}
@@ -542,6 +689,11 @@ open:'M14 5h5v5M10 14 19 5M19 13v6H5V5h6',
 download:'M12 4v11M8 11l4 4 4-4M5 19h14',
 upload:'M12 20V9M8 13l4-4 4 4M5 5h14',
 close:'M6 6l12 12M18 6 6 18',
+btc:'M9 3v3m4-3v3M8 6h5.5a3.5 3.5 0 0 1 0 7H8m0-7v12h6a3.5 3.5 0 0 0 0-7H8',
+milestone:'M5 20V5m0 1h11l-2 3 2 3H5',
+menu:'M4 7h16M4 12h16M4 17h16',
+cloud:'M7 18h10a4 4 0 0 0 .7-7.9A6 6 0 0 0 6.2 9.2 4.5 4.5 0 0 0 7 18z',
+undo:'M9 7H4v-5M4 7l4-4M5 12a7 7 0 1 0 2-5',
 lock:'M8 10V8a4 4 0 1 1 8 0v2M6 10h12v10H6z'
 };return `<svg viewBox="0 0 24 24"><path d="${p[name]||p.target}"></path></svg>`}
 function paintIcons(){document.querySelectorAll('[data-icon]').forEach(el=>{if(!el.innerHTML.trim())el.innerHTML=I(el.dataset.icon)})}
@@ -626,87 +778,82 @@ function donut(){let total=Math.max(netWorth(),1);let groups={ETF:0,Crypto:0,Akt
 function allocationLegend(){let total=Math.max(netWorth(),1),groups={ETF:0,Crypto:0,Aktien:0,Cash:0,Immobilie:0,Sonstige:0},colors=['#1688ff','#ff9c24','#7d57ff','#20d8bd','#d5c7a8','#93dc35'];state.assets.forEach(a=>groups[a.type]=(groups[a.type]||0)+Number(a.value||0));return `<div class="legend">${Object.entries(groups).filter(x=>x[1]>0).map((x,i)=>`<div class="legendRow"><i class="sw" style="background:${colors[i%colors.length]}"></i><span>${x[0]}</span><b>${pct(x[1]/total*100)}</b><span class="sensitive">${euro(x[1])}</span></div>`).join('')}</div>`}
 function sankey(d){let t=totals(d),outs=[...d.expenses.map(x=>[x.name,x.val,'#ff4f70']),...d.invest.map(x=>[x.name,x.val,'#9667ff'])];let leftover=Math.max(0,t.income-t.expenses-t.invest);if(leftover)outs.push(['Liquidität',leftover,'#1688ff']);let total=outs.reduce((s,x)=>s+x[1],0)||1,y=18;let svg=`<svg class="chart" viewBox="0 0 760 250"><rect x="15" y="85" width="120" height="75" rx="12" fill="#18d9c0"/><text x="75" y="116" text-anchor="middle" fill="white" font-size="12" font-weight="800">Einnahmen</text><text x="75" y="138" text-anchor="middle" fill="white" font-size="11">${euro(t.income)}</text>`;outs.sort((a,b)=>b[1]-a[1]).slice(0,9).forEach(o=>{let h=Math.max(9,180*o[1]/total),cy=y+h/2;svg+=`<path d="M135 122 C290 ${cy},410 ${cy},500 ${cy}" fill="none" stroke="${o[2]}" stroke-width="${Math.max(4,24*o[1]/Math.max(t.income,1))}" opacity=".48" stroke-linecap="round"/><rect x="500" y="${y}" width="245" height="${h}" rx="8" fill="${o[2]}"/><text x="622" y="${cy-2}" text-anchor="middle" fill="white" font-size="10" font-weight="800">${esc(o[0])}</text><text x="622" y="${cy+12}" text-anchor="middle" fill="white" font-size="9">${euro(o[1])}</text>`;y+=h+4});return svg+'</svg>'}
 function lineChart(series,goal){let max=Math.max(goal||0,...series.map(x=>x.value),1),min=Math.min(0,...series.map(x=>x.value));let pts=series.map((x,i)=>`${35+i*(730/(series.length-1))},${215-(x.value-min)/(max-min)*180}`).join(' ');let g=goal?`<line x1="35" x2="765" y1="${215-(goal-min)/(max-min)*180}" y2="${215-(goal-min)/(max-min)*180}" stroke="#ff4f70" stroke-dasharray="6 5"/><text x="760" y="${210-(goal-min)/(max-min)*180}" text-anchor="end" fill="#ff6a85" font-size="9">FIRE Ziel ${euro(goal)}</text>`:'';return `<svg class="chart" viewBox="0 0 800 240"><line x1="35" y1="215" x2="765" y2="215" stroke="var(--line)"/>${g}<polyline points="${pts}" fill="none" stroke="#19d9c0" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>${series.map((x,i)=>`<circle cx="${35+i*(730/(series.length-1))}" cy="${215-(x.value-min)/(max-min)*180}" r="3.5" fill="#19d9c0"/><text x="${35+i*(730/(series.length-1))}" y="232" text-anchor="middle" fill="var(--muted)" font-size="9">${x.year}</text>`).join('')}</svg>`}
+function btcPrice(){let b=UI.coins.find(c=>String(c.id).toLowerCase()==='bitcoin'||String(c.symbol).toLowerCase()==='btc');return Number(b?.current_price)||0}
+function dashboardYearRows(){let out=[];let start=Math.max(1,UI.month-7);for(let m=start;m<=UI.month;m++){let d=getMonth(UI.year,m,false),t=totals(d);out.push({m,t})}return out}
+function dashboardMilestones(){return state.goals.slice(0,5).map(g=>{let cur=goalCurrent(g),p=Math.min(100,cur/Math.max(Number(g.target)||1,1)*100),done=cur>=Number(g.target||0);return `<div class="milestoneItem"><div class="milestoneTop"><span>${done?'✓ ':''}${esc(g.name)}</span><b class="${done?'green':''}">${p.toFixed(0)}%</b></div><div class="progress" style="margin-top:6px"><i style="width:${p}%"></i></div><div class="milestoneMeta"><span class="sensitive">${euro(cur)} / ${euro(g.target)}</span><span>${g.deadline||'ohne Deadline'}</span></div></div>`}).join('')||'<div class="sub">Noch keine Meilensteine angelegt.</div>'}
 function dashboard(){
- let d=getMonth(),t=totals(d),cash=t.income-t.expenses-t.invest;
- let saveRate=t.income?(t.income-t.expenses)/t.income*100:0;
- let fy=fireYears(d),target=fireTarget(d),nw=netWorth();
- let fireProgress=target>0?Math.max(0,Math.min(100,nw/target*100)):0;
- let runway=liquidityRunway();
- let topExpense=(d.expenses||[]).slice().sort((a,b)=>b.val-a.val)[0];
- let monthlySurplus=t.income-t.expenses;
- let emergencyTarget=t.expenses*state.settings.emergencyMonths;
- let currentCash=state.assets.filter(a=>a.type==='Cash').reduce((s,a)=>s+Number(a.value||0),0);
- let emergencyProgress=emergencyTarget?Math.min(100,currentCash/emergencyTarget*100):100;
+ let d=getMonth(),t=totals(d),nw=netWorth(),target=fireTarget(d),fy=fireYears(d),cash=t.income-t.expenses-t.invest;
+ let saveRate=t.income?(t.income-t.expenses)/t.income*100:0,monthlySurplus=t.income-t.expenses;
+ let currentCash=state.assets.filter(a=>a.type==='Cash').reduce((s,a)=>s+Number(a.value||0),0),emergencyTarget=t.expenses*state.settings.emergencyMonths;
+ let emergencyProgress=emergencyTarget?Math.min(100,currentCash/emergencyTarget*100):100,fireProgress=target?Math.min(100,nw/target*100):0;
+ let bp=btcPrice(),btcEq=bp?nw/bp:0,simYears=fireYears(d,UI.sim.extra,state.settings.returnRate),baseYears=fy;
+ let trad=stressNetWorth(.3),crypt=stressNetWorth(.6),tradYears=fireYears(d,0,state.settings.returnRate,trad),cryptoYears=fireYears(d,0,state.settings.returnRate,crypt);
+ let rows=dashboardYearRows();
  return `
  <div class="dashboardHero">
-   ${q('Net Worth',euro(nw),'Assets minus Schulden','wallet','blue')}
-   ${q('Freier Cashflow',euro(cash),cash>=0?'nach Investments verfügbar':'monatliches Defizit','flow',cash>=0?'green':'red')}
-   ${q('Sparquote',pct(saveRate),'Einkommen minus Ausgaben','pie',saveRate>=25?'green':'orange')}
-   ${q('FIRE Countdown',fy===999?'N/A':fy.toFixed(1)+' Jahre',`Ziel ${euro(target)}`,'fire','purple')}
+  ${q('Net Worth',euro(nw),'Gesamtvermögen','wallet','blue')}
+  ${q('Cashflow',euro(cash),'nach Ausgaben & Investments','flow',cash>=0?'green':'red')}
+  ${q('Sparquote',pct(saveRate),'vom Einkommen','pie',saveRate>=25?'green':'orange')}
+  ${q('FIRE Countdown',fy===999?'N/A':fy.toFixed(1)+' Jahre',`Ziel ${euro(target)}`,'fire','purple')}
+  ${q('BTC Equivalent',bp?btcEq.toFixed(2)+' BTC':'— BTC',bp?`BTC ${euro(bp)}`:'Live-Kurs wird geladen','btc','orange')}
  </div>
-
- <div class="dashboardMain">
-   <div class="card dashboardCardTall dashboardCashflow">
-     <div class="toolbar">
-       <div><h2>Cashflow</h2><span class="sub">So verteilt sich dein Geld im ${monthName(UI.month)}.</span></div>
-       <button class="ghost" data-nav="cashflow">Bearbeiten</button>
-     </div>
-     <div class="dashboardCashTop">
-       <div class="dashboardMicro"><span>Einnahmen</span><b class="green sensitive">${euro(t.income)}</b></div>
-       <div class="dashboardMicro"><span>Ausgaben</span><b class="red sensitive">${euro(t.expenses)}</b></div>
-       <div class="dashboardMicro"><span>Investiert</span><b class="purple sensitive">${euro(t.invest)}</b></div>
-     </div>
-     ${sankey(d,t)}
+ <div class="dashboardGridTop">
+  <div class="card dashboardCard dashboardAllocation">
+   <div class="toolbar"><div><h2><span class="icon">${I('pie')}</span>Vermögensaufstellung</h2><span class="sub">Allocation deiner Assets</span></div><button class="ghost" data-nav="portfolio">Details</button></div>
+   <div class="alloc">${donut()}${allocationLegend()}</div>
+  </div>
+  <div class="card dashboardCard dashboardFlow">
+   <div class="toolbar"><div><h2><span class="icon">${I('flow')}</span>Cashflow Anatomy</h2><span class="sub">So fließt dein Geld im ${monthName(UI.month)}</span></div><button class="ghost" data-nav="cashflow">Bearbeiten</button></div>
+   ${sankey(d)}
+  </div>
+  <div class="card dashboardCard dashboardMonth">
+   <div class="toolbar"><div><h2><span class="icon">${I('calendar')}</span>Monatsübersicht</h2><span class="sub">${monthName(UI.month)} ${UI.year}</span></div><div class="monthNavMini"><button class="ghost" data-action="prevMonth">${I('chevronLeft')}</button><button class="ghost" data-action="nextMonth">${I('chevronRight')}</button></div></div>
+   <div class="monthSummary">
+    <div class="monthSummaryRow"><span>Einnahmen</span><b class="green sensitive">${euro(t.income)}</b></div>
+    <div class="monthSummaryRow"><span>Ausgaben</span><b class="red sensitive">${euro(t.expenses)}</b></div>
+    <div class="monthSummaryRow"><span>Investments</span><b class="purple sensitive">${euro(t.invest)}</b></div>
+    <div class="monthSummaryRow"><span>Netto Cashflow</span><b class="${cash>=0?'green':'red'} sensitive">${euro(cash)}</b></div>
+    <div class="monthSummaryRow"><span>Sparquote</span><b>${pct(saveRate)}</b></div>
    </div>
-
-   <div class="dashboardSide">
-     <div class="card dashboardCardCompact">
-       <div class="toolbar"><div><h2>FIRE Fortschritt</h2><span class="sub">Aktueller Weg zur finanziellen Freiheit.</span></div><span class="dashboardBadge">${pct(fireProgress)}</span></div>
-       <div class="fireProgressBlock">
-         <div class="fireProgressValue"><strong class="sensitive">${euro(nw)}</strong><span>Ziel<br><b class="sensitive">${euro(target)}</b></span></div>
-         <div class="progress"><i style="width:${fireProgress}%"></i></div>
-         <div class="quickFacts">
-           <div class="quickFact"><span>Countdown</span><b>${fy===999?'N/A':fy.toFixed(1)+' Jahre'}</b></div>
-           <div class="quickFact"><span>Rendite-Annahme</span><b>${pct(state.settings.returnRate)}</b></div>
-           <div class="quickFact"><span>SWR</span><b>${pct(state.settings.swr)}</b></div>
-         </div>
-       </div>
-       <div class="compactActions"><button class="primary" data-nav="fire">FIRE öffnen</button><button class="ghost" data-nav="simulator">Simulator</button></div>
-     </div>
-
-     <div class="card dashboardCardCompact">
-       <div class="toolbar"><div><h2>Finanzielle Reserve</h2><span class="sub">Liquidität und Notgroschen.</span></div></div>
-       <div class="quickFacts">
-         <div class="quickFact"><span>Liquidität</span><b class="sensitive">${euro(currentCash)}</b></div>
-         <div class="quickFact"><span>Runway</span><b class="${runway>=state.settings.emergencyMonths?'green':runway>=state.settings.emergencyMonths*.75?'orange':'red'}">${runway.toFixed(1)} Monate</b></div>
-         <div class="quickFact"><span>Notgroschen-Ziel</span><b class="sensitive">${euro(emergencyTarget)}</b></div>
-       </div>
-       <div class="progress" style="margin-top:10px"><i style="width:${emergencyProgress}%"></i></div>
-       <div class="compactActions"><button class="ghost" data-nav="financeCheck">Finanz-Check</button></div>
-     </div>
-   </div>
+   <div class="compactActions"><button class="primary" data-action="quick">+ Eintrag</button><button class="ghost" data-action="copyPrev">Vormonat kopieren</button></div>
+  </div>
  </div>
-
- <div class="dashboardLower">
-   <div class="card dashboardAllocation">
-     <div class="toolbar">
-       <div><h2>Portfolio</h2><span class="sub">Vermögensaufteilung auf einen Blick.</span></div>
-       <button class="ghost" data-nav="portfolio">Details</button>
-     </div>
-     <div class="alloc">${donut()}${allocationLegend()}</div>
-   </div>
-
-   <div class="card dashboardProjection">
-     <div class="toolbar">
-       <div><h2>10-Jahres-Ausblick</h2><span class="sub">${pct(state.settings.returnRate)} Rendite · aktuelle Investmentrate</span></div>
-       <button class="ghost" data-nav="projection">Vollansicht</button>
-     </div>
-     ${lineChart(projectedSeries(d,10,state.settings.returnRate,state.settings.monthlyExtra),target)}
-     <div class="quickFacts" style="margin-top:6px">
-       <div class="quickFact"><span>Monatlicher Überschuss vor Investments</span><b class="${monthlySurplus>=0?'green':'red'} sensitive">${euro(monthlySurplus)}</b></div>
-       <div class="quickFact"><span>Größter Ausgabenposten</span><b>${topExpense?esc(topExpense.name):'—'}</b></div>
-     </div>
-   </div>
+ <div class="dashboardGridMid">
+  <div class="card dashboardCard">
+   <div class="toolbar"><div><h2><span class="icon">${I('target')}</span>FIRE-Ziel</h2><span class="sub">Fortschritt zur finanziellen Freiheit</span></div><span class="dashboardBadge">${pct(fireProgress)}</span></div>
+   <div class="fireGoalValue sensitive">${euro(target)}</div><div class="progress"><i style="width:${fireProgress}%"></i></div>
+   <div class="quickFacts"><div class="quickFact"><span>Aktuell</span><b class="sensitive">${euro(nw)}</b></div><div class="quickFact"><span>SWR</span><b>${pct(state.settings.swr)}</b></div><div class="quickFact"><span>Countdown</span><b>${fy===999?'N/A':fy.toFixed(1)+' Jahre'}</b></div></div>
+  </div>
+  <div class="card dashboardCard">
+   <div class="toolbar"><div><h2><span class="icon">${I('sliders')}</span>Tactical FIRE Simulator</h2><span class="sub">Zusätzliche monatliche Investmentrate</span></div></div>
+   <div class="dashboardSliderTop"><div><span class="sub">Extra pro Monat</span><b class="sensitive">${euro(UI.sim.extra)}</b></div><div class="green"><b>${simYears===999?'N/A':simYears.toFixed(1)+' Jahre'}</b><div class="sub">${baseYears!==999&&simYears!==999?Math.max(0,baseYears-simYears).toFixed(1)+' Jahre früher':''}</div></div></div>
+   <div class="dashboardSliderWrap"><input class="slider" id="dashExtra" type="range" min="0" max="5000" step="100" value="${UI.sim.extra}"><div class="dashboardSliderScale"><span>€ 0</span><span>€ 5.000</span></div></div>
+   <div class="compactActions"><button class="ghost" data-nav="simulator">Vollständiger Simulator</button></div>
+  </div>
+  <div class="card dashboardCard">
+   <div class="toolbar"><div><h2><span class="icon">${I('pulse')}</span>Crash-Szenarien</h2><span class="sub">Auswirkung auf Net Worth & FIRE</span></div><button class="ghost" data-nav="risk">Analyse</button></div>
+   <div class="crashCards"><div class="crashCard"><span>TradFi Crash</span><strong>−30%</strong><b class="sensitive">${euro(trad)}</b><small>${baseYears!==999&&tradYears!==999?'FIRE +'+Math.max(0,tradYears-baseYears).toFixed(1)+' J.':'FIRE N/A'}</small></div><div class="crashCard"><span>Crypto Winter</span><strong>−60%</strong><b class="sensitive">${euro(crypt)}</b><small>${baseYears!==999&&cryptoYears!==999?'FIRE +'+Math.max(0,cryptoYears-baseYears).toFixed(1)+' J.':'FIRE N/A'}</small></div></div>
+  </div>
+  <div class="card dashboardCard">
+   <div class="toolbar"><div><h2><span class="icon">${I('shield')}</span>Notgroschen</h2><span class="sub">Ziel ${state.settings.emergencyMonths} Monatsausgaben</span></div></div>
+   <div class="emergencyBig"><strong class="sensitive">${euro(currentCash)}</strong><span>/ ${euro(emergencyTarget)}</span></div><div class="progress"><i style="width:${emergencyProgress}%"></i></div>
+   <div class="quickFacts"><div class="quickFact"><span>Erreicht</span><b>${pct(emergencyProgress)}</b></div><div class="quickFact"><span>Runway</span><b>${liquidityRunway().toFixed(1)} Monate</b></div></div>
+  </div>
+ </div>
+ <div class="dashboardGridBottom">
+  <div class="card dashboardCard dashboardProjection">
+   <div class="toolbar"><div><h2><span class="icon">${I('chart')}</span>10-Jahres-Projektion</h2><span class="sub">${pct(state.settings.returnRate)} nominal · ${euro(t.invest+Number(state.settings.monthlyExtra||0))}/Monat</span></div><button class="ghost" data-nav="projection">Vollansicht</button></div>
+   ${lineChart(projectedSeries(d,10,state.settings.returnRate,state.settings.monthlyExtra),target)}
+   <div class="quickFacts"><div class="quickFact"><span>Überschuss vor Investments</span><b class="${monthlySurplus>=0?'green':'red'} sensitive">${euro(monthlySurplus)}</b></div><div class="quickFact"><span>FIRE Ziel</span><b class="sensitive">${euro(target)}</b></div></div>
+  </div>
+  <div class="card dashboardCard">
+   <div class="toolbar"><div><h2><span class="icon">${I('calendar')}</span>Jahresübersicht ${UI.year}</h2><span class="sub">Letzte Monate bis ${monthName(UI.month)}</span></div><button class="ghost" data-nav="year">Details</button></div>
+   <table class="yearMini"><tr><th>Monat</th><th>Cashflow</th><th>Sparquote</th></tr>${rows.map(r=>{let c=r.t.income-r.t.expenses-r.t.invest,sr=r.t.income?(r.t.income-r.t.expenses)/r.t.income*100:0;return `<tr class="${r.m===UI.month?'active':''}"><td>${monthName(r.m).slice(0,3)}</td><td class="${c>=0?'green':'red'} sensitive">${euro(c)}</td><td>${pct(sr)}</td></tr>`}).join('')}</table>
+  </div>
+  <div class="card dashboardCard dashboardMilestones">
+   <div class="toolbar"><div><h2><span class="icon">${I('milestone')}</span>Meilensteine</h2><span class="sub">Deine wichtigsten Ziele</span></div><button class="ghost" data-nav="goals">Verwalten</button></div>
+   ${dashboardMilestones()}
+  </div>
  </div>`;
 }
 function scenario(name,v){return `<button class="scenario ${UI.sim.crash===v?'active':''}" data-crash="${v}">${name}<b>${v?`-${v*100}%`:'Basis'}</b></button>`}
@@ -723,6 +870,17 @@ function fireTable(d){let base=fireYears(d),rows=[['Aktuell',0,base],['+500 €'
 function simulator(){let d=getMonth(),base=fireYears(d),sim=fireYears(d,UI.sim.extra,UI.sim.returnRate,netWorth()*(1-UI.sim.crash)),series=projectedSeries(d,UI.sim.years,UI.sim.returnRate,UI.sim.extra,netWorth(),UI.sim.crash);return `<div class="toolbar"><div><h1 class="sectionTitle">Tactical FIRE Simulator</h1><p class="sectionSub">Parameter verändern und Wirkung sofort sehen.</p></div><button class="ghost" data-action="resetSim">Reset</button></div><div class="grid lower"><div class="card"><h2>Monatlicher Zusatzbetrag</h2><div class="bigNum sensitive">${euro(UI.sim.extra)}</div><input id="simExtra" class="slider" type="range" min="0" max="10000" step="100" value="${UI.sim.extra}"><div class="sub">0 € bis 10.000 €</div></div><div class="card"><h2>Rendite</h2><div class="bigNum">${pct(UI.sim.returnRate)}</div><input id="simReturn" class="slider" type="range" min="0" max="15" step="0.5" value="${UI.sim.returnRate}"><div class="sub">Nominal p.a.</div></div><div class="card"><h2>Crash</h2><div class="scenarioGrid">${scenario('0%',0)}${scenario('-30%',.3)}${scenario('-60%',.6)}</div><div class="sub" style="margin-top:8px">Einmaliger Schock zu Beginn.</div></div></div><div class="grid wide"><div class="card"><h2>Ergebnis</h2><div class="metricGrid">${metric('Basis FIRE',base===999?'N/A':base.toFixed(1)+' Jahre')}${metric('Simulation',sim===999?'N/A':sim.toFixed(1)+' Jahre')}${metric('Zeitgewinn',base===999?'N/A':Math.max(0,base-sim).toFixed(1)+' Jahre')}${metric('Endvermögen',euro(series.at(-1).value))}</div>${lineChart(series,fireTarget(d))}</div><div class="card"><h2>Parameter</h2>${stat('Aktuelle Investition',euro(totals(d).invest))}${stat('Zusatzbetrag',euro(UI.sim.extra))}${stat('Gesamtrate',euro(totals(d).invest+UI.sim.extra))}${stat('Rendite',pct(UI.sim.returnRate))}${stat('Crash',pct(UI.sim.crash*100),'red')}</div></div>`}
 function projection(){let d=getMonth(),series=projectedSeries(d,20,state.settings.returnRate,state.settings.monthlyExtra);return `<div class="toolbar"><div><h1 class="sectionTitle">Vermögensprojektion</h1><p class="sectionSub">20 Jahre · ${state.settings.returnRate}% nominal · ${state.settings.inflation}% Inflation · ${realReturn().toFixed(1)}% real.</p></div></div><div class="card">${lineChart(series,fireTarget(d))}</div><div class="grid monthGrid" style="grid-template-columns:repeat(4,1fr);margin-top:14px">${series.filter((x,i)=>[0,5,10,15,20].includes(i)).map(x=>`<div class="card">${metric('Jahr '+(UI.year+x.year),euro(x.value))}</div>`).join('')}</div>`}
 function year(){let rows=[],yi=0,ye=0,iv=0;for(let m=1;m<=12;m++){let d=getMonth(UI.year,m,false),t=totals(d);if(t.income||t.expenses||t.invest){rows.push({m,t});yi+=t.income;ye+=t.expenses;iv+=t.invest}}return `<div class="toolbar"><div><h1 class="sectionTitle">Jahresübersicht ${UI.year}</h1><p class="sectionSub">Monatliche Entwicklung und Jahreskennzahlen.</p></div><select class="input" id="yearSelect">${Array.from({length:7},(_,i)=>UI.year-3+i).map(y=>`<option ${y===UI.year?'selected':''}>${y}</option>`).join('')}</select></div><div class="grid kpis">${q('Income',euro(yi),'Jahr','↗')}${q('Expenses',euro(ye),'Jahr','chart')}${q('Investments',euro(iv),'Jahr','chart')}${q('Sparquote',pct(yi?(yi-ye)/yi*100:0),'Jahr','pie')}${q('Cashflow',euro(yi-ye),'Jahr','flow')}${q('Ø monatlich',euro((yi-ye)/12),'Cashflow','pulse')}</div><div class="card" style="margin-top:14px"><table class="table"><tr><th>Monat</th><th>Income</th><th>Expenses</th><th>Invest</th><th>Cashflow</th><th>Sparquote</th></tr>${rows.map(r=>`<tr><td>${monthName(r.m)}</td><td>${euro(r.t.income)}</td><td>${euro(r.t.expenses)}</td><td>${euro(r.t.invest)}</td><td class="${r.t.income-r.t.expenses>=0?'green':'red'}">${euro(r.t.income-r.t.expenses)}</td><td>${pct(r.t.income?(r.t.income-r.t.expenses)/r.t.income*100:0)}</td></tr>`).join('')}</table></div>`}
+async function fetchCoins(force=false){
+ const mini=document.getElementById('coinMini');if(mini&&!UI.coins.length)mini.innerHTML='<div class="sub">Kurse werden geladen …</div>';
+ try{
+   const ctl=new AbortController(),timer=setTimeout(()=>ctl.abort(),7000);
+   const res=await fetch('https://api.coingecko.com/api/v3/coins/markets?vs_currency=eur&ids=bitcoin,ethereum,solana,binancecoin&price_change_percentage=24h',{signal:ctl.signal,cache:force?'no-store':'default'});clearTimeout(timer);
+   if(!res.ok)throw Error('HTTP '+res.status);let data=await res.json();if(!Array.isArray(data))throw Error('Ungültige Marktdaten');UI.coins=data;
+   renderCoinMini();if(UI.view==='crypto'||UI.view==='dashboard')render();
+ }catch(err){console.warn('Live-Krypto derzeit nicht verfügbar',err);renderCoinMini(true);if(force)showToast('Live-Kurse derzeit nicht erreichbar')}
+}
+function renderCoinMini(failed=false){let el=document.getElementById('coinMini');if(!el)return;if(!UI.coins.length){el.innerHTML=`<div class="sub">${failed?'Offline / API nicht erreichbar':'Noch keine Live-Daten'}</div>`;return}el.innerHTML=UI.coins.map(c=>`<div class="coinMini"><b>${esc(String(c.symbol||'').toUpperCase())}</b><span class="sensitive">${euro(c.current_price)}</span><em class="${Number(c.price_change_percentage_24h)>=0?'green':'red'}">${Number(c.price_change_percentage_24h||0).toFixed(1)}%</em></div>`).join('')}
+
 function crypto(){return `<div class="toolbar"><div><h1 class="sectionTitle">Krypto</h1><p class="sectionSub">Live Market Data, optional. Die App funktioniert auch offline.</p></div><button class="primary" data-action="refreshCrypto">↻ Aktualisieren</button></div><div class="card"><table class="table"><tr><th>Asset</th><th>Preis EUR</th><th>24h</th><th>Market Cap</th></tr>${UI.coins.length?UI.coins.map(c=>`<tr><td style="text-align:left"><b>${esc(c.name)}</b> · ${esc(c.symbol.toUpperCase())}</td><td>${euro(c.current_price)}</td><td class="${c.price_change_percentage_24h>=0?'green':'red'}">${(c.price_change_percentage_24h||0).toFixed(2)}%</td><td>${euro(c.market_cap)}</td></tr>`).join(''):'<tr><td colspan="4">Noch keine Live-Daten. Klicke Aktualisieren oder prüfe die Internetverbindung.</td></tr>'}</table></div>`}
 function goals(){return `<div class="toolbar"><div><h1 class="sectionTitle">Ziele</h1><p class="sectionSub">FIRE, Notgroschen und frei definierbare Vermögensziele.</p></div><button class="primary" data-action="addGoal">＋ Ziel</button></div><div class="card">${state.goals.map(g=>{let cur=goalCurrent(g),p=Math.min(100,cur/Math.max(g.target,1)*100);return `<div class="goal" data-goal="${g.id}"><div class="goalTop"><input class="input goalName" value="${esc(g.name)}"><span class="sensitive">${euro(cur)} / ${euro(g.target)}</span><button class="danger goalDel">×</button></div><div class="formGrid" style="margin-top:8px"><div class="field"><label>Zielbetrag</label><input class="input goalTarget" type="number" value="${g.target}"></div><div class="field"><label>Deadline</label><input class="input goalDeadline" type="number" value="${g.deadline||''}"></div></div><div class="progress" style="margin-top:8px"><i style="width:${p}%"></i></div><div class="sub" style="margin-top:4px">${p.toFixed(0)}% erreicht</div></div>`}).join('')}</div>`}
 function liquidityRunway(){let d=getMonth(),cash=state.assets.filter(a=>a.type==='Cash').reduce((s,a)=>s+Number(a.value||0),0),monthly=totals(d).expenses;return monthly>0?cash/monthly:0}
@@ -732,13 +890,14 @@ function savingsTrendChart(series){let max=Math.max(1,...series.map(x=>x.rate)),
 function financeCheck(){let d=getMonth(),t=totals(d),r=liquidityRunway(),s=twelveMonthStats(),f=fireSafety(),targetMonths=state.settings.emergencyMonths;let runwayClass=r>=targetMonths?'green':r>=targetMonths*.75?'orange':'red';let largestExp=(d.expenses||[]).slice().sort((a,b)=>b.val-a.val)[0];let topShare=t.expenses?largestExp.val/t.expenses*100:0;return `<div class="toolbar"><div><h1 class="sectionTitle">Finanz-Check</h1><p class="sectionSub">Zwei zusätzliche Kontrollinstrumente: Liquiditäts-Runway und FIRE-Sicherheitsmarge. Dazu ein 12-Monats-Blick auf deine Sparquote.</p></div><button class="ghost" data-nav="settings">Annahmen prüfen</button></div><div class="checkGrid"><div class="checkCard"><div class="label">LIQUIDITY RUNWAY</div><div class="value ${runwayClass}">${r.toFixed(1)} Monate</div><div class="hint">Cash / aktuelle Monatsausgaben · Ziel ${targetMonths} Monate</div><div class="progress" style="margin-top:10px"><i style="width:${Math.min(100,r/Math.max(targetMonths,1)*100)}%"></i></div></div><div class="checkCard"><div class="label">FIRE SICHERHEITSMARGE</div><div class="value ${f.stress>=1?'green':f.stress>=.8?'orange':'red'}">${pct(f.base*100)}</div><div class="hint">Basis: Net Worth / FIRE Ziel · Stress: −20% Vermögen und +10% Ziel</div><div class="progress" style="margin-top:10px"><i style="width:${Math.min(100,f.stress*100)}%"></i></div></div><div class="checkCard"><div class="label">12-MONATS-SPARQUOTE</div><div class="value ${s.rate>=25?'green':s.rate>=10?'orange':'red'}">${pct(s.rate)}</div><div class="hint">${s.months} aktive Monate · Investments ${euro(s.invest)}</div></div></div><div class="grid wide" style="margin-top:14px"><div class="card"><div class="toolbar"><div><h2>Sparquoten-Trend</h2><span class="sub">Rolling 12 Monate</span></div><b>${pct(s.rate)}</b></div>${savingsTrendChart(s.series)}</div><div class="card"><h2>Risiko- und Liquiditätscheck</h2>${stat('Cash verfügbar',euro(state.assets.filter(a=>a.type==='Cash').reduce((x,a)=>x+a.value,0)))}${stat('Runway',r.toFixed(1)+' Monate',runwayClass)}${stat('FIRE Ziel',euro(fireTarget(d)))}${stat('Stress Gap',f.gap>0?euro(f.gap):'kein Gap',f.gap>0?'red':'green')}${stat('Größter Ausgabenposten',largestExp?esc(largestExp.name):'—')}${stat('Anteil größter Posten',pct(topShare),topShare>35?'red':'green')}<div class="notice" style="margin-top:12px">Der Check ersetzt keine Anlageberatung. Er soll dir früh zeigen, wo Liquidität, Sparrate oder FIRE-Puffer zu knapp werden.</div></div></div>`}
 function calendarData(y,m){let first=new Date(y,m-1,1),days=new Date(y,m,0).getDate(),startDay=(first.getDay()+6)%7;let cells=[];for(let i=0;i<startDay;i++){let d=new Date(y,m-1,-(startDay-i-1));cells.push({day:d.getDate(),y:d.getFullYear(),m:d.getMonth()+1,other:true})}for(let day=1;day<=days;day++)cells.push({day,y,m,other:false});while(cells.length<42){let d=new Date(y,m-1,days+(cells.length-(startDay+days))+1);cells.push({day:d.getDate(),y:d.getFullYear(),m:d.getMonth()+1,other:true})}return cells}
 function openCalendarWith(year,month){const oldY=UI.year,oldM=UI.month;UI.year=year;UI.month=month;openCalendar();UI.year=oldY;UI.month=oldM}
-function openCalendar(){let y=UI.year,m=UI.month,cells=calendarData(y,m),days=['Mo','Di','Mi','Do','Fr','Sa','So'];let dataKeys=Object.keys(state.months);let body=`<div class="calendarShell"><div class="calendarBox"><div class="calendarHead"><button class="ghost" id="calPrev"><span class="icon" data-icon="chevronLeft"></span></button><div class="calendarTitle" id="calTitle">${monthName(m)} ${y}</div><button class="ghost" id="calNext"><span class="icon" data-icon="chevronRight"></span></button></div><div class="calendarWeek">${days.map(x=>`<div>${x}</div>`).join('')}</div><div class="calendarDays" id="calendarDays">${cells.map(c=>{let selected=c.y===UI.year&&c.m===UI.month&&!c.other,today=c.y===now.getFullYear()&&c.m===now.getMonth()+1&&c.day===now.getDate(),has=dataKeys.includes(`${c.y}-${String(c.m).padStart(2,'0')}`);return `<button class="calDay ${c.other?'other':''} ${selected?'selected':''} ${today?'today':''} ${has?'hasData':''}" data-y="${c.y}" data-m="${c.m}" data-d="${c.day}">${c.day}</button>`}).join('')}</div></div><div class="calendarBox calControls"><div class="field"><label>Jahr</label><select class="input" id="calYear">${Array.from({length:31},(_,i)=>now.getFullYear()-15+i).map(v=>`<option value="${v}" ${v===y?'selected':''}>${v}</option>`).join('')}</select></div><div class="field"><label>Monat</label><select class="input" id="calMonth">${Array.from({length:12},(_,i)=>`<option value="${i+1}" ${i+1===m?'selected':''}>${monthName(i+1)}</option>`).join('')}</select></div><div class="calendarHint">Grüne Punkte markieren Monate, in denen bereits Finanzdaten gespeichert sind. Ein Klick auf einen Tag öffnet den zugehörigen Monat.</div><div class="calJump"><button class="ghost" id="calToday">Heute</button><button class="primary" id="calGo">Monat öffnen</button></div></div></div>`;openModal('Kalender','Monat auswählen',body);paintIcons();const rerender=()=>{closeModal();openCalendarWith(y,m)};document.getElementById('calPrev').onclick=()=>{let d=new Date(y,m-2,1);y=d.getFullYear();m=d.getMonth()+1;rerender()};document.getElementById('calNext').onclick=()=>{let d=new Date(y,m,1);y=d.getFullYear();m=d.getMonth()+1;rerender()};document.getElementById('calYear').onchange=e=>{y=Number(e.target.value);rerender()};document.getElementById('calMonth').onchange=e=>{m=Number(e.target.value);rerender()};document.getElementById('calToday').onclick=()=>{UI.year=now.getFullYear();UI.month=now.getMonth()+1;getMonth();closeModal();render();toast('Aktueller Monat geöffnet')};document.getElementById('calGo').onclick=()=>{UI.year=y;UI.month=m;getMonth();closeModal();render();toast(`Geöffnet: ${monthName(m)} ${y}`)};document.querySelectorAll('.calDay').forEach(b=>b.onclick=()=>{UI.year=Number(b.dataset.y);UI.month=Number(b.dataset.m);getMonth();closeModal();render();toast(`Geöffnet: ${monthName(UI.month)} ${UI.year}`)})}
+function openCalendar(){let y=UI.year,m=UI.month,cells=calendarData(y,m),days=['Mo','Di','Mi','Do','Fr','Sa','So'];let dataKeys=Object.keys(state.months);let body=`<div class="calendarShell"><div class="calendarBox"><div class="calendarHead"><button class="ghost" id="calPrev"><span class="icon" data-icon="chevronLeft"></span></button><div class="calendarTitle" id="calTitle">${monthName(m)} ${y}</div><button class="ghost" id="calNext"><span class="icon" data-icon="chevronRight"></span></button></div><div class="calendarWeek">${days.map(x=>`<div>${x}</div>`).join('')}</div><div class="calendarDays" id="calendarDays">${cells.map(c=>{let selected=c.y===UI.year&&c.m===UI.month&&!c.other,today=c.y===now.getFullYear()&&c.m===now.getMonth()+1&&c.day===now.getDate(),has=dataKeys.includes(`${c.y}-${String(c.m).padStart(2,'0')}`);return `<button class="calDay ${c.other?'other':''} ${selected?'selected':''} ${today?'today':''} ${has?'hasData':''}" data-y="${c.y}" data-m="${c.m}" data-d="${c.day}">${c.day}</button>`}).join('')}</div></div><div class="calendarBox calControls"><div class="field"><label>Jahr</label><select class="input" id="calYear">${Array.from({length:31},(_,i)=>now.getFullYear()-15+i).map(v=>`<option value="${v}" ${v===y?'selected':''}>${v}</option>`).join('')}</select></div><div class="field"><label>Monat</label><select class="input" id="calMonth">${Array.from({length:12},(_,i)=>`<option value="${i+1}" ${i+1===m?'selected':''}>${monthName(i+1)}</option>`).join('')}</select></div><div class="calendarHint">Grüne Punkte markieren Monate, in denen bereits Finanzdaten gespeichert sind. Ein Klick auf einen Tag öffnet den zugehörigen Monat.</div><div class="calJump"><button class="ghost" id="calToday">Heute</button><button class="primary" id="calGo">Monat öffnen</button></div></div></div>`;openModal('Kalender','Monat auswählen',body);paintIcons();const rerender=()=>{closeModal();openCalendarWith(y,m)};document.getElementById('calPrev').onclick=()=>{let d=new Date(y,m-2,1);y=d.getFullYear();m=d.getMonth()+1;rerender()};document.getElementById('calNext').onclick=()=>{let d=new Date(y,m,1);y=d.getFullYear();m=d.getMonth()+1;rerender()};document.getElementById('calYear').onchange=e=>{y=Number(e.target.value);rerender()};document.getElementById('calMonth').onchange=e=>{m=Number(e.target.value);rerender()};document.getElementById('calToday').onclick=()=>{UI.year=now.getFullYear();UI.month=now.getMonth()+1;getMonth();closeModal();render();showToast('Aktueller Monat geöffnet')};document.getElementById('calGo').onclick=()=>{UI.year=y;UI.month=m;getMonth();closeModal();render();showToast(`Geöffnet: ${monthName(m)} ${y}`)};document.querySelectorAll('.calDay').forEach(b=>b.onclick=()=>{UI.year=Number(b.dataset.y);UI.month=Number(b.dataset.m);getMonth();closeModal();render();showToast(`Geöffnet: ${monthName(UI.month)} ${UI.year}`)})}
 
 function bind(){/* Event delegation is installed once below. */}
-function navigate(v){UI.view=v;render();window.scrollTo({top:0,behavior:'smooth'})}
-function addEntry(cat,card){let name=card.querySelector('.newName').value.trim(),val=Number(card.querySelector('[data-new="val"]').value)||0,rec=card.querySelector('[data-new="rec"]').checked;if(!name)return toast('Bezeichnung fehlt');getMonth()[cat].push(tx(name,val,rec,cat));save();render();toast('Eintrag hinzugefügt')}
+function toggleMobileMenu(){let m=document.getElementById('mobileMenu');if(!m)return;m.classList.toggle('show');m.setAttribute('aria-hidden',m.classList.contains('show')?'false':'true')}
+function navigate(v){UI.view=v;document.getElementById('mobileMenu')?.classList.remove('show');render();window.scrollTo({top:0,behavior:'smooth'})}
+function addEntry(cat,card){let name=card.querySelector('.newName').value.trim(),val=Number(card.querySelector('[data-new="val"]').value)||0,rec=card.querySelector('[data-new="rec"]').checked;if(!name)return showToast('Bezeichnung fehlt');getMonth()[cat].push(tx(name,val,rec,cat));save();render();showToast('Eintrag hinzugefügt')}
 function findTx(cat,id){return getMonth()[cat].find(x=>String(x.id)===String(id))}
-function deleteTx(btn){let e=btn.closest('.entry'),d=getMonth(),cat=e.dataset.cat;d[cat]=d[cat].filter(x=>String(x.id)!==String(e.dataset.id));save();render();toast('Eintrag gelöscht')}
+function deleteTx(btn){let e=btn.closest('.entry'),d=getMonth(),cat=e.dataset.cat;d[cat]=d[cat].filter(x=>String(x.id)!==String(e.dataset.id));save();render();showToast('Eintrag gelöscht')}
 function updateTx(el){let e=el.closest('.entry'),x=findTx(e.dataset.cat,e.dataset.id);if(!x)return;if(el.classList.contains('name'))x.name=el.value;if(el.classList.contains('amount'))x.val=Number(el.value)||0;if(el.classList.contains('rec'))x.recurring=el.checked;save();render()}
 function addAsset(){state.assets.push({id:String(Date.now()),name:'Neues Asset',value:0,type:'ETF',cost:0,rate:7});save();render()}
 function updateAsset(el){let a=state.assets.find(x=>String(x.id)===el.closest('.assetCard').dataset.asset);if(!a)return;if(el.classList.contains('assetName'))a.name=el.value;if(el.classList.contains('assetVal'))a.value=Number(el.value)||0;if(el.classList.contains('assetType'))a.type=el.value;save();render()}
@@ -749,48 +908,35 @@ function deleteDebt(b){state.liabilities=state.liabilities.filter(x=>String(x.id
 function addGoal(){state.goals.push({id:String(Date.now()),name:'Neues Ziel',target:100000,current:0,deadline:2030});save();render()}
 function updateGoal(el){let g=state.goals.find(x=>String(x.id)===el.closest('.goal').dataset.goal);if(!g)return;if(el.classList.contains('goalName'))g.name=el.value;if(el.classList.contains('goalTarget'))g.target=Number(el.value)||0;if(el.classList.contains('goalDeadline'))g.deadline=Number(el.value)||0;save();render()}
 function deleteGoal(b){state.goals=state.goals.filter(g=>String(g.id)!==b.closest('.goal').dataset.goal);save();render()}
-function applyRecurring(){let d=getMonth();for(const cat of ['income','expenses','invest'])for(const x of d[cat])if(x.recurring&&x.val===0)x.val=0;let prev=new Date(UI.year,UI.month-2,1),p=getMonth(prev.getFullYear(),prev.getMonth()+1,false);if(!p){toast('Kein Vormonat vorhanden');return}for(const cat of ['income','expenses','invest'])for(const x of p[cat]||[])if(x.recurring&&!d[cat].some(y=>y.name===x.name))d[cat].push({...x,id:String(Date.now()+Math.random())});save();render();toast('Wiederkehrende Einträge übernommen')}
-function copyPrev(){let p=new Date(UI.year,UI.month-2,1),src=getMonth(p.getFullYear(),p.getMonth()+1,false),d=getMonth();if(!src){toast('Kein Vormonat vorhanden');return}for(const cat of ['income','expenses','invest'])d[cat]=(src[cat]||[]).map(x=>({...x,id:String(Date.now()+Math.random())}));save();render();toast('Vormonat kopiert')}
+function applyRecurring(){let d=getMonth();for(const cat of ['income','expenses','invest'])for(const x of d[cat])if(x.recurring&&x.val===0)x.val=0;let prev=new Date(UI.year,UI.month-2,1),p=getMonth(prev.getFullYear(),prev.getMonth()+1,false);if(!p){showToast('Kein Vormonat vorhanden');return}for(const cat of ['income','expenses','invest'])for(const x of p[cat]||[])if(x.recurring&&!d[cat].some(y=>y.name===x.name))d[cat].push({...x,id:String(Date.now()+Math.random())});save();render();showToast('Wiederkehrende Einträge übernommen')}
+function copyPrev(){let p=new Date(UI.year,UI.month-2,1),src=getMonth(p.getFullYear(),p.getMonth()+1,false),d=getMonth();if(!src){showToast('Kein Vormonat vorhanden');return}for(const cat of ['income','expenses','invest'])d[cat]=(src[cat]||[]).map(x=>({...x,id:String(Date.now()+Math.random())}));save();render();showToast('Vormonat kopiert')}
 function shift(n){let d=new Date(UI.year,UI.month-1+n,1);UI.year=d.getFullYear();UI.month=d.getMonth()+1;getMonth();render()}
 
 function settingsView(){
- const s=state.settings;
- return `<div class="toolbar">
-   <div><h1 class="sectionTitle">Einstellungen</h1><p class="sectionSub">FIRE-Annahmen, Sicherheitsreserve und Datensicherung.</p></div>
-   <button class="primary" data-action="saveSettings"><span class="icon" data-icon="save"></span>Speichern</button>
- </div>
- <div class="grid wide">
-   <div class="card">
-     <div class="toolbar"><div><h2>FIRE & Planung</h2><span class="sub">Diese Werte beeinflussen Projektion und FIRE-Berechnung.</span></div></div>
-     <div class="formGrid">
-       <div class="field"><label>SWR / Entnahmerate (%)</label><input class="input" id="setSWR" type="number" step="0.1" value="${s.swr}"></div>
-       <div class="field"><label>Erwartete Rendite p.a. (%)</label><input class="input" id="setReturn" type="number" step="0.1" value="${s.returnRate}"></div>
-       <div class="field"><label>Inflation p.a. (%)</label><input class="input" id="setInflation" type="number" step="0.1" value="${s.inflation}"></div>
-       <div class="field"><label>Notgroschen (Monate)</label><input class="input" id="setEmergency" type="number" step="1" min="0" value="${s.emergencyMonths}"></div>
-       <div class="field"><label>FIRE-Zielmodus</label><select class="input" id="setMode"><option value="expense" ${s.targetMode==='expense'?'selected':''}>Dynamisch aus Ausgaben</option><option value="fixed" ${s.targetMode==='fixed'?'selected':''}>Fixes Zielvermögen</option></select></div>
-       <div class="field"><label>Fixes FIRE-Ziel (€)</label><input class="input" id="setTarget" type="number" step="1000" value="${s.fixedTarget}"></div>
-       <div class="field full"><label>Zusätzliche monatliche Investmentrate (€)</label><input class="input" id="setExtra" type="number" step="50" value="${s.monthlyExtra}"></div>
-     </div>
-   </div>
-   <div class="card">
-     <div class="toolbar"><div><h2>Daten & Backup</h2><span class="sub">Alle Daten bleiben lokal in deinem Browser.</span></div></div>
-     <div class="quickFacts">
-       <div class="quickFact"><span>Gespeicherte Monate</span><b>${Object.keys(state.months||{}).length}</b></div>
-       <div class="quickFact"><span>Assets</span><b>${(state.assets||[]).length}</b></div>
-       <div class="quickFact"><span>Ziele</span><b>${(state.goals||[]).length}</b></div>
-       <div class="quickFact"><span>Format-Version</span><b>v9</b></div>
-     </div>
-     <div class="notice" style="margin-top:12px">Empfehlung: Nach größeren Änderungen ein JSON-Backup speichern. Die Datei enthält Monate, Assets, Schulden, Ziele und Einstellungen.</div>
-     <div class="actions">
-       <button class="primary" data-action="export"><span class="icon" data-icon="download"></span>Backup speichern</button>
-       <button class="ghost" data-action="chooseImport"><span class="icon" data-icon="upload"></span>Backup importieren</button>
-       <button class="danger" data-action="resetDemo"><span class="icon" data-icon="trash"></span>Demo zurücksetzen</button>
-     </div>
-   </div>
+ const s=state.settings,cps=checkpointList(),latest=cps[0];
+ return `<div class="toolbar"><div><h1 class="sectionTitle">Einstellungen</h1><p class="sectionSub">Planungsannahmen, Sicherheitsnetz, Backups und Cloud-Vorbereitung.</p></div><button class="primary" data-action="saveSettings"><span class="icon" data-icon="save"></span>Speichern</button></div>
+ <div class="settingsGridV18">
+  <div class="card"><div class="toolbar"><div><h2>FIRE & Planung</h2><span class="sub">Diese Werte beeinflussen Projektion und FIRE-Berechnung.</span></div></div><div class="formGrid">
+   <div class="field"><label>SWR / Entnahmerate (%)</label><input class="input" id="setSWR" type="number" step="0.1" value="${s.swr}"></div>
+   <div class="field"><label>Erwartete Rendite p.a. (%)</label><input class="input" id="setReturn" type="number" step="0.1" value="${s.returnRate}"></div>
+   <div class="field"><label>Inflation p.a. (%)</label><input class="input" id="setInflation" type="number" step="0.1" value="${s.inflation}"></div>
+   <div class="field"><label>Notgroschen (Monate)</label><input class="input" id="setEmergency" type="number" step="1" min="0" value="${s.emergencyMonths}"></div>
+   <div class="field"><label>FIRE-Zielmodus</label><select class="input" id="setMode"><option value="expense" ${s.targetMode==='expense'?'selected':''}>Dynamisch aus Ausgaben</option><option value="fixed" ${s.targetMode==='fixed'?'selected':''}>Fixes Zielvermögen</option></select></div>
+   <div class="field"><label>Fixes FIRE-Ziel (€)</label><input class="input" id="setTarget" type="number" step="1000" value="${s.fixedTarget}"></div>
+   <div class="field full"><label>Zusätzliche monatliche Investmentrate (€)</label><input class="input" id="setExtra" type="number" step="50" value="${s.monthlyExtra}"></div>
+  </div></div>
+  <div class="card"><div class="toolbar"><div><h2>Sicherheitsnetz</h2><span class="sub">Lokale Checkpoints zusätzlich zum JSON-Backup.</span></div><span class="syncBadge"><i></i>${cps.length} Checkpoints</span></div>
+   <div class="notice">Vor Importen, Wiederherstellungen und größeren Änderungen bleibt ein Rücksprungpunkt erhalten. Automatische Sicherungen werden gedrosselt, damit die Historie sauber bleibt.</div>
+   <div class="checkpointList"><div class="checkpointRow"><span>Letzter Checkpoint</span><b>${latest?new Date(latest.ts).toLocaleString('de-DE'):'noch keiner'}</b></div><div class="checkpointRow"><span>Grund</span><b>${latest?esc(latest.reason):'—'}</b></div><div class="checkpointRow"><span>Max. Historie</span><b>12 Stände</b></div></div>
+   <div class="actions"><button class="primary" data-action="checkpoint"><span class="icon" data-icon="save"></span>Checkpoint erstellen</button><button class="ghost" data-action="restoreCheckpoint"><span class="icon" data-icon="undo"></span>Letzten wiederherstellen</button></div>
+  </div>
+  <div class="card"><div class="toolbar"><div><h2>Daten & Cloud</h2><span class="sub">Heute lokal, vorbereitet für geräteübergreifenden Login.</span></div><span class="syncBadge"><i></i>Lokal</span></div>
+   <div class="quickFacts"><div class="quickFact"><span>Gespeicherte Monate</span><b>${Object.keys(state.months||{}).length}</b></div><div class="quickFact"><span>Assets</span><b>${(state.assets||[]).length}</b></div><div class="quickFact"><span>Meilensteine</span><b>${(state.goals||[]).length}</b></div><div class="quickFact"><span>Datenformat</span><b>v9 · UI v18</b></div></div>
+   <div class="actions"><button class="primary" data-action="export"><span class="icon" data-icon="download"></span>JSON Backup</button><button class="ghost" data-action="chooseImport"><span class="icon" data-icon="upload"></span>Import</button><button class="ghost" data-action="cloudInfo"><span class="icon" data-icon="cloud"></span>Login & Sync</button><button class="danger" data-action="resetDemo"><span class="icon" data-icon="trash"></span>Demo zurücksetzen</button></div>
+  </div>
  </div>`;
 }
-
-function saveSettings(){let s=state.settings;s.swr=Number(document.getElementById('setSWR').value)||4;s.returnRate=Number(document.getElementById('setReturn').value)||7;s.inflation=Number(document.getElementById('setInflation').value)||2;s.emergencyMonths=Number(document.getElementById('setEmergency').value)||6;s.targetMode=document.getElementById('setMode').value;s.fixedTarget=Number(document.getElementById('setTarget').value)||1200000;s.monthlyExtra=Number(document.getElementById('setExtra').value)||0;save();render();toast('Einstellungen gespeichert')}
+function saveSettings(){let s=state.settings;s.swr=Number(document.getElementById('setSWR').value)||4;s.returnRate=Number(document.getElementById('setReturn').value)||7;s.inflation=Number(document.getElementById('setInflation').value)||2;s.emergencyMonths=Number(document.getElementById('setEmergency').value)||6;s.targetMode=document.getElementById('setMode').value;s.fixedTarget=Number(document.getElementById('setTarget').value)||1200000;s.monthlyExtra=Number(document.getElementById('setExtra').value)||0;save();render();showToast('Einstellungen gespeichert')}
 function exportData(){
  const payload={
    app:'Liquid Wealth Tactical Engine',
@@ -804,7 +950,7 @@ function exportData(){
  a.href=url;a.download=`liquid-wealth-backup-${stamp}.json`;
  document.body.appendChild(a);a.click();a.remove();
  setTimeout(()=>URL.revokeObjectURL(url),1200);
- toast('Backup gespeichert');
+ showToast('Backup gespeichert');
 }
 function chooseImport(){
  const f=document.getElementById('globalImportFile');
@@ -820,19 +966,24 @@ function importData(e){
      const v=Number(parsed.version||x.version||0);
      if(!x||![4,5,6,7,8,9].includes(v))throw Error('Unbekanntes Format');
      if(!confirm(`Backup "${f.name}" importieren? Aktuelle lokale Daten werden ersetzt.`))return;
+     createCheckpoint('Vor Backup-Import');
      state={...initial,...x,version:9,
        settings:{...defaults,...(x.settings||{})},
        months:x.months||{},assets:x.assets||[],liabilities:x.liabilities||[],goals:x.goals||[]};
-     save();UI.risk=null;render();toast('Backup erfolgreich importiert');
+     save();UI.risk=null;render();showToast('Backup erfolgreich importiert');
    }catch(err){
-     console.error(err);toast('Import fehlgeschlagen: ungültige Datei');
+     console.error(err);showToast('Import fehlgeschlagen: ungültige Datei');
    }
  };
  r.readAsText(f);
 }
-function reset(){if(!confirm('Wirklich Demo-Daten zurücksetzen?'))return;state=structuredClone?structuredClone(initial):JSON.parse(JSON.stringify(initial));state.months[key()]=demoMonth();save();render();toast('Demo-Daten zurückgesetzt')}
+function reset(){if(!confirm('Wirklich Demo-Daten zurücksetzen?'))return;createCheckpoint('Vor Demo-Reset');state=structuredClone?structuredClone(initial):JSON.parse(JSON.stringify(initial));state.months[key()]=demoMonth();save();render();showToast('Demo-Daten zurückgesetzt')}
 function action(a){
  if(a==='chooseImport')return chooseImport();
+ if(a==='checkpoint')return manualCheckpoint();
+ if(a==='restoreCheckpoint')return restoreCheckpoint();
+ if(a==='toggleMobileMenu')return toggleMobileMenu();
+ if(a==='cloudInfo')return openModal('Login & Geräte-Sync','Cloud-Stufe ist vorbereitet',`<div class="notice">Für echten Geräte-Sync braucht Liquid Wealth ein eigenes Supabase-Projekt mit Auth und Row Level Security. Ich verwende dafür bewusst kein bestehendes Klinik- oder TestsiegerTV-Projekt.</div><div class="quickFacts" style="margin-top:12px"><div class="quickFact"><span>Frontend</span><b class="green">bereit</b></div><div class="quickFact"><span>Mobile UI</span><b class="green">bereit</b></div><div class="quickFact"><span>Cloud-Backend</span><b class="orange">noch zu verbinden</b></div></div>`);
  if(a==='saveSettings')return saveSettings();
  if(a==='resetDemo')return reset();
  if(a==='quick')return openQuick();
@@ -845,9 +996,8 @@ function action(a){
  if(a==='export')return exportData();
  if(a==='reset')return reset();
  if(a==='refreshCrypto')return fetchCoins(true);
- if(a==='rerunRisk'){UI.risk=null;render();return toast('Risikoanalyse neu simuliert');}
- if(a==='resetSim'){UI.sim={...UI.sim,extra:2000,returnRate:7,crash:0};return render();}
- if(a==='prevMonth')return shift(-1);
+ if(a==='rerunRisk'){UI.risk=null;render();return showToast('Risikoanalyse neu simuliert');}
+ if(a==='resetSim'){UI.sim={...UI.sim,extra:2000,returnRate:7,crash:0};return render();} if(a==='prevMonth')return shift(-1);
  if(a==='nextMonth')return shift(1);
  if(a==='today'){UI.year=now.getFullYear();UI.month=now.getMonth()+1;getMonth();return render();}
  if(a==='calendar')return openCalendar();
@@ -857,10 +1007,11 @@ function action(a){
  if(a==='closeModal')return closeModal();
  if(a==='deleteTx')return deleteTx(document.querySelector(`[data-id=\"${CSS.escape(UI.lastActionId||'')}\"]`));
 }
-function openQuick(){let body=`<div class="formGrid"><div class="field"><label>Kategorie</label><select class="input" id="quickCat"><option value="income">Einnahmen</option><option value="expenses">Ausgaben</option><option value="invest">Investment</option></select></div><div class="field"><label>Betrag</label><input class="input" id="quickVal" type="number" step="0.01"></div><div class="field full"><label>Bezeichnung</label><input class="input" id="quickName" placeholder="z. B. Gehalt"></div><div class="field"><label>Wiederkehrend</label><select class="input" id="quickRec"><option value="1">Ja</option><option value="0">Nein</option></select></div></div><div class="actions"><button class="primary" id="quickSave">Speichern</button></div>`;openModal('Schneller Eintrag',`Für ${monthName(UI.month)} ${UI.year}`,body);document.getElementById('quickSave').onclick=()=>{let c=document.getElementById('quickCat').value,n=document.getElementById('quickName').value.trim(),v=Number(document.getElementById('quickVal').value)||0,r=document.getElementById('quickRec').value==='1';if(!n)return toast('Bezeichnung fehlt');getMonth()[c].push(tx(n,v,r,c));save();closeModal();render();toast('Eintrag gespeichert')}
+function openQuick(){let body=`<div class="formGrid"><div class="field"><label>Kategorie</label><select class="input" id="quickCat"><option value="income">Einnahmen</option><option value="expenses">Ausgaben</option><option value="invest">Investment</option></select></div><div class="field"><label>Betrag</label><input class="input" id="quickVal" type="number" step="0.01"></div><div class="field full"><label>Bezeichnung</label><input class="input" id="quickName" placeholder="z. B. Gehalt"></div><div class="field"><label>Wiederkehrend</label><select class="input" id="quickRec"><option value="1">Ja</option><option value="0">Nein</option></select></div></div><div class="actions"><button class="primary" id="quickSave">Speichern</button></div>`;openModal('Schneller Eintrag',`Für ${monthName(UI.month)} ${UI.year}`,body);document.getElementById('quickSave').onclick=()=>{let c=document.getElementById('quickCat').value,n=document.getElementById('quickName').value.trim(),v=Number(document.getElementById('quickVal').value)||0,r=document.getElementById('quickRec').value==='1';if(!n)return showToast('Bezeichnung fehlt');getMonth()[c].push(tx(n,v,r,c));save();closeModal();render();showToast('Eintrag gespeichert')}
 }
 function openModal(title,sub,body){document.getElementById('modalTitle').textContent=title;document.getElementById('modalSub').textContent=sub;document.getElementById('modalBody').innerHTML=body;document.getElementById('modal').classList.add('show')}
 function closeModal(){document.getElementById('modal').classList.remove('show')}
+let __toastTimer=0;function showToast(message){const el=document.getElementById('toast');if(!el)return;el.textContent=String(message||'');el.classList.add('show');clearTimeout(__toastTimer);__toastTimer=setTimeout(()=>el.classList.remove('show'),2600)}
 function normalRandom(){let u=0,v=0;while(u===0)u=Math.random();while(v===0)v=Math.random();return Math.sqrt(-2*Math.log(u))*Math.cos(2*Math.PI*v)}
 function runMonteCarlo(){let d=getMonth(),target=fireTarget(d),start=netWorth(),monthly=totals(d).invest+Number(state.settings.monthlyExtra||0),mu=Number(state.settings.returnRate)/100,vol=.16,horizon=15,paths=1000,hit=0,terminal=[];for(let p=0;p<paths;p++){let w=start;for(let y=0;y<horizon;y++){let r=mu+vol*normalRandom();r=Math.max(-.45,Math.min(.45,r));for(let m=0;m<12;m++)w=Math.max(0,w*(1+r/12)+monthly)}if(w>=target)hit++;terminal.push(w)}terminal.sort((a,b)=>a-b);return{success:hit/paths*100,p10:terminal[Math.floor(paths*.1)],p50:terminal[Math.floor(paths*.5)],p90:terminal[Math.floor(paths*.9)],target,horizon,paths}}
 function risk(){let d=getMonth(),r=UI.risk||(UI.risk=runMonteCarlo()),fy=fireYears(d),color=r.success>=80?'green':r.success>=60?'orange':'red';let bars=[['10%',r.p10],['Median',r.p50],['90%',r.p90]];return `<div class="toolbar"><div><h1 class="sectionTitle">Risikoanalyse</h1><p class="sectionSub">Monte-Carlo-Stresstest mit 1.000 Renditepfaden. Er zeigt, wie robust dein aktueller FIRE-Plan gegen unterschiedliche Börsenverläufe ist.</p></div><button class="primary" data-action="rerunRisk"><span class="icon">${I('pulse')}</span>Neu simulieren</button></div><div class="riskGrid"><div class="riskMetric"><span>FIRE-Erreichung in ${r.horizon} Jahren</span><b class="${color}">${pct(r.success)}</b></div><div class="riskMetric"><span>Median Vermögen</span><b class="sensitive">${euro(r.p50)}</b></div><div class="riskMetric"><span>Schwaches 10%-Szenario</span><b class="sensitive red">${euro(r.p10)}</b></div><div class="riskMetric"><span>Starkes 90%-Szenario</span><b class="sensitive green">${euro(r.p90)}</b></div></div><div class="grid wide" style="margin-top:14px"><div class="card"><div class="toolbar"><div><h2>Verteilung der Ergebnisse</h2><span class="sub">Start ${euro(netWorth())} · Ziel ${euro(r.target)} · Rendite ${pct(state.settings.returnRate)} · Volatilität 16%</span></div></div><canvas id="riskCanvas" class="riskCanvas"></canvas></div><div class="card"><h2>Einordnung</h2>${stat('Konventioneller FIRE Countdown',fy===999?'N/A':fy.toFixed(1)+' Jahre')}${stat('Simulationshorizont',r.horizon+' Jahre')}${stat('Pfade',r.paths.toLocaleString('de-DE'))}${stat('FIRE Ziel',euro(r.target))}<div class="notice" style="margin-top:12px">Die Simulation ist ein Planungsmodell, keine Prognose. Sie berücksichtigt eine variable Renditereihenfolge und macht das Sequence-of-Returns-Risiko sichtbar. Inflation und Steuern sind nicht separat modelliert.</div></div></div>`}
@@ -872,6 +1023,7 @@ function render(){
  if(mt)mt.textContent=monthText;
  document.querySelectorAll('.view').forEach(v=>v.classList.toggle('active',v.id===UI.view));
  document.querySelectorAll('#nav button').forEach(b=>b.classList.toggle('active',b.dataset.view===UI.view));
+ document.querySelectorAll('.mobileDock [data-view],.mobileSheet [data-view]').forEach(b=>b.classList.toggle('active',b.dataset.view===UI.view));
  const renderers={
    dashboard,wealth,cashflow,fire,simulator,projection,year,portfolio,crypto,goals,
    financeCheck,risk,settings:settingsView
@@ -884,6 +1036,7 @@ function render(){
  decorateButtons(target||document);
  syncSearchInput();
  applySearchFilter();
+ renderCoinMini();
  if(UI.view==='risk')requestAnimationFrame(drawRisk);
 }
 let __renderFrame=0;
