@@ -968,3 +968,17 @@ html.light .infoTip:after{background:rgba(255,255,255,.98);color:#17243a}
  .cashflowEntry>.dragHandle{left:4px!important;width:34px!important;height:34px!important}
  .cashflowEntry>.del{right:4px!important}
 }
+
+
+/* v26 · wealth asset/debt drag & drop */
+.wealthList{display:grid;gap:7px}
+.wealthEntry{position:relative;padding-left:40px!important;padding-right:44px!important}
+.wealthEntry>.dragHandle{left:5px!important;right:auto!important;top:50%!important;transform:translateY(-50%)!important;width:30px!important;height:30px!important;min-width:30px!important}
+.wealthEntry>.dragHandle:active{transform:translateY(-50%) scale(.96)!important}
+.wealthEntry>.assetDel,.wealthEntry>.debtDel{position:absolute!important;right:5px!important;top:50%!important;transform:translateY(-50%)!important}
+@media(hover:hover){.wealthEntry:hover>.dragHandle{opacity:1}}
+@media(max-width:720px){
+ .wealthEntry{padding-left:43px!important;padding-right:47px!important}
+ .wealthEntry>.dragHandle{left:4px!important;width:34px!important;height:34px!important}
+ .wealthEntry>.assetDel,.wealthEntry>.debtDel{right:4px!important}
+}
