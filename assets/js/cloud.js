@@ -75,7 +75,7 @@
           <h3>Liquid Wealth Cloud</h3>
           <p>Ein Login für iPhone, Mac und alle weiteren Geräte.</p>
           <div class="field"><label>E-Mail</label><input class="input" id="authEmail" type="email" autocomplete="email" placeholder="name@example.de"></div>
-          <div class="field"><label>Passwort</label><input class="input" id="authPassword" type="password" autocomplete="current-password" placeholder="Mindestens 6 Zeichen"></div>
+          <div class="field"><label>Passwort</label><input class="input" id="authPassword" type="password" autocomplete="current-password" placeholder="Mindestens 10 Zeichen"></div>
           <div class="authActions"><button class="primary" id="authLogin">Anmelden</button><button class="ghost" id="authSignup">Konto erstellen</button></div>
           <div class="authHint">Deine Finanzdaten werden deinem Benutzerkonto zugeordnet. Der Browser behält zusätzlich den lokalen Sicherheitsstand.</div>
         </div>`;
@@ -91,12 +91,12 @@
     },
     async signup(){
       const email=document.getElementById('authEmail')?.value.trim(),password=document.getElementById('authPassword')?.value||'';
-      if(!email||password.length<6)return showToast?.('Mindestens 6 Zeichen beim Passwort');
+      if(!email||password.length<10)return showToast?.('Mindestens 10 Zeichen beim Passwort');
       const b=document.getElementById('authSignup');if(b)b.disabled=true;
       const {data,error}=await this.client.auth.signUp({email,password,options:{emailRedirectTo:APP_URL}});
       if(b)b.disabled=false;
       if(error)return showToast?.('Konto konnte nicht erstellt werden');
-      if(data?.session){showToast?.('Konto erstellt und angemeldet');} else {showToast?.('Bestätigungs-Mail prüfen'); const h=document.querySelector('.authHint'); if(h)h.innerHTML='Bestätige deine E-Mail. Falls Safari danach trotzdem eine localhost-Seite zeigt, ist die Bestätigung meist bereits erfolgt. Öffne anschließend einfach <b>Liquid Wealth</b> erneut und melde dich hier an.';}
+      if(data?.session){showToast?.('Konto erstellt und angemeldet');} else {showToast?.('Bestätigungs-Mail prüfen'); const h=document.querySelector('.authHint'); if(h)h.innerHTML='Bestätige deine E-Mail und kehre anschließend zu Liquid Wealth zurück. Danach kannst du dich mit deinem Konto anmelden.';}
     },
     openSignedIn(){
       const email=this.user?.email||'angemeldet';
