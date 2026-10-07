@@ -982,3 +982,16 @@ html.light .infoTip:after{background:rgba(255,255,255,.98);color:#17243a}
  .wealthEntry>.dragHandle{left:4px!important;width:34px!important;height:34px!important}
  .wealthEntry>.assetDel,.wealthEntry>.debtDel{right:4px!important}
 }
+
+
+/* v27 · drag & drop reliability */
+.sortingActive{user-select:none!important;-webkit-user-select:none!important;overscroll-behavior-y:contain}
+.sortingActive *{cursor:grabbing!important}
+.dragOrigin{pointer-events:none!important;opacity:.22!important;outline:1px dashed rgba(96,166,235,.48)!important;background:rgba(47,124,255,.045)!important}
+.dropPulse{box-shadow:0 0 0 2px rgba(79,151,235,.22),0 14px 34px rgba(0,0,0,.16)!important}
+.dragGhost{will-change:left,top,transform;transform:scale(1.02);opacity:.94!important}
+.dragHandle{touch-action:none!important;-webkit-user-select:none!important;user-select:none!important}
+@media(max-width:720px){
+ .dragHandle{opacity:.92!important}
+ .dragGhost{transform:scale(1.01)!important}
+}
