@@ -110,7 +110,7 @@ function I(name){
  };
  return `<svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">${icons[name]||icons.target}</svg>`;
 }
-function paintIcons(){document.querySelectorAll('[data-icon]').forEach(el=>{if(!el.innerHTML.trim())el.innerHTML=I(el.dataset.icon)})}
+function paintIcons(){document.querySelectorAll('[data-icon]').forEach(el=>{const name=el.dataset.icon;if(el.dataset.paintedIcon!==name){el.innerHTML=I(name);el.dataset.paintedIcon=name}})}
 function buttonIconName(btn){
  const txt=(btn.textContent||'').replace(/\s+/g,' ').trim().toLowerCase();
  if(btn.classList.contains('assetDel')||btn.classList.contains('debtDel')||btn.classList.contains('goalDel')||btn.classList.contains('del')) return 'trash';
