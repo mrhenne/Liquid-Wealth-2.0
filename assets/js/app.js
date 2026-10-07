@@ -619,7 +619,7 @@ function recordCryptoPortfolioSnapshot(force=false,manual=null){
  if(!force&&last&&nowTs-last.ts<15*60*1000&&Math.abs(Number(last.value)-value)<Math.max(1,value*.0025))return false;
  state.cryptoPortfolioSnapshots.push({ts:Number(nowTs),value:Number(value),cost:Number(cost)||0,manual:!!manual});
  state.cryptoPortfolioSnapshots=pruneCryptoSnapshots(state.cryptoPortfolioSnapshots);
- save(true);window.LWCloud?.queueSave?.(state);
+ save(true);
  return true
 }
 function cryptoSnapshotSeries(range=UI.cryptoChartRange){
@@ -807,6 +807,9 @@ function cryptoPriceChart(){
  const portfolioOption=hasPortfolio?'<option value="__portfolio__" '+(isPortfolio?'selected':'')+'>Gesamtportfolio</option>':'';
  const selector=`<div class="cryptoChartControls"><select class="input" id="cryptoChartCoin">${portfolioOption}${favs.map(id=>{const c=UI.coins.find(x=>x.id===id);return `<option value="${esc(id)}" ${id===selected?'selected':''}>${esc(c?.name||id)}</option>`}).join('')}</select><div class="cryptoRanges">${ranges.map(([k,l])=>`<button class="${UI.cryptoChartRange===k?'active':''}" data-crypto-range="${k}">${l}</button>`).join('')}</div>${isPortfolio?`<div class="cryptoSnapshotActions"><button class="ghost" data-action="cryptoSnapshot">Stand jetzt</button><button class="ghost" data-action="cryptoSnapshotHistory">Historischen Stand</button></div>`:''}</div>`;
  const loading=isCryptoSelectionLoading(selected,UI.cryptoChartRange);
+ if(isPortfolio&&data.length===1){
+  return `${selector}<div class="cryptoHistoryStart"><strong>Portfolio-Tracking aktiv</strong><span>Der erste echte Stand ist gespeichert. Weitere Werte werden automatisch ergänzt. Für frühere Zeiträume kannst du über „Historischen Stand“ echte Portfolio-Werte nachtragen.</span><b class="sensitive">${euro(data[0][1])}</b></div>`
+ }
  if(!data.length)return `${selector}<div class="${loading?'cryptoChartLoading':'cryptoChartEmpty'}">${loading?'<span></span>':''}${loading?'Chart wird geladen …':'Chart noch nicht geladen'}</div>`;
  const liveValue=isPortfolio?totalTrackedCryptoValue():Number(coin?.current_price||0),snapshotCost=isPortfolio?Number(data[data.length-1]?.[2]||0):0,costBasis=isPortfolio?(snapshotCost||totalCryptoCostBasis()):cryptoCostBasis(selected);
  if(!isPortfolio&&liveValue>0){
