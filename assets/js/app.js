@@ -629,25 +629,58 @@ function cryptoRangeConfig(range){
  };
  return map[range]||map['24h']
 }
-async function fetchCryptoHistory(id=UI.cryptoChartCoin,range=UI.cryptoChartRange,force=false){
- if(!id)return;
+async function fetchCryptoHistoryData(id,range,force=false){
  const key=id+':'+range,cached=UI.cryptoHistory[key],fresh=cached&&Date.now()-cached.ts<60000;
- if(fresh&&!force)return;
- UI.cryptoHistoryLoading=true;if(UI.view==='crypto')render();
+ if(fresh&&!force)return cached.prices||[];
+ const cfg=cryptoRangeConfig(range),ctl=new AbortController(),timer=setTimeout(()=>ctl.abort(),9000);
  try{
-  const cfg=cryptoRangeConfig(range),ctl=new AbortController(),timer=setTimeout(()=>ctl.abort(),9000);
   const res=await fetch(`https://api.coingecko.com/api/v3/coins/${encodeURIComponent(id)}/market_chart?vs_currency=eur&days=${encodeURIComponent(cfg.days)}`,{signal:ctl.signal,cache:'no-store'});
-  clearTimeout(timer);if(!res.ok)throw Error('HTTP '+res.status);
+  if(!res.ok)throw Error('HTTP '+res.status);
   const data=await res.json();let prices=Array.isArray(data.prices)?data.prices:[];
   if(Number.isFinite(cfg.ms)){const cutoff=Date.now()-cfg.ms;prices=prices.filter(p=>Number(p[0])>=cutoff)}
   if(prices.length>260){const step=Math.ceil(prices.length/260);prices=prices.filter((_,i)=>i%step===0||i===prices.length-1)}
-  UI.cryptoHistory[key]={ts:Date.now(),prices}; 
- }catch(e){
-  console.warn('Historische Krypto-Daten nicht verfügbar',e);
-  if(force)showToast('Chart-Daten derzeit nicht erreichbar')
- }finally{
-  UI.cryptoHistoryLoading=false;if(UI.view==='crypto')render()
- }
+  UI.cryptoHistory[key]={ts:Date.now(),prices};
+  return prices;
+ }finally{clearTimeout(timer)}
+}
+async function fetchCryptoHistory(id=UI.cryptoChartCoin,range=UI.cryptoChartRange,force=false){
+ if(!id||id==='__portfolio__')return fetchCryptoPortfolioHistory(range,force);
+ UI.cryptoHistoryLoading=true;if(UI.view==='crypto')render();
+ try{await fetchCryptoHistoryData(id,range,force)}
+ catch(e){console.warn('Historische Krypto-Daten nicht verfügbar',e);if(force)showToast('Chart-Daten derzeit nicht erreichbar')}
+ finally{UI.cryptoHistoryLoading=false;if(UI.view==='crypto')render()}
+}
+function heldCryptoIds(){
+ return (state.cryptoFavorites||[]).filter(id=>(Number(state.cryptoHoldings?.[id])||0)>0)
+}
+async function fetchCryptoPortfolioHistory(range=UI.cryptoChartRange,force=false){
+ const ids=heldCryptoIds();if(!ids.length)return;
+ UI.cryptoHistoryLoading=true;if(UI.view==='crypto')render();
+ try{
+  for(const id of ids){
+   try{await fetchCryptoHistoryData(id,range,force)}
+   catch(e){console.warn('Historie fehlt für',id,e)}
+  }
+ }finally{UI.cryptoHistoryLoading=false;if(UI.view==='crypto')render()}
+}
+function nearestCryptoPrice(prices,ts){
+ if(!prices?.length)return null;
+ let lo=0,hi=prices.length-1;
+ while(lo<hi){const mid=Math.floor((lo+hi)/2);if(Number(prices[mid][0])<ts)lo=mid+1;else hi=mid}
+ const a=prices[lo],b=prices[Math.max(0,lo-1)];
+ if(!b)return Number(a?.[1])||null;
+ if(!a)return Number(b?.[1])||null;
+ return Math.abs(Number(a[0])-ts)<Math.abs(Number(b[0])-ts)?Number(a[1]):Number(b[1])
+}
+function cryptoPortfolioHistory(range=UI.cryptoChartRange){
+ const ids=heldCryptoIds(),series=ids.map(id=>({id,qty:Number(state.cryptoHoldings?.[id])||0,prices:UI.cryptoHistory[id+':'+range]?.prices||[]})).filter(x=>x.prices.length);
+ if(!series.length)return [];
+ const ref=series.slice().sort((a,b)=>b.prices.length-a.prices.length)[0].prices;
+ return ref.map(([ts])=>{
+  let value=0,used=0;
+  series.forEach(s=>{const p=nearestCryptoPrice(s.prices,Number(ts));if(Number.isFinite(p)){value+=s.qty*p;used++}});
+  return used?[Number(ts),value]:null
+ }).filter(Boolean)
 }
 function formatCryptoTime(ts,range){
  const d=new Date(ts);
@@ -656,26 +689,39 @@ function formatCryptoTime(ts,range){
  return d.toLocaleDateString('de-DE',{month:'short',year:'2-digit'})
 }
 function cryptoPriceChart(){
- const favs=state.cryptoFavorites||[],selected=UI.cryptoChartCoin&&favs.includes(UI.cryptoChartCoin)?UI.cryptoChartCoin:favs[0];
+ const favs=state.cryptoFavorites||[],held=heldCryptoIds(),hasPortfolio=held.length>0;
+ let selected=UI.cryptoChartCoin;
+ if(selected==='__portfolio__'&&!hasPortfolio)selected=favs[0];
+ if(selected!=='__portfolio__'&&!favs.includes(selected))selected=hasPortfolio?'__portfolio__':favs[0];
  if(!selected)return '<div class="cryptoChartEmpty">Füge zuerst einen Coin zu deinen Favoriten hinzu.</div>';
  UI.cryptoChartCoin=selected;
- const coin=UI.coins.find(c=>c.id===selected),key=selected+':'+UI.cryptoChartRange,data=UI.cryptoHistory[key]?.prices||[];
+ const isPortfolio=selected==='__portfolio__',coin=isPortfolio?null:UI.coins.find(c=>c.id===selected),key=selected+':'+UI.cryptoChartRange;
+ const data=isPortfolio?cryptoPortfolioHistory(UI.cryptoChartRange):(UI.cryptoHistory[key]?.prices||[]);
  const ranges=[['1h','1h'],['4h','4h'],['24h','24h'],['7d','Woche'],['30d','Monat'],['1y','1J'],['max','Max']];
- const selector=`<div class="cryptoChartControls"><select class="input" id="cryptoChartCoin">${favs.map(id=>{const c=UI.coins.find(x=>x.id===id);return `<option value="${esc(id)}" ${id===selected?'selected':''}>${esc(c?.name||id)}</option>`}).join('')}</select><div class="cryptoRanges">${ranges.map(([k,l])=>`<button class="${UI.cryptoChartRange===k?'active':''}" data-crypto-range="${k}">${l}</button>`).join('')}</div></div>`;
+ const portfolioOption=hasPortfolio?'<option value="__portfolio__" '+(isPortfolio?'selected':'')+'>Gesamtportfolio</option>':'';
+ const selector=`<div class="cryptoChartControls"><select class="input" id="cryptoChartCoin">${portfolioOption}${favs.map(id=>{const c=UI.coins.find(x=>x.id===id);return `<option value="${esc(id)}" ${id===selected?'selected':''}>${esc(c?.name||id)}</option>`}).join('')}</select><div class="cryptoRanges">${ranges.map(([k,l])=>`<button class="${UI.cryptoChartRange===k?'active':''}" data-crypto-range="${k}">${l}</button>`).join('')}</div></div>`;
  if(UI.cryptoHistoryLoading&&!data.length)return `${selector}<div class="cryptoChartLoading"><span></span>Chart wird geladen …</div>`;
- if(!data.length){requestAnimationFrame(()=>fetchCryptoHistory(selected,UI.cryptoChartRange));return `${selector}<div class="cryptoChartEmpty">Chart-Daten werden geladen …</div>`}
- const vals=data.map(p=>Number(p[1])).filter(Number.isFinite),min=Math.min(...vals),max=Math.max(...vals),span=Math.max(max-min,0.0000001),left=18,right=782,top=22,bottom=220;
+ if(!data.length){
+  requestAnimationFrame(()=>isPortfolio?fetchCryptoPortfolioHistory(UI.cryptoChartRange):fetchCryptoHistory(selected,UI.cryptoChartRange));
+  return `${selector}<div class="cryptoChartEmpty">Chart-Daten werden geladen …</div>`
+ }
+ const vals=data.map(p=>Number(p[1])).filter(Number.isFinite),costBasis=isPortfolio?totalCryptoCostBasis():cryptoCostBasis(selected);
+ const chartMin=Math.min(...vals,costBasis||Infinity),chartMax=Math.max(...vals,costBasis||-Infinity),min=Number.isFinite(chartMin)?chartMin:Math.min(...vals),max=Number.isFinite(chartMax)?chartMax:Math.max(...vals),span=Math.max(max-min,0.0000001),left=18,right=782,top=22,bottom=220;
  const x=i=>left+i*((right-left)/Math.max(data.length-1,1)),y=v=>bottom-(v-min)/span*(bottom-top),pts=data.map((p,i)=>`${x(i)},${y(Number(p[1]))}`).join(' ');
- const gid='cg'+Math.random().toString(36).slice(2,7),first=vals[0],last=vals[vals.length-1],chg=first?((last-first)/first*100):0;
- const area=`${left},${bottom} ${pts} ${right},${bottom}`;
+ const gid='cg'+Math.random().toString(36).slice(2,7),first=vals[0],last=vals[vals.length-1],periodChg=first?((last-first)/first*100):0,overallPnl=costBasis?last-costBasis:0,overallPct=costBasis?overallPnl/costBasis*100:0;
+ const area=`${left},${bottom} ${pts} ${right},${bottom}`,costY=costBasis?y(costBasis):null;
+ const costLine=costBasis?`<line x1="${left}" x2="${right}" y1="${costY}" y2="${costY}" class="cryptoCostLine"/><text x="${right}" y="${Math.max(12,costY-6)}" text-anchor="end" class="cryptoCostLabel">Einstand ${esc(euro(costBasis))}</text>`:'';
  const hitStep=Math.max(1,Math.ceil(data.length/70));
- const points=data.map((p,i)=>i%hitStep===0||i===data.length-1?`<g class="chartPoint" data-chart-label="${esc(formatCryptoTime(p[0],UI.cryptoChartRange))}" data-chart-value="${esc(euro(p[1]))}"><circle cx="${x(i)}" cy="${y(Number(p[1]))}" r="10" class="chartHit"/><circle cx="${x(i)}" cy="${y(Number(p[1]))}" r="2.8" class="cryptoChartDot"/></g>`:'').join('');
- return `${selector}<div class="cryptoChartHeadline"><div><span>${esc(coin?.name||selected)} · ${cryptoRangeConfig(UI.cryptoChartRange).label}</span><strong class="sensitive">${euro(last)}</strong></div><b class="${chg>=0?'green':'red'}">${chg>=0?'+':''}${chg.toFixed(2)}%</b></div>
- <div class="chartWrap interactiveChart cryptoMarketChart"><svg viewBox="0 0 800 250" role="img" aria-label="Kursverlauf ${esc(coin?.name||selected)}"><defs><linearGradient id="${gid}" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#2f7cff" stop-opacity=".32"/><stop offset="100%" stop-color="#2f7cff" stop-opacity="0"/></linearGradient></defs><polygon points="${area}" fill="url(#${gid})"/><polyline points="${pts}" class="cryptoMarketLine"/>${points}<text x="${left}" y="241" class="cryptoAxisLabel">${esc(formatCryptoTime(data[0][0],UI.cryptoChartRange))}</text><text x="${right}" y="241" text-anchor="end" class="cryptoAxisLabel">${esc(formatCryptoTime(data[data.length-1][0],UI.cryptoChartRange))}</text></svg><div class="chartTooltip" role="status" aria-live="polite"></div></div>`
+ const points=data.map((p,i)=>{if(!(i%hitStep===0||i===data.length-1))return '';const v=Number(p[1]),pnl=costBasis?v-costBasis:0,pnlPct=costBasis?pnl/costBasis*100:0,tooltip=isPortfolio&&costBasis?`${euro(v)} · G/V ${pnl>=0?'+':''}${euro(pnl)} (${pnlPct>=0?'+':''}${pnlPct.toFixed(1)}%)`:euro(v);return `<g class="chartPoint" data-chart-label="${esc(formatCryptoTime(p[0],UI.cryptoChartRange))}" data-chart-value="${esc(tooltip)}"><circle cx="${x(i)}" cy="${y(v)}" r="10" class="chartHit"/><circle cx="${x(i)}" cy="${y(v)}" r="2.8" class="cryptoChartDot"/></g>`}).join('');
+ const title=isPortfolio?'Gesamtportfolio':(coin?.name||selected);
+ const overall=isPortfolio&&costBasis?`<small class="${overallPnl>=0?'green':'red'}">Gesamt G/V: ${overallPnl>=0?'+':''}${euro(overallPnl)} · ${overallPct>=0?'+':''}${overallPct.toFixed(1)}%</small>`:'';
+ return `${selector}<div class="cryptoChartHeadline"><div><span>${esc(title)} · ${cryptoRangeConfig(UI.cryptoChartRange).label}</span><strong class="sensitive">${euro(last)}</strong>${overall}</div><b class="${periodChg>=0?'green':'red'}">${periodChg>=0?'+':''}${periodChg.toFixed(2)}%</b></div>
+ <div class="chartWrap interactiveChart cryptoMarketChart"><svg viewBox="0 0 800 250" role="img" aria-label="${isPortfolio?'Krypto Portfolio Verlauf':'Kursverlauf '+esc(title)}"><defs><linearGradient id="${gid}" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#2f7cff" stop-opacity=".32"/><stop offset="100%" stop-color="#2f7cff" stop-opacity="0"/></linearGradient></defs><polygon points="${area}" fill="url(#${gid})"/>${costLine}<polyline points="${pts}" class="cryptoMarketLine"/>${points}<text x="${left}" y="241" class="cryptoAxisLabel">${esc(formatCryptoTime(data[0][0],UI.cryptoChartRange))}</text><text x="${right}" y="241" text-anchor="end" class="cryptoAxisLabel">${esc(formatCryptoTime(data[data.length-1][0],UI.cryptoChartRange))}</text></svg><div class="chartTooltip" role="status" aria-live="polite"></div></div>
+ ${isPortfolio?'<div class="cryptoChartNote">Portfolio-Verlauf auf Basis deiner aktuell eingetragenen Coin-Bestände und historischer Kurse. Ohne Transaktionshistorie ist dies eine Rückrechnung, kein vollständiger Depotverlauf.</div>':''}`
 }
 function crypto(){
  const favs=state.cryptoFavorites||[],byId=new Map(UI.coins.map(c=>[c.id,c])),trackedTotal=Math.max(totalTrackedCryptoValue(),0),costTotal=totalCryptoCostBasis(),portfolioPnl=trackedTotal-costTotal,portfolioPnlPct=costTotal?portfolioPnl/costTotal*100:0;
- if(!UI.cryptoChartCoin&&favs.length)UI.cryptoChartCoin=favs[0];
+ if(!UI.cryptoChartCoin&&favs.length)UI.cryptoChartCoin=heldCryptoIds().length?'__portfolio__':favs[0];
  const cards=favs.map(id=>{const c=byId.get(id),qty=Math.max(0,Number(state.cryptoHoldings?.[id])||0),avg=Math.max(0,Number(state.cryptoAveragePrices?.[id])||0),value=qty*(Number(c?.current_price)||0),cost=qty*avg,pnl=value-cost,pnlPct=cost?pnl/cost*100:0,share=trackedTotal?value/trackedTotal*100:0;return `<article class="cryptoFavCard" data-coin="${esc(id)}">${dragHandle('Coin verschieben')}
    <div class="cryptoFavTop"><div class="coinIdentity">${c?.image?`<img src="${esc(c.image)}" alt="">`:I('coin')}<div><strong>${esc(c?.name||id)}</strong><span>${esc((c?.symbol||id).toUpperCase())}</span></div></div><button class="ghost iconOnly cryptoRemove" data-coin-remove="${esc(id)}" title="Aus Favoriten entfernen" aria-label="Aus Favoriten entfernen">${I('trash')}</button></div>
    <div class="cryptoPrice sensitive">${c?euro(c.current_price):'—'}</div>
@@ -798,7 +844,7 @@ function settingsView(){
    <div class="actions"><button class="primary" data-action="checkpoint"><span class="icon" data-icon="save"></span>Checkpoint erstellen</button><button class="ghost" data-action="restoreCheckpoint"><span class="icon" data-icon="undo"></span>Letzten wiederherstellen</button></div>
   </div>
   <div class="card"><div class="toolbar"><div><h2>Daten & Cloud</h2><span class="sub">Geräteübergreifender Login mit lokalem Sicherheitsfallback.</span></div><span class="syncBadge"><i></i>Cloud + Lokal</span></div>
-   <div class="quickFacts"><div class="quickFact"><span>Gespeicherte Monate</span><b>${Object.keys(state.months||{}).length}</b></div><div class="quickFact"><span>Assets</span><b>${(state.assets||[]).length}</b></div><div class="quickFact"><span>Meilensteine</span><b>${(state.goals||[]).length}</b></div><div class="quickFact"><span>Datenformat</span><b>v9 · UI v31</b></div></div>
+   <div class="quickFacts"><div class="quickFact"><span>Gespeicherte Monate</span><b>${Object.keys(state.months||{}).length}</b></div><div class="quickFact"><span>Assets</span><b>${(state.assets||[]).length}</b></div><div class="quickFact"><span>Meilensteine</span><b>${(state.goals||[]).length}</b></div><div class="quickFact"><span>Datenformat</span><b>v9 · UI v32</b></div></div>
    <div class="actions"><button class="primary" data-action="export"><span class="icon" data-icon="download"></span>JSON Backup</button><button class="ghost" data-action="chooseImport"><span class="icon" data-icon="upload"></span>Import</button><button class="ghost" data-action="cloudInfo"><span class="icon" data-icon="cloud"></span>Login & Sync</button><button class="danger" data-action="resetDemo"><span class="icon" data-icon="trash"></span>Demo zurücksetzen</button></div>
   </div>
  </div>`;
@@ -1002,7 +1048,7 @@ function render(){
  setupSortable(target||document);
  bindInteractiveCharts(target||document);
  if(UI.view==='risk')requestAnimationFrame(drawRisk);
- if(UI.view==='crypto'&&UI.cryptoChartCoin){const hk=UI.cryptoChartCoin+':'+UI.cryptoChartRange;if(!UI.cryptoHistory[hk]&&!UI.cryptoHistoryLoading)requestAnimationFrame(()=>fetchCryptoHistory(UI.cryptoChartCoin,UI.cryptoChartRange));}
+ if(UI.view==='crypto'&&UI.cryptoChartCoin&&!UI.cryptoHistoryLoading){if(UI.cryptoChartCoin==='__portfolio__'){const missing=heldCryptoIds().some(id=>!UI.cryptoHistory[id+':'+UI.cryptoChartRange]);if(missing)requestAnimationFrame(()=>fetchCryptoPortfolioHistory(UI.cryptoChartRange))}else{const hk=UI.cryptoChartCoin+':'+UI.cryptoChartRange;if(!UI.cryptoHistory[hk])requestAnimationFrame(()=>fetchCryptoHistory(UI.cryptoChartCoin,UI.cryptoChartRange))}}
 }
 let __renderFrame=0;
 function scheduleRender(){
@@ -1040,7 +1086,7 @@ document.addEventListener('change',function(e){
  if(t.matches('.goalName,.goalTarget,.goalDeadline')) return updateGoal(t);
  if(t.matches('.cryptoHoldingInput')) return updateCryptoHolding(t);
  if(t.matches('.cryptoAvgInput')) return updateCryptoAveragePrice(t);
- if(t.id==='cryptoChartCoin'){UI.cryptoChartCoin=t.value;return fetchCryptoHistory(UI.cryptoChartCoin,UI.cryptoChartRange,true);}
+ if(t.id==='cryptoChartCoin'){UI.cryptoChartCoin=t.value;return UI.cryptoChartCoin==='__portfolio__'?fetchCryptoPortfolioHistory(UI.cryptoChartRange,true):fetchCryptoHistory(UI.cryptoChartCoin,UI.cryptoChartRange,true);}
  if(t.id==='yearSelect'){UI.year=Number(t.value);return render();}
  if(t.id==='importFile'||t.id==='globalImportFile')return importData({target:t});
 });
