@@ -17,3 +17,13 @@ Vercel deployt weiterhin aus GitHub.
 ## Änderungsregel
 
 Größere Änderungen zuerst auf einem separaten Branch testen. Erst nach erfolgreicher Prüfung in `main` übernehmen.
+
+
+## v24 audit
+
+- full static integrity pass after drag-and-drop rollout
+- FIRE Pace: required monthly contribution to the FIRE milestone deadline
+- crypto allocation target and drift check
+- cloud/status copy corrected
+- safer structuredClone fallback
+- duplicate settings action and stale UI version labels cleaned up
