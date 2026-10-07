@@ -6,10 +6,10 @@ const sampleMonths={};
 function demoMonth(){return{income:[tx('Gehalt',6000,true),tx('Nebenjob',500,true)],expenses:[tx('Wohnen',1200,true),tx('Lebensmittel',600,true),tx('Versicherungen',400,true),tx('Mobilität',300,true),tx('Freizeit',300,false),tx('Sonstiges',200,false)],invest:[tx('ETF',1000,true),tx('Bitcoin',500,true),tx('Cash Reserve',500,true)]}}
 function tx(name,val,recurring=false,cat=''){return{id:crypto.randomUUID?crypto.randomUUID():String(Date.now()+Math.random()),name,val:+val||0,recurring,cat}}
 const defaultAssets=[{id:'a1',name:'ETF',value:57000,type:'ETF',cost:42000,rate:7},{id:'a2',name:'Bitcoin',value:35600,type:'Crypto',cost:18000,rate:12},{id:'a3',name:'Depot',value:21400,type:'Aktien',cost:16000,rate:7},{id:'a4',name:'Cash',value:14300,type:'Cash',cost:14300,rate:1},{id:'a5',name:'Immobilien',value:9800,type:'Immobilie',cost:7000,rate:3},{id:'a6',name:'Sonstige',value:4400,type:'Sonstige',cost:3000,rate:2}];
-const initial={version:8,settings:{...defaults},months:{},assets:defaultAssets,liabilities:[],cryptoFavorites:['bitcoin','ethereum','solana','binancecoin'],goals:[{id:'g1',name:'FIRE',target:1200000,current:0,deadline:2042},{id:'g2',name:'Notgroschen',target:15000,current:0,deadline:2027}],meta:{created:new Date().toISOString()}};
+const initial={version:8,settings:{...defaults},months:{},assets:defaultAssets,liabilities:[],cryptoFavorites:['bitcoin','ethereum','solana','binancecoin'],layout:{dashboard:{}},goals:[{id:'g1',name:'FIRE',target:1200000,current:0,deadline:2042},{id:'g2',name:'Notgroschen',target:15000,current:0,deadline:2027}],meta:{created:new Date().toISOString()}};
 let state=loadState();let UI={year:now.getFullYear(),month:now.getMonth()+1,view:'dashboard',stealth:false,coins:[],cryptoSearchResults:[],cryptoSearching:false,sim:{extra:2000,returnRate:7,crash:0,years:15},risk:null};
 const CHECKPOINT_KEY=APP+'_checkpoints_v1';
-function loadState(){try{let raw=localStorage.getItem(APP)||localStorage.getItem('LWTE_5');let x=raw?JSON.parse(raw):null;if(x&&[4,5,6,7,8,9].includes(x.version))return {...x,version:9,settings:{...defaults,...(x.settings||{})},months:x.months||{},assets:x.assets||[],liabilities:x.liabilities||[],cryptoFavorites:Array.isArray(x.cryptoFavorites)&&x.cryptoFavorites.length?x.cryptoFavorites:['bitcoin','ethereum','solana','binancecoin'],goals:x.goals||[]}}catch(e){}let x=structuredClone?structuredClone(initial):JSON.parse(JSON.stringify(initial));x.months[`${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}`]=demoMonth();return x}
+function loadState(){try{let raw=localStorage.getItem(APP)||localStorage.getItem('LWTE_5');let x=raw?JSON.parse(raw):null;if(x&&[4,5,6,7,8,9].includes(x.version))return {...x,version:9,settings:{...defaults,...(x.settings||{})},months:x.months||{},assets:x.assets||[],liabilities:x.liabilities||[],cryptoFavorites:Array.isArray(x.cryptoFavorites)&&x.cryptoFavorites.length?x.cryptoFavorites:['bitcoin','ethereum','solana','binancecoin'],layout:x.layout||{dashboard:{}},goals:x.goals||[]}}catch(e){}let x=structuredClone?structuredClone(initial):JSON.parse(JSON.stringify(initial));x.months[`${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}`]=demoMonth();return x}
 function checkpointList(){try{return JSON.parse(localStorage.getItem(CHECKPOINT_KEY)||'[]')}catch(e){return[]}}
 function writeCheckpointList(list){try{localStorage.setItem(CHECKPOINT_KEY,JSON.stringify(list.slice(0,12)))}catch(e){console.warn('Checkpoint konnte nicht gespeichert werden',e)}}
 function createCheckpoint(reason='Manuell',raw=localStorage.getItem(APP)||JSON.stringify(state)){
@@ -18,7 +18,7 @@ function createCheckpoint(reason='Manuell',raw=localStorage.getItem(APP)||JSON.s
 function maybeAutoCheckpoint(previousRaw){if(!previousRaw)return;let list=checkpointList(),last=list[0];if(last&&Date.now()-last.ts<10*60*1000)return;if(last?.raw===previousRaw)return;createCheckpoint('Auto-Sicherung',previousRaw)}
 function save(skipCheckpoint=false){let next=JSON.stringify(state),prev=localStorage.getItem(APP);if(!skipCheckpoint&&prev&&prev!==next)maybeAutoCheckpoint(prev);localStorage.setItem(APP,next);window.LWCloud?.queueSave?.(state)}
 function manualCheckpoint(){createCheckpoint('Manueller Checkpoint');render();showToast('Sicherheits-Checkpoint erstellt')}
-function restoreCheckpoint(){let list=checkpointList();if(!list.length)return showToast('Noch kein Checkpoint vorhanden');let cp=list[0];if(!confirm(`Checkpoint vom ${new Date(cp.ts).toLocaleString('de-DE')} wiederherstellen?`))return;createCheckpoint('Vor Wiederherstellung');try{let x=JSON.parse(cp.raw);state={...initial,...x,version:9,settings:{...defaults,...(x.settings||{})},months:x.months||{},assets:x.assets||[],liabilities:x.liabilities||[],cryptoFavorites:Array.isArray(x.cryptoFavorites)&&x.cryptoFavorites.length?x.cryptoFavorites:['bitcoin','ethereum','solana','binancecoin'],goals:x.goals||[]};localStorage.setItem(APP,JSON.stringify(state));window.LWCloud?.queueSave?.(state);UI.risk=null;render();showToast('Checkpoint wiederhergestellt')}catch(e){console.error(e);showToast('Checkpoint ist beschädigt')}}
+function restoreCheckpoint(){let list=checkpointList();if(!list.length)return showToast('Noch kein Checkpoint vorhanden');let cp=list[0];if(!confirm(`Checkpoint vom ${new Date(cp.ts).toLocaleString('de-DE')} wiederherstellen?`))return;createCheckpoint('Vor Wiederherstellung');try{let x=JSON.parse(cp.raw);state={...initial,...x,version:9,settings:{...defaults,...(x.settings||{})},months:x.months||{},assets:x.assets||[],liabilities:x.liabilities||[],cryptoFavorites:Array.isArray(x.cryptoFavorites)&&x.cryptoFavorites.length?x.cryptoFavorites:['bitcoin','ethereum','solana','binancecoin'],layout:x.layout||{dashboard:{}},goals:x.goals||[]};localStorage.setItem(APP,JSON.stringify(state));window.LWCloud?.queueSave?.(state);UI.risk=null;render();showToast('Checkpoint wiederhergestellt')}catch(e){console.error(e);showToast('Checkpoint ist beschädigt')}}
 function key(y=UI.year,m=UI.month){return `${y}-${String(m).padStart(2,'0')}`}
 function getMonth(y=UI.year,m=UI.month,create=true){let k=key(y,m);if(!state.months[k]&&create)state.months[k]={income:[],expenses:[],invest:[]};return state.months[k]||{income:[],expenses:[],invest:[]}}
 function sum(a){return(a||[]).reduce((s,x)=>s+(Number(x.val)||0),0)}
@@ -76,7 +76,8 @@ function I(name){
   undo:'<path d="M9 7H4V2"/><path d="m4 7 4-4"/><path d="M5.5 12A7 7 0 1 0 8 7"/>',
   lock:'<rect x="5.5" y="10" width="13" height="10" rx="2"/><path d="M8.5 10V7.5a3.5 3.5 0 1 1 7 0V10"/>',
   refresh:'<path d="M20 6v5h-5"/><path d="M4 18v-5h5"/><path d="M18.5 10A7 7 0 0 0 6.2 6.2L4 8M5.5 14A7 7 0 0 0 17.8 17.8L20 16"/>',
-  copy:'<rect x="8" y="8" width="11" height="11" rx="2"/><path d="M16 8V5a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h3"/>'
+  copy:'<rect x="8" y="8" width="11" height="11" rx="2"/><path d="M16 8V5a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h3"/>',
+  grip:'<circle cx="8" cy="7" r="1"/><circle cx="16" cy="7" r="1"/><circle cx="8" cy="12" r="1"/><circle cx="16" cy="12" r="1"/><circle cx="8" cy="17" r="1"/><circle cx="16" cy="17" r="1"/>'
  };
  return `<svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">${icons[name]||icons.target}</svg>`;
 }
@@ -255,6 +256,77 @@ function lineChart(series,goal){
 function btcPrice(){let b=UI.coins.find(c=>String(c.id).toLowerCase()==='bitcoin'||String(c.symbol).toLowerCase()==='btc');return Number(b?.current_price)||0}
 function dashboardYearRows(){let out=[];let start=Math.max(1,UI.month-7);for(let m=start;m<=UI.month;m++){let d=getMonth(UI.year,m,false),t=totals(d);out.push({m,t})}return out}
 function dashboardMilestones(){return state.goals.slice(0,5).map(g=>{let cur=goalCurrent(g),p=Math.min(100,cur/Math.max(Number(g.target)||1,1)*100),done=cur>=Number(g.target||0);return `<div class="milestoneItem modernMilestone"><div class="miniRing" style="--p:${p}"><span>${Math.round(p)}%</span></div><div class="milestoneCopy"><div class="milestoneTop"><span>${done?'✓ ':''}${esc(g.name)}</span><b class="${done?'green':''}">${g.deadline||'—'}</b></div><div class="progress"><i style="width:${p}%"></i></div><div class="milestoneMeta"><span class="sensitive">${euro(cur)}</span><span>Ziel ${euro(g.target)}</span></div></div></div>`}).join('')||'<div class="sub">Noch keine Meilensteine angelegt.</div>'}
+function dragHandle(label='Verschieben'){return `<button class="dragHandle" type="button" title="${label}" aria-label="${label}">${I('grip')}</button>`}
+function normalizeDragKey(s){return String(s||'').toLowerCase().replace(/[^a-z0-9äöüß]+/g,'-').replace(/^-+|-+$/g,'')}
+function dashboardKey(el){return el.dataset.dragKey||normalizeDragKey(el.querySelector('.klabel,h2')?.textContent||'card')}
+function reorderChildren(container,order){
+ if(!container||!Array.isArray(order)||!order.length)return;
+ const byKey=new Map([...container.children].map(el=>[dashboardKey(el),el]));
+ order.forEach(k=>{const el=byKey.get(k);if(el)container.appendChild(el)});
+}
+function applySavedOrder(root=document){
+ const dash=state.layout?.dashboard||{};
+ [['.dashboardHero','hero'],['.dashboardGridTop','top'],['.dashboardGridMid','mid'],['.dashboardGridBottom','bottom']].forEach(([sel,key])=>reorderChildren(root.querySelector(sel),dash[key]));
+}
+function persistGroupOrder(container){
+ if(!container)return;
+ const group=container.dataset.sortGroup;
+ if(group==='crypto'){state.cryptoFavorites=[...container.querySelectorAll('[data-coin]')].map(x=>x.dataset.coin)}
+ else if(group==='goals'){const ids=[...container.querySelectorAll('[data-goal]')].map(x=>x.dataset.goal);state.goals.sort((a,b)=>ids.indexOf(String(a.id))-ids.indexOf(String(b.id)))}
+ else if(group?.startsWith('dashboard-')){
+   state.layout=state.layout||{dashboard:{}};state.layout.dashboard=state.layout.dashboard||{};
+   state.layout.dashboard[group.replace('dashboard-','')]=[...container.children].map(dashboardKey)
+ }
+ save();showToast('Reihenfolge gespeichert')
+}
+let dragState=null;
+function setupSortable(root=document){
+ const groups=[
+  ['.dashboardHero','dashboard-hero'],['.dashboardGridTop','dashboard-top'],['.dashboardGridMid','dashboard-mid'],['.dashboardGridBottom','dashboard-bottom'],
+  ['.cryptoFavGrid','crypto'],['.milestoneGrid','goals']
+ ];
+ groups.forEach(([sel,name])=>{
+  const c=root.querySelector(sel);if(!c)return;c.dataset.sortGroup=name;
+  [...c.children].forEach(item=>{
+   if(item.classList.contains('emptyState'))return;
+   item.classList.add('sortableItem');
+   if(!item.querySelector('.dragHandle')){
+    const h=document.createElement('button');h.className='dragHandle';h.type='button';h.title='Verschieben';h.setAttribute('aria-label','Verschieben');h.innerHTML=I('grip');item.appendChild(h);
+   }
+  })
+ })
+ root.querySelectorAll('.dragHandle').forEach(handle=>{
+  if(handle.dataset.bound)return;handle.dataset.bound='1';
+  handle.addEventListener('pointerdown',startPointerSort,{passive:false});
+ });
+}
+function startPointerSort(e){
+ if(e.button!==undefined&&e.button!==0)return;
+ const handle=e.currentTarget,item=handle.closest('.sortableItem'),container=item?.parentElement;if(!item||!container)return;
+ e.preventDefault();handle.setPointerCapture?.(e.pointerId);
+ const rect=item.getBoundingClientRect(),ghost=item.cloneNode(true);
+ ghost.classList.add('dragGhost');ghost.style.width=rect.width+'px';ghost.style.height=rect.height+'px';ghost.style.left=rect.left+'px';ghost.style.top=rect.top+'px';
+ document.body.appendChild(ghost);item.classList.add('dragOrigin');
+ dragState={handle,item,container,ghost,pointerId:e.pointerId,dx:e.clientX-rect.left,dy:e.clientY-rect.top,moved:false};
+ handle.addEventListener('pointermove',movePointerSort,{passive:false});handle.addEventListener('pointerup',endPointerSort,{once:true});handle.addEventListener('pointercancel',endPointerSort,{once:true});
+}
+function movePointerSort(e){
+ if(!dragState||e.pointerId!==dragState.pointerId)return;e.preventDefault();const d=dragState;d.moved=true;
+ d.ghost.style.left=(e.clientX-d.dx)+'px';d.ghost.style.top=(e.clientY-d.dy)+'px';
+ d.ghost.style.pointerEvents='none';
+ const els=[...d.container.children].filter(x=>x!==d.item&&!x.classList.contains('emptyState'));
+ let nearest=null,best=Infinity;
+ els.forEach(el=>{const r=el.getBoundingClientRect(),cx=r.left+r.width/2,cy=r.top+r.height/2,dist=Math.hypot(e.clientX-cx,e.clientY-cy);if(dist<best){best=dist;nearest=el}});
+ if(nearest){
+  const r=nearest.getBoundingClientRect(),before=(e.clientY<r.top+r.height/2)||(Math.abs(e.clientY-(r.top+r.height/2))<r.height*.25&&e.clientX<r.left+r.width/2);
+  d.container.insertBefore(d.item,before?nearest:nearest.nextSibling)
+ }
+}
+function endPointerSort(e){
+ const d=dragState;if(!d)return;try{d.handle.releasePointerCapture?.(d.pointerId)}catch(_){}
+ d.handle.removeEventListener('pointermove',movePointerSort);d.ghost.remove();d.item.classList.remove('dragOrigin');dragState=null;
+ if(d.moved)persistGroupOrder(d.container)
+}
 function dashboard(){
  let d=getMonth(),t=totals(d),nw=netWorth(),target=fireTarget(d),fy=fireYears(d),cash=t.income-t.expenses-t.invest;
  let saveRate=t.income?(t.income-t.expenses)/t.income*100:0,monthlySurplus=t.income-t.expenses;
@@ -389,7 +461,7 @@ function removeCryptoFavorite(id){
 function crypto(){
  const favs=state.cryptoFavorites||[];
  const byId=new Map(UI.coins.map(c=>[c.id,c]));
- const cards=favs.map(id=>{const c=byId.get(id);return `<article class="cryptoFavCard" data-coin="${esc(id)}">
+ const cards=favs.map(id=>{const c=byId.get(id);return `<article class="cryptoFavCard" data-coin="${esc(id)}">${dragHandle('Coin verschieben')}
    <div class="cryptoFavTop">
     <div class="coinIdentity">${c?.image?`<img src="${esc(c.image)}" alt="">`:I('coin')}<div><strong>${esc(c?.name||id)}</strong><span>${esc((c?.symbol||id).toUpperCase())}</span></div></div>
     <button class="ghost iconOnly cryptoRemove" data-coin-remove="${esc(id)}" title="Aus Favoriten entfernen" aria-label="Aus Favoriten entfernen">${I('trash')}</button>
@@ -409,7 +481,7 @@ function milestoneRing(p){
 }
 function goals(){
  const cards=state.goals.map(g=>{const cur=goalCurrent(g),p=Math.min(100,cur/Math.max(Number(g.target)||1,1)*100),done=p>=100;
- return `<article class="milestoneCard goal" data-goal="${g.id}">
+ return `<article class="milestoneCard goal" data-goal="${g.id}">${dragHandle('Meilenstein verschieben')}
   <div class="milestoneCardTop">
    ${milestoneRing(p)}
    <div class="milestoneHeadline"><span class="milestoneEyebrow">${done?'ERREICHT':'MEILENSTEIN'}</span><input class="input goalName" value="${esc(g.name)}"><div class="milestoneAmount sensitive">${euro(cur)} <span>/ ${euro(g.target)}</span></div></div>
@@ -506,7 +578,7 @@ function importData(e){
      createCheckpoint('Vor Backup-Import');
      state={...initial,...x,version:9,
        settings:{...defaults,...(x.settings||{})},
-       months:x.months||{},assets:x.assets||[],liabilities:x.liabilities||[],cryptoFavorites:Array.isArray(x.cryptoFavorites)&&x.cryptoFavorites.length?x.cryptoFavorites:['bitcoin','ethereum','solana','binancecoin'],goals:x.goals||[]};
+       months:x.months||{},assets:x.assets||[],liabilities:x.liabilities||[],cryptoFavorites:Array.isArray(x.cryptoFavorites)&&x.cryptoFavorites.length?x.cryptoFavorites:['bitcoin','ethereum','solana','binancecoin'],layout:x.layout||{dashboard:{}},goals:x.goals||[]};
      save();UI.risk=null;render();showToast('Backup erfolgreich importiert');
    }catch(err){
      console.error(err);showToast('Import fehlgeschlagen: ungültige Datei');
@@ -605,6 +677,8 @@ function render(){
  syncSearchInput();
  applySearchFilter();
  renderCoinMini();
+ applySavedOrder(target||document);
+ setupSortable(target||document);
  if(UI.view==='risk')requestAnimationFrame(drawRisk);
 }
 let __renderFrame=0;

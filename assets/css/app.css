@@ -905,3 +905,38 @@ html.light .infoTip:after{background:rgba(255,255,255,.98);color:#17243a}
  .cryptoFavGrid{grid-template-columns:1fr}.milestoneFields{grid-template-columns:1fr}.milestoneCardTop{grid-template-columns:64px minmax(0,1fr) 40px}.milestoneRing{width:60px;height:60px}
  .riskCanvas{height:250px}
 }
+
+
+/* v23 · drag & drop ordering, desktop + iPhone pointer support */
+.sortableItem{position:relative;transition:transform .16s ease,opacity .16s ease,box-shadow .16s ease}
+.dragHandle{
+ position:absolute;top:8px;right:8px;z-index:8;width:30px;height:30px;min-width:30px;padding:0;
+ display:grid;place-items:center;border:1px solid rgba(125,167,211,.14);border-radius:8px;
+ background:rgba(10,26,44,.58);color:var(--muted);cursor:grab;touch-action:none;
+ -webkit-backdrop-filter:blur(14px);backdrop-filter:blur(14px);
+ opacity:.42;transition:opacity .16s ease,transform .16s ease,background .16s ease,color .16s ease
+}
+.dragHandle svg{width:16px;height:16px;stroke:currentColor;fill:none;stroke-width:1.7}
+.sortableItem:hover>.dragHandle,.dragHandle:focus-visible{opacity:1;color:#71b4ff;background:rgba(39,100,164,.16)}
+.dragHandle:active{cursor:grabbing;transform:scale(.96)}
+.dragOrigin{opacity:.28!important;outline:1px dashed rgba(91,164,239,.35);outline-offset:2px}
+.dragGhost{
+ position:fixed!important;z-index:9999!important;margin:0!important;pointer-events:none!important;
+ opacity:.88!important;transform:scale(1.015) rotate(.25deg);box-shadow:0 22px 55px rgba(0,0,0,.32)!important;
+ -webkit-backdrop-filter:blur(20px);backdrop-filter:blur(20px)
+}
+.dragGhost .dragHandle{display:none!important}
+.cryptoFavCard>.dragHandle,.milestoneCard>.dragHandle{top:10px;right:10px}
+.cryptoFavCard .cryptoFavTop{padding-right:34px}
+.milestoneCardTop{padding-right:34px}
+.dashboardHero .sortableItem>.dragHandle{top:7px;right:7px}
+.dashboardHero .kpi{padding-right:38px!important}
+.dashboardCard>.dragHandle{top:8px;right:8px}
+.dashboardCard>.toolbar{padding-right:30px}
+@media(max-width:720px){
+ .dragHandle{width:34px;height:34px;min-width:34px;opacity:.72;background:rgba(9,28,48,.78)}
+ .dragHandle svg{width:18px;height:18px}
+ .dragGhost{max-width:calc(100vw - 24px)!important}
+ .dashboardHero .kpi{padding-right:42px!important}
+}
+@media(prefers-reduced-motion:reduce){.sortableItem,.dragHandle,.dragGhost{transition:none!important;animation:none!important}}
