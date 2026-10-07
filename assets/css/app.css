@@ -1052,3 +1052,5 @@ html.light .globalInfoPopover{background:rgba(255,255,255,.98);color:#17243a;bor
 .cryptoHoldingBox label{display:grid;gap:5px}.cryptoHoldingBox label>span,.cryptoHoldingValue span{font-size:10px;color:var(--muted);font-weight:700}
 .cryptoHoldingValue{display:grid;gap:4px;text-align:right}.cryptoHoldingValue strong{font-size:13px}
 @media(max-width:430px){.cryptoSummary{grid-template-columns:1fr 1fr}.cryptoHoldingBox{grid-template-columns:1fr}.cryptoHoldingValue{text-align:left}}
+
+.authMiniLogo{width:72px;height:72px;display:block;margin:0 auto 10px;filter:drop-shadow(0 12px 28px rgba(38,139,255,.24))}
