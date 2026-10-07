@@ -1664,3 +1664,34 @@ html.light .cryptoDonutCenter{background:rgba(255,255,255,.96)}
     width:100%!important;
   }
 }
+
+
+/* v38 · real crypto portfolio history */
+.cryptoSnapshotActions{display:flex;gap:6px;flex-wrap:wrap}
+.cryptoSnapshotActions .ghost{min-height:32px!important;padding:0 9px!important;font-size:10px!important}
+.cryptoChartNote b{color:var(--text)}
+@media(max-width:720px){
+ .cryptoSnapshotActions{width:100%;display:grid;grid-template-columns:1fr 1fr;gap:7px}
+ .cryptoSnapshotActions .ghost{min-height:38px!important}
+}
+@media(max-width:430px){
+ .cryptoSnapshotActions{grid-template-columns:1fr}
+}
+
+
+.cryptoHistoryStart{
+ min-height:220px;
+ display:flex;
+ flex-direction:column;
+ align-items:center;
+ justify-content:center;
+ gap:8px;
+ padding:24px;
+ text-align:center;
+ border:1px dashed rgba(112,160,207,.14);
+ border-radius:12px;
+ background:rgba(70,124,181,.04);
+}
+.cryptoHistoryStart strong{font-size:14px}
+.cryptoHistoryStart span{max-width:520px;color:var(--muted);font-size:11px;line-height:1.5}
+.cryptoHistoryStart b{font-size:22px;margin-top:4px}
