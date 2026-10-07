@@ -1256,3 +1256,26 @@ html.light .cryptoDonutCenter{background:rgba(255,255,255,.96)}
 @media(max-width:1100px){.cryptoPortfolioGrid{grid-template-columns:1fr}.cryptoDistribution{grid-template-columns:180px minmax(0,1fr)}.cryptoSummary4{grid-template-columns:repeat(2,minmax(0,1fr))}}
 @media(max-width:720px){.cryptoDistribution{grid-template-columns:150px minmax(0,1fr);min-height:240px}.cryptoDonut{width:144px;height:144px}.cryptoDonutCenter{width:84px;height:84px}.cryptoDonutCenter strong{font-size:12px}.cryptoChartControls{align-items:stretch;flex-direction:column}.cryptoChartControls select{max-width:none;width:100%}.cryptoRanges{justify-content:flex-start;overflow-x:auto;flex-wrap:nowrap;padding-bottom:2px}.cryptoRanges button{flex:0 0 auto;min-height:36px}.cryptoMarketChart{min-height:230px}}
 @media(max-width:430px){.cryptoSummary4{grid-template-columns:1fr 1fr}.cryptoDistribution{grid-template-columns:1fr}.cryptoDonut{margin:auto}.cryptoDistLegend{width:100%}.cryptoHoldingBox{grid-template-columns:1fr!important}.cryptoPositionGrid{grid-template-columns:1fr 1fr}.cryptoPositionGrid>div:last-child{grid-column:1/-1}}
+
+
+/* v32 · crypto input collision fix + total portfolio chart */
+.cryptoHoldingBox{
+ grid-template-columns:repeat(2,minmax(0,1fr))!important;
+ gap:10px!important;
+ width:100%!important;
+ box-sizing:border-box!important;
+}
+.cryptoHoldingBox label{min-width:0!important;width:100%!important}
+.cryptoHoldingBox .input{
+ width:100%!important;
+ min-width:0!important;
+ max-width:100%!important;
+ box-sizing:border-box!important;
+}
+.cryptoChartHeadline small{display:block;margin-top:3px;font-size:10px;font-weight:800}
+.cryptoCostLine{stroke:#ff9d3d;stroke-width:1.4;stroke-dasharray:6 5;opacity:.82}
+.cryptoCostLabel{fill:#ffad55;font-size:9px;font-family:inherit;font-weight:800}
+.cryptoChartNote{margin-top:8px;padding:8px 10px;border-radius:9px;background:rgba(80,132,184,.055);border:1px solid rgba(117,160,204,.08);font-size:9.5px;line-height:1.45;color:var(--muted)}
+@media(max-width:720px){
+ .cryptoHoldingBox{grid-template-columns:1fr!important}
+}
