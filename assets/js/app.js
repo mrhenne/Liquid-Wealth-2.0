@@ -124,7 +124,7 @@ function buttonIconName(btn){
    return n[btn.dataset.nav]||'open';
  }
  if(btn.dataset.action){
-   const a={quick:'plus',calendar:'calendar',today:'today',toggleAppearance:UI.dark?'sun':'moon',toggleStealth:'eyeOff',openSettings:'settings',closeModal:'close',export:'download',chooseImport:'upload',checkpoint:'save',restoreCheckpoint:'undo',cloudInfo:'cloud',saveSettings:'save',rerunRisk:'refresh',copyPrev:'copy',applyRecurring:'refresh',resetDemo:'trash',refreshCrypto:'refresh',prevMonth:'chevronLeft',nextMonth:'chevronRight',addAsset:'plus',addDebt:'plus',addGoal:'plus'};
+   const a={quick:'plus',calendar:'calendar',today:'today',toggleAppearance:UI.dark?'sun':'moon',toggleStealth:'eyeOff',openSettings:'settings',closeModal:'close',export:'download',chooseImport:'upload',checkpoint:'save',restoreCheckpoint:'undo',cloudInfo:'cloud',saveSettings:'save',rerunRisk:'refresh',copyPrev:'copy',copyFromMonth:'calendar',applyRecurring:'refresh',resetDemo:'trash',refreshCrypto:'refresh',prevMonth:'chevronLeft',nextMonth:'chevronRight',addAsset:'plus',addDebt:'plus',addGoal:'plus'};
    if(a[btn.dataset.action]) return a[btn.dataset.action];
  }
  if(/speichern|übernehmen/.test(txt)) return 'save';
@@ -719,7 +719,7 @@ function settingsView(){
    <div class="actions"><button class="primary" data-action="checkpoint"><span class="icon" data-icon="save"></span>Checkpoint erstellen</button><button class="ghost" data-action="restoreCheckpoint"><span class="icon" data-icon="undo"></span>Letzten wiederherstellen</button></div>
   </div>
   <div class="card"><div class="toolbar"><div><h2>Daten & Cloud</h2><span class="sub">Geräteübergreifender Login mit lokalem Sicherheitsfallback.</span></div><span class="syncBadge"><i></i>Cloud + Lokal</span></div>
-   <div class="quickFacts"><div class="quickFact"><span>Gespeicherte Monate</span><b>${Object.keys(state.months||{}).length}</b></div><div class="quickFact"><span>Assets</span><b>${(state.assets||[]).length}</b></div><div class="quickFact"><span>Meilensteine</span><b>${(state.goals||[]).length}</b></div><div class="quickFact"><span>Datenformat</span><b>v9 · UI v24</b></div></div>
+   <div class="quickFacts"><div class="quickFact"><span>Gespeicherte Monate</span><b>${Object.keys(state.months||{}).length}</b></div><div class="quickFact"><span>Assets</span><b>${(state.assets||[]).length}</b></div><div class="quickFact"><span>Meilensteine</span><b>${(state.goals||[]).length}</b></div><div class="quickFact"><span>Datenformat</span><b>v9 · UI v29</b></div></div>
    <div class="actions"><button class="primary" data-action="export"><span class="icon" data-icon="download"></span>JSON Backup</button><button class="ghost" data-action="chooseImport"><span class="icon" data-icon="upload"></span>Import</button><button class="ghost" data-action="cloudInfo"><span class="icon" data-icon="cloud"></span>Login & Sync</button><button class="danger" data-action="resetDemo"><span class="icon" data-icon="trash"></span>Demo zurücksetzen</button></div>
   </div>
  </div>`;
