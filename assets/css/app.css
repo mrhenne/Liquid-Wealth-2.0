@@ -1285,3 +1285,25 @@ html.light .cryptoDonutCenter{background:rgba(255,255,255,.96)}
 .cryptoRanges button,.cryptoChartControls select{transition:border-color .12s ease,background .12s ease,color .12s ease}
 .cryptoChartLoading{min-height:180px!important}
 .cryptoChartNote b{color:var(--text)}
+
+
+/* v34 · crypto responsiveness and edit stability */
+#cryptoChartBody{min-height:260px;contain:layout paint}
+.cryptoHoldingInput,.cryptoAvgInput{
+  -webkit-appearance:textfield;
+  appearance:textfield;
+  touch-action:manipulation;
+}
+.cryptoHoldingInput::-webkit-inner-spin-button,
+.cryptoAvgInput::-webkit-inner-spin-button{
+  opacity:.55;
+}
+.cryptoFavCard:focus-within{
+  border-color:rgba(74,147,225,.24);
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.045),0 12px 34px rgba(0,0,0,.16),0 0 0 2px rgba(47,124,255,.05);
+}
+.cryptoChartCard{content-visibility:auto;contain-intrinsic-size:420px}
+@media(max-width:720px){
+ #cryptoChartBody{min-height:230px}
+ .cryptoHoldingInput,.cryptoAvgInput{font-size:16px!important}
+}
