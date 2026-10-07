@@ -280,7 +280,7 @@ function lineChart(series,goal){
     <polygon points="${area}" fill="url(#${gid})"/>
     ${goalLine}
     <polyline points="${pts}" class="chartTrend"/>
-    ${series.map((p,i)=>`<g class="chartPoint" data-chart-label="Jahr ${esc(p.year)}" data-chart-value="${esc(euro(p.value))}">
+    ${series.map((p,i)=>`<g class="chartPoint" data-chart-label="${p.year===0?'Heute':('In '+esc(p.year)+' Jahr'+(Number(p.year)===1?'':'en'))}" data-chart-value="${esc(euro(p.value))}">
       <circle cx="${x(i)}" cy="${y(p.value)}" r="12" class="chartHit"/>
       <circle cx="${x(i)}" cy="${y(p.value)}" r="4" class="chartDot"/>
       <text x="${x(i)}" y="226" text-anchor="middle" class="chartLabel">${esc(p.year)}</text>
@@ -791,7 +791,7 @@ function drawRisk(){
  marker(r.p50,'#67a8ff','Median');marker(r.target,'#ff5f7d','FIRE Ziel',14);
  ctx.strokeStyle='rgba(122,158,197,.18)';ctx.beginPath();ctx.moveTo(padL,padT+plotH+.5);ctx.lineTo(w-padR,padT+plotH+.5);ctx.stroke();
  ctx.fillStyle='rgba(145,166,193,.78)';ctx.font='10px system-ui';ctx.textAlign='left';ctx.fillText(euro(0),padL,padT+plotH+22);ctx.textAlign='right';ctx.fillText(euro(cap),w-padR,padT+plotH+22);
- c.__riskHover={bins:hoverBins,padL,padT,plotH,cap};
+ c.__riskHover={bins:hoverBins,padL,padT,plotH,cap,sampleSize:vals.length};
  bindRiskTooltip(c)
 }
 function ensureChartTooltip(host){
@@ -828,7 +828,7 @@ function bindRiskTooltip(c){
   const r=c.getBoundingClientRect(),x=(e.clientX-r.left)*(c.clientWidth/r.width),y=(e.clientY-r.top)*(c.clientHeight/r.height);
   const bin=meta.bins.find(b=>x>=b.x&&x<=b.x2);
   if(!bin||y<meta.padT||y>meta.padT+meta.plotH)return hideChartTooltip(host);
-  const pctOf=UI.risk?.paths?bin.count/UI.risk.paths*100:0;
+  const pctOf=meta.sampleSize?bin.count/meta.sampleSize*100:0;
   showChartTooltip(host,`${euro(bin.min)} bis ${euro(bin.max)}`,`${bin.count} Simulationen · ${pct(pctOf)}`,e.clientX,e.clientY)
  };
  c.addEventListener('pointermove',handler);
