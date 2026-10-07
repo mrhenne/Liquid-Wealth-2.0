@@ -71,7 +71,7 @@
     showLoginGate(){ document.body.classList.remove('authPending','authReady');document.body.classList.add('authRequired');const gate=document.getElementById('authGate');if(gate)gate.hidden=false; const bodyTarget=document.getElementById('authGateBody'); const textTarget=document.getElementById('authGateText'); if(textTarget)textTarget.textContent='Melde dich an, um dein privates Finanz-Dashboard zu öffnen.'; if(!bodyTarget)return; const body=
       `
         <div class="authGlass">
-          <div class="authMark">LW</div>
+          <img class="authMiniLogo" src="assets/brand/liquid-wealth-icon.svg" alt="Liquid Wealth">
           <h3>Liquid Wealth Cloud</h3>
           <p>Ein Login für iPhone, Mac und alle weiteren Geräte.</p>
           <div class="field"><label>E-Mail</label><input class="input" id="authEmail" type="email" autocomplete="email" placeholder="name@example.de"></div>
