@@ -844,3 +844,64 @@ html.light .dashboardBadge,html.light .syncBadge{color:#9a5d08!important;backgro
  .dashboardAllocation .donutCenter strong{font-size:13px!important}
  .toolbar{align-items:flex-start!important}
 }
+
+
+/* v22 · iPhone geometry, crypto watchlist, milestone and risk modernization */
+.infoTip{display:inline-grid;place-items:center;width:16px;height:16px;margin-left:5px;border:1px solid rgba(115,163,210,.24);border-radius:50%;font-size:10px;font-weight:900;color:var(--muted);vertical-align:1px;cursor:help;position:relative}
+.infoTip:after{content:attr(data-tip);position:absolute;left:50%;bottom:calc(100% + 9px);width:max-content;max-width:260px;padding:8px 10px;border-radius:9px;background:rgba(7,18,31,.96);border:1px solid rgba(126,176,230,.18);color:#eef5ff;font-size:11px;font-weight:600;line-height:1.4;box-shadow:0 12px 30px rgba(0,0,0,.28);opacity:0;transform:translate(-50%,5px);pointer-events:none;transition:.15s;z-index:200;white-space:normal}
+.infoTip:hover:after,.infoTip:focus:after{opacity:1;transform:translate(-50%,0)}
+html.light .infoTip:after{background:rgba(255,255,255,.98);color:#17243a}
+
+/* Crypto favorites */
+.cryptoFinder{display:grid;grid-template-columns:minmax(180px,.65fr) minmax(300px,1.35fr);gap:18px;align-items:end;margin-bottom:12px}
+.cryptoFinder h2{margin:0 0 3px}.cryptoSearchBar{display:flex;gap:8px}.cryptoSearchBar .input{flex:1;min-width:0}
+.cryptoSearchResults{grid-column:1/-1;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:7px}
+.cryptoSearchRow{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:8px 10px;border:1px solid var(--glass-line);border-radius:10px;background:rgba(15,34,55,.55);color:var(--text);text-align:left}
+.coinIdentity{display:flex;align-items:center;gap:9px;min-width:0}.coinIdentity img,.coinIdentity>svg{width:30px;height:30px;flex:0 0 auto;border-radius:50%}.coinIdentity div,.coinIdentity span{min-width:0;display:grid}.coinIdentity strong{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.coinIdentity span,.coinIdentity small{color:var(--muted);font-size:10px}.addCoinMark{width:28px;height:28px;display:grid;place-items:center;border-radius:8px;background:rgba(47,124,255,.12);color:#62a8ff}.addCoinMark svg{width:16px;height:16px;stroke:currentColor;fill:none}
+.cryptoFavGrid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px}.cryptoFavCard{padding:14px;border:1px solid var(--glass-line);border-radius:13px;background:linear-gradient(145deg,rgba(16,34,57,.66),rgba(7,20,35,.58));box-shadow:inset 0 1px 0 rgba(255,255,255,.04),0 10px 28px rgba(0,0,0,.15)}
+.cryptoFavTop{display:flex;justify-content:space-between;gap:8px;align-items:center}.cryptoPrice{font-size:24px;font-weight:900;letter-spacing:-.03em;margin:18px 0 12px}.cryptoMeta{display:flex;justify-content:space-between;gap:8px;padding:6px 0;border-top:1px solid rgba(127,166,207,.10);font-size:11px}.cryptoMeta span{color:var(--muted)}
+.emptyState{grid-column:1/-1;text-align:center;color:var(--muted);padding:28px!important}
+
+/* Milestones */
+.milestoneGrid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}.milestoneCard{padding:16px;border:1px solid var(--glass-line);border-radius:14px;background:linear-gradient(145deg,rgba(16,34,57,.68),rgba(7,20,35,.58));box-shadow:inset 0 1px 0 rgba(255,255,255,.045),0 12px 34px rgba(0,0,0,.16)}
+.milestoneCardTop{display:grid;grid-template-columns:86px minmax(0,1fr) 38px;gap:13px;align-items:center}.milestoneRing{width:82px;height:82px;position:relative;display:grid;place-items:center}.milestoneRing svg{position:absolute;inset:0;width:100%;height:100%;overflow:visible}.ringTrack,.ringProgress{fill:none;stroke-width:8}.ringTrack{stroke:rgba(118,155,195,.10)}.ringProgress{stroke:#2f7cff;stroke-linecap:round;filter:drop-shadow(0 0 7px rgba(47,124,255,.18))}.milestoneRing strong{font-size:17px}
+.milestoneHeadline{min-width:0}.milestoneEyebrow{font-size:9px;font-weight:900;color:#6baeff;letter-spacing:.08em}.milestoneHeadline .goalName{margin:4px 0 7px;font-size:16px;font-weight:850}.milestoneAmount{font-size:14px;font-weight:850}.milestoneAmount span{color:var(--muted);font-weight:650;font-size:11px}
+.milestoneProgress{height:5px;background:rgba(119,156,194,.09);border-radius:99px;overflow:hidden;margin:12px 0}.milestoneProgress i{display:block;height:100%;background:linear-gradient(90deg,#2f7cff,#25cdb8);border-radius:99px}
+.milestoneFields{display:grid;grid-template-columns:1fr 1fr;gap:9px}.milestoneFields label{display:grid;gap:5px;color:var(--muted);font-size:10px;font-weight:700}.modernMilestone{display:grid;grid-template-columns:42px 1fr;gap:10px;align-items:center}.miniRing{width:40px;height:40px;border-radius:50%;display:grid;place-items:center;background:conic-gradient(#2f7cff calc(var(--p)*1%),rgba(110,151,195,.10) 0);position:relative}.miniRing:after{content:"";position:absolute;inset:5px;border-radius:50%;background:var(--panel)}.miniRing span{z-index:1;font-size:8px;font-weight:900}.milestoneCopy{min-width:0}
+
+/* Risk */
+.modernRiskMetrics .riskMetric{position:relative;overflow:hidden}.modernRiskMetrics .riskMetric:after{content:"";position:absolute;right:-22px;bottom:-28px;width:76px;height:76px;border-radius:50%;background:rgba(47,124,255,.08);filter:blur(8px)}.riskMetric small{display:block;color:var(--muted);font-size:10px;margin-top:4px}
+.riskLayout{grid-template-columns:minmax(0,1.55fr) minmax(260px,.65fr);gap:10px;margin-top:10px}.riskDistributionCard{min-width:0}.riskCanvas{display:block;width:100%;height:330px;border-radius:12px;background:linear-gradient(180deg,rgba(31,71,111,.08),transparent)}
+.riskModelBadge{padding:4px 8px;border-radius:999px;border:1px solid rgba(47,124,255,.16);background:rgba(47,124,255,.08);font-size:10px;color:#74b4ff;font-weight:850}.riskLegend{display:flex;flex-wrap:wrap;gap:12px;margin-top:9px;font-size:10px;color:var(--muted)}.riskLegend span{display:inline-flex;align-items:center;gap:5px}.riskDot{width:7px;height:7px;border-radius:50%;background:#6aaeff}.riskDot.defensive{background:#ff687f}.riskDot.optimistic{background:#2ad99a}.riskDot.target{background:#ff5f7d}.riskExplain .notice{margin-top:12px}
+
+/* Final iPhone layout corrections, intentionally last so older media rules cannot override them */
+@media(max-width:720px){
+ html,body{max-width:100%;overflow-x:hidden!important}
+ .app,.main,.content,.view,.dashboardGridTop,.dashboardGridMid,.dashboardGridBottom{min-width:0!important;max-width:100%!important}
+ .top{height:auto!important;min-height:0!important;display:grid!important;grid-template-columns:1fr!important;gap:8px!important;padding:9px 10px!important}
+ .topLeft{width:100%!important;display:grid!important;grid-template-columns:42px minmax(0,1fr) 42px!important;gap:7px!important}
+ .topLeft #today{display:none!important}.monthLabel{min-width:0!important;width:100%!important;height:42px!important}.monthBtn{width:42px!important;height:42px!important;padding:0!important}
+ .topCenter{display:none!important}
+ .topRight{width:100%!important;display:flex!important;justify-content:flex-end!important;gap:7px!important;overflow:visible!important}
+ .topRight .hideMobile,.topRight #calendarBtn{display:none!important}
+ .topRight .appearanceBtn,.topRight #stealth,.topRight #openSettings{width:42px!important;min-width:42px!important;height:42px!important;padding:0!important}
+ .topRight .themeText,.topRight #stealth .hideMobile,.topRight #openSettings .hideMobile{display:none!important}
+ .dashboardHero{max-width:100%!important;margin:0 0 10px!important;padding:0 0 3px!important;gap:8px!important}
+ .dashboardHero .kpi{min-width:calc(78vw - 20px)!important;max-width:280px!important}
+ .dashboardGridTop,.dashboardGridMid,.dashboardGridBottom,.wide,.lower,.dash{display:grid!important;grid-template-columns:minmax(0,1fr)!important}
+ .dashboardAllocation,.dashboardFlow,.dashboardMonth{grid-column:1!important;width:100%!important;min-width:0!important}
+ .dashboardAllocation .alloc{grid-template-columns:138px minmax(0,1fr)!important;overflow:hidden!important}
+ .dashboardAllocation .legend{min-width:0!important}.dashboardAllocation .legendRow{grid-template-columns:10px minmax(0,1fr) auto!important}.dashboardAllocation .legendRow>span:last-child{display:none!important}
+ .toolbar{min-width:0!important}.toolbar>div:first-child{min-width:0!important}.toolbar h2{white-space:normal!important;overflow-wrap:anywhere}
+ .flowViz{width:100%!important;min-width:0!important}
+ .cryptoFinder{grid-template-columns:1fr!important;gap:10px}.cryptoSearchResults{grid-template-columns:1fr}.cryptoFavGrid{grid-template-columns:1fr 1fr}.cryptoSearchBar{width:100%}
+ .milestoneGrid{grid-template-columns:1fr}.milestoneCardTop{grid-template-columns:72px minmax(0,1fr) 40px}.milestoneRing{width:68px;height:68px}.milestoneFields{grid-template-columns:1fr 1fr}
+ .riskLayout{grid-template-columns:1fr!important}.riskCanvas{height:280px}
+ .infoTip:after{position:fixed;left:12px!important;right:12px!important;bottom:calc(88px + env(safe-area-inset-bottom))!important;top:auto!important;width:auto!important;max-width:none!important;transform:translateY(5px)!important}.infoTip:hover:after,.infoTip:focus:after{transform:translateY(0)!important}
+}
+@media(max-width:430px){
+ .dashboardHero .kpi{min-width:78vw!important}
+ .dashboardAllocation .alloc{grid-template-columns:1fr!important}.dashboardAllocation .legend{width:100%!important}
+ .cryptoFavGrid{grid-template-columns:1fr}.milestoneFields{grid-template-columns:1fr}.milestoneCardTop{grid-template-columns:64px minmax(0,1fr) 40px}.milestoneRing{width:60px;height:60px}
+ .riskCanvas{height:250px}
+}

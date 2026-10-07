@@ -6,10 +6,10 @@ const sampleMonths={};
 function demoMonth(){return{income:[tx('Gehalt',6000,true),tx('Nebenjob',500,true)],expenses:[tx('Wohnen',1200,true),tx('Lebensmittel',600,true),tx('Versicherungen',400,true),tx('Mobilität',300,true),tx('Freizeit',300,false),tx('Sonstiges',200,false)],invest:[tx('ETF',1000,true),tx('Bitcoin',500,true),tx('Cash Reserve',500,true)]}}
 function tx(name,val,recurring=false,cat=''){return{id:crypto.randomUUID?crypto.randomUUID():String(Date.now()+Math.random()),name,val:+val||0,recurring,cat}}
 const defaultAssets=[{id:'a1',name:'ETF',value:57000,type:'ETF',cost:42000,rate:7},{id:'a2',name:'Bitcoin',value:35600,type:'Crypto',cost:18000,rate:12},{id:'a3',name:'Depot',value:21400,type:'Aktien',cost:16000,rate:7},{id:'a4',name:'Cash',value:14300,type:'Cash',cost:14300,rate:1},{id:'a5',name:'Immobilien',value:9800,type:'Immobilie',cost:7000,rate:3},{id:'a6',name:'Sonstige',value:4400,type:'Sonstige',cost:3000,rate:2}];
-const initial={version:8,settings:{...defaults},months:{},assets:defaultAssets,liabilities:[],goals:[{id:'g1',name:'FIRE',target:1200000,current:0,deadline:2042},{id:'g2',name:'Notgroschen',target:15000,current:0,deadline:2027}],meta:{created:new Date().toISOString()}};
-let state=loadState();let UI={year:now.getFullYear(),month:now.getMonth()+1,view:'dashboard',stealth:false,coins:[],sim:{extra:2000,returnRate:7,crash:0,years:15},risk:null};
+const initial={version:8,settings:{...defaults},months:{},assets:defaultAssets,liabilities:[],cryptoFavorites:['bitcoin','ethereum','solana','binancecoin'],goals:[{id:'g1',name:'FIRE',target:1200000,current:0,deadline:2042},{id:'g2',name:'Notgroschen',target:15000,current:0,deadline:2027}],meta:{created:new Date().toISOString()}};
+let state=loadState();let UI={year:now.getFullYear(),month:now.getMonth()+1,view:'dashboard',stealth:false,coins:[],cryptoSearchResults:[],cryptoSearching:false,sim:{extra:2000,returnRate:7,crash:0,years:15},risk:null};
 const CHECKPOINT_KEY=APP+'_checkpoints_v1';
-function loadState(){try{let raw=localStorage.getItem(APP)||localStorage.getItem('LWTE_5');let x=raw?JSON.parse(raw):null;if(x&&[4,5,6,7,8,9].includes(x.version))return {...x,version:9,settings:{...defaults,...(x.settings||{})},months:x.months||{},assets:x.assets||[],liabilities:x.liabilities||[],goals:x.goals||[]}}catch(e){}let x=structuredClone?structuredClone(initial):JSON.parse(JSON.stringify(initial));x.months[`${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}`]=demoMonth();return x}
+function loadState(){try{let raw=localStorage.getItem(APP)||localStorage.getItem('LWTE_5');let x=raw?JSON.parse(raw):null;if(x&&[4,5,6,7,8,9].includes(x.version))return {...x,version:9,settings:{...defaults,...(x.settings||{})},months:x.months||{},assets:x.assets||[],liabilities:x.liabilities||[],cryptoFavorites:Array.isArray(x.cryptoFavorites)&&x.cryptoFavorites.length?x.cryptoFavorites:['bitcoin','ethereum','solana','binancecoin'],goals:x.goals||[]}}catch(e){}let x=structuredClone?structuredClone(initial):JSON.parse(JSON.stringify(initial));x.months[`${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}`]=demoMonth();return x}
 function checkpointList(){try{return JSON.parse(localStorage.getItem(CHECKPOINT_KEY)||'[]')}catch(e){return[]}}
 function writeCheckpointList(list){try{localStorage.setItem(CHECKPOINT_KEY,JSON.stringify(list.slice(0,12)))}catch(e){console.warn('Checkpoint konnte nicht gespeichert werden',e)}}
 function createCheckpoint(reason='Manuell',raw=localStorage.getItem(APP)||JSON.stringify(state)){
@@ -18,7 +18,7 @@ function createCheckpoint(reason='Manuell',raw=localStorage.getItem(APP)||JSON.s
 function maybeAutoCheckpoint(previousRaw){if(!previousRaw)return;let list=checkpointList(),last=list[0];if(last&&Date.now()-last.ts<10*60*1000)return;if(last?.raw===previousRaw)return;createCheckpoint('Auto-Sicherung',previousRaw)}
 function save(skipCheckpoint=false){let next=JSON.stringify(state),prev=localStorage.getItem(APP);if(!skipCheckpoint&&prev&&prev!==next)maybeAutoCheckpoint(prev);localStorage.setItem(APP,next);window.LWCloud?.queueSave?.(state)}
 function manualCheckpoint(){createCheckpoint('Manueller Checkpoint');render();showToast('Sicherheits-Checkpoint erstellt')}
-function restoreCheckpoint(){let list=checkpointList();if(!list.length)return showToast('Noch kein Checkpoint vorhanden');let cp=list[0];if(!confirm(`Checkpoint vom ${new Date(cp.ts).toLocaleString('de-DE')} wiederherstellen?`))return;createCheckpoint('Vor Wiederherstellung');try{let x=JSON.parse(cp.raw);state={...initial,...x,version:9,settings:{...defaults,...(x.settings||{})},months:x.months||{},assets:x.assets||[],liabilities:x.liabilities||[],goals:x.goals||[]};localStorage.setItem(APP,JSON.stringify(state));window.LWCloud?.queueSave?.(state);UI.risk=null;render();showToast('Checkpoint wiederhergestellt')}catch(e){console.error(e);showToast('Checkpoint ist beschädigt')}}
+function restoreCheckpoint(){let list=checkpointList();if(!list.length)return showToast('Noch kein Checkpoint vorhanden');let cp=list[0];if(!confirm(`Checkpoint vom ${new Date(cp.ts).toLocaleString('de-DE')} wiederherstellen?`))return;createCheckpoint('Vor Wiederherstellung');try{let x=JSON.parse(cp.raw);state={...initial,...x,version:9,settings:{...defaults,...(x.settings||{})},months:x.months||{},assets:x.assets||[],liabilities:x.liabilities||[],cryptoFavorites:Array.isArray(x.cryptoFavorites)&&x.cryptoFavorites.length?x.cryptoFavorites:['bitcoin','ethereum','solana','binancecoin'],goals:x.goals||[]};localStorage.setItem(APP,JSON.stringify(state));window.LWCloud?.queueSave?.(state);UI.risk=null;render();showToast('Checkpoint wiederhergestellt')}catch(e){console.error(e);showToast('Checkpoint ist beschädigt')}}
 function key(y=UI.year,m=UI.month){return `${y}-${String(m).padStart(2,'0')}`}
 function getMonth(y=UI.year,m=UI.month,create=true){let k=key(y,m);if(!state.months[k]&&create)state.months[k]={income:[],expenses:[],invest:[]};return state.months[k]||{income:[],expenses:[],invest:[]}}
 function sum(a){return(a||[]).reduce((s,x)=>s+(Number(x.val)||0),0)}
@@ -163,9 +163,16 @@ function applySearchFilter(){
  });
 }
 
-function q(label,value,sub,icon,cls=''){return `<div class="card kpi"><span class="kicon">${I(icon)}</span><div class="klabel">${label}</div><div class="kvalue sensitive ${cls}">${value}</div><div class="ksub">${sub}</div></div>`}
 function metric(label,value){return `<div class="metric"><span>${label}</span><b class="sensitive">${value}</b></div>`}
 function stat(label,value,cls=''){return `<div class="stat"><span>${label}</span><b class="sensitive ${cls}">${value}</b></div>`}
+function infoTip(text){return `<span class="infoTip" tabindex="0" aria-label="${esc(text)}" data-tip="${esc(text)}">i</span>`}
+function q(label,value,sub,icon,cls=''){const tips={
+ 'Net Worth':'Gesamtwert deiner Assets abzüglich deiner erfassten Schulden.',
+ 'Cashflow':'Einnahmen minus Ausgaben und Investments des ausgewählten Monats.',
+ 'Sparquote':'Anteil des Einkommens, der nach Ausgaben übrig bleibt.',
+ 'FIRE Countdown':'Modellierte Zeit bis zum aktuellen FIRE-Ziel auf Basis deiner Annahmen.',
+ 'BTC Equivalent':'Dein aktuelles Nettovermögen umgerechnet in Bitcoin zum Live-Kurs.'
+ };return `<div class="card kpi"><span class="kicon">${I(icon)}</span><div class="klabel">${label}${tips[label]?infoTip(tips[label]):''}</div><div class="kvalue sensitive ${cls}">${value}</div><div class="ksub">${sub}</div></div>`}
 function donut(){
  const total=Math.max(netWorth(),1);
  const groups={ETF:0,Crypto:0,Aktien:0,Cash:0,Immobilie:0,Sonstige:0};
@@ -247,7 +254,7 @@ function lineChart(series,goal){
 }
 function btcPrice(){let b=UI.coins.find(c=>String(c.id).toLowerCase()==='bitcoin'||String(c.symbol).toLowerCase()==='btc');return Number(b?.current_price)||0}
 function dashboardYearRows(){let out=[];let start=Math.max(1,UI.month-7);for(let m=start;m<=UI.month;m++){let d=getMonth(UI.year,m,false),t=totals(d);out.push({m,t})}return out}
-function dashboardMilestones(){return state.goals.slice(0,5).map(g=>{let cur=goalCurrent(g),p=Math.min(100,cur/Math.max(Number(g.target)||1,1)*100),done=cur>=Number(g.target||0);return `<div class="milestoneItem"><div class="milestoneTop"><span>${done?'✓ ':''}${esc(g.name)}</span><b class="${done?'green':''}">${p.toFixed(0)}%</b></div><div class="progress" style="margin-top:6px"><i style="width:${p}%"></i></div><div class="milestoneMeta"><span class="sensitive">${euro(cur)} / ${euro(g.target)}</span><span>${g.deadline||'ohne Deadline'}</span></div></div>`}).join('')||'<div class="sub">Noch keine Meilensteine angelegt.</div>'}
+function dashboardMilestones(){return state.goals.slice(0,5).map(g=>{let cur=goalCurrent(g),p=Math.min(100,cur/Math.max(Number(g.target)||1,1)*100),done=cur>=Number(g.target||0);return `<div class="milestoneItem modernMilestone"><div class="miniRing" style="--p:${p}"><span>${Math.round(p)}%</span></div><div class="milestoneCopy"><div class="milestoneTop"><span>${done?'✓ ':''}${esc(g.name)}</span><b class="${done?'green':''}">${g.deadline||'—'}</b></div><div class="progress"><i style="width:${p}%"></i></div><div class="milestoneMeta"><span class="sensitive">${euro(cur)}</span><span>Ziel ${euro(g.target)}</span></div></div></div>`}).join('')||'<div class="sub">Noch keine Meilensteine angelegt.</div>'}
 function dashboard(){
  let d=getMonth(),t=totals(d),nw=netWorth(),target=fireTarget(d),fy=fireYears(d),cash=t.income-t.expenses-t.invest;
  let saveRate=t.income?(t.income-t.expenses)/t.income*100:0,monthlySurplus=t.income-t.expenses;
@@ -266,11 +273,11 @@ function dashboard(){
  </div>
  <div class="dashboardGridTop">
   <div class="card dashboardCard dashboardAllocation">
-   <div class="toolbar"><div><h2><span class="icon">${I('pie')}</span>Vermögensaufstellung</h2><span class="sub">Allocation deiner Assets</span></div><button class="ghost" data-nav="portfolio">Details</button></div>
+   <div class="toolbar"><div><h2><span class="icon">${I('pie')}</span>Vermögensaufstellung ${infoTip('Zeigt, wie sich dein Nettovermögen auf die erfassten Anlageklassen verteilt.')}</h2><span class="sub">Allocation deiner Assets</span></div><button class="ghost" data-nav="portfolio">Details</button></div>
    <div class="alloc">${donut()}${allocationLegend()}</div>
   </div>
   <div class="card dashboardCard dashboardFlow">
-   <div class="toolbar"><div><h2><span class="icon">${I('flow')}</span>Cashflow Anatomy</h2><span class="sub">So fließt dein Geld im ${monthName(UI.month)}</span></div><button class="ghost" data-nav="cashflow">Bearbeiten</button></div>
+   <div class="toolbar"><div><h2><span class="icon">${I('flow')}</span>Cashflow Anatomy ${infoTip('Zeigt, wohin dein Einkommen im ausgewählten Monat fließt: Ausgaben, Investments und verbleibende Liquidität.')}</h2><span class="sub">So fließt dein Geld im ${monthName(UI.month)}</span></div><button class="ghost" data-nav="cashflow">Bearbeiten</button></div>
    ${sankey(d)}
   </div>
   <div class="card dashboardCard dashboardMonth">
@@ -287,7 +294,7 @@ function dashboard(){
  </div>
  <div class="dashboardGridMid">
   <div class="card dashboardCard">
-   <div class="toolbar"><div><h2><span class="icon">${I('target')}</span>FIRE-Ziel</h2><span class="sub">Fortschritt zur finanziellen Freiheit</span></div><span class="dashboardBadge">${pct(fireProgress)}</span></div>
+   <div class="toolbar"><div><h2><span class="icon">${I('target')}</span>FIRE-Ziel ${infoTip('Dein Zielvermögen für finanzielle Unabhängigkeit anhand deiner aktuellen FIRE-Einstellungen.')}</h2><span class="sub">Fortschritt zur finanziellen Freiheit</span></div><span class="dashboardBadge">${pct(fireProgress)}</span></div>
    <div class="fireGoalValue sensitive">${euro(target)}</div><div class="progress"><i style="width:${fireProgress}%"></i></div>
    <div class="quickFacts"><div class="quickFact"><span>Aktuell</span><b class="sensitive">${euro(nw)}</b></div><div class="quickFact"><span>SWR</span><b>${pct(state.settings.swr)}</b></div><div class="quickFact"><span>Countdown</span><b>${fy===999?'N/A':fy.toFixed(1)+' Jahre'}</b></div></div>
   </div>
@@ -302,7 +309,7 @@ function dashboard(){
    <div class="crashCards"><div class="crashCard"><span>TradFi Crash</span><strong>−30%</strong><b class="sensitive">${euro(trad)}</b><small>${baseYears!==999&&tradYears!==999?'FIRE +'+Math.max(0,tradYears-baseYears).toFixed(1)+' J.':'FIRE N/A'}</small></div><div class="crashCard"><span>Crypto Winter</span><strong>−60%</strong><b class="sensitive">${euro(crypt)}</b><small>${baseYears!==999&&cryptoYears!==999?'FIRE +'+Math.max(0,cryptoYears-baseYears).toFixed(1)+' J.':'FIRE N/A'}</small></div></div>
   </div>
   <div class="card dashboardCard">
-   <div class="toolbar"><div><h2><span class="icon">${I('shield')}</span>Notgroschen</h2><span class="sub">Ziel ${state.settings.emergencyMonths} Monatsausgaben</span></div></div>
+   <div class="toolbar"><div><h2><span class="icon">${I('shield')}</span>Notgroschen ${infoTip('Liquide Reserve im Verhältnis zu den eingestellten Monatsausgaben.')}</h2><span class="sub">Ziel ${state.settings.emergencyMonths} Monatsausgaben</span></div></div>
    <div class="emergencyBig"><strong class="sensitive">${euro(currentCash)}</strong><span>/ ${euro(emergencyTarget)}</span></div><div class="progress"><i style="width:${emergencyProgress}%"></i></div>
    <div class="quickFacts"><div class="quickFact"><span>Erreicht</span><b>${pct(emergencyProgress)}</b></div><div class="quickFact"><span>Runway</span><b>${liquidityRunway().toFixed(1)} Monate</b></div></div>
   </div>
@@ -338,18 +345,81 @@ function simulator(){let d=getMonth(),base=fireYears(d),sim=fireYears(d,UI.sim.e
 function projection(){let d=getMonth(),series=projectedSeries(d,20,state.settings.returnRate,state.settings.monthlyExtra);return `<div class="toolbar"><div><h1 class="sectionTitle">Vermögensprojektion</h1><p class="sectionSub">20 Jahre · ${state.settings.returnRate}% nominal · ${state.settings.inflation}% Inflation · ${realReturn().toFixed(1)}% real.</p></div></div><div class="card">${lineChart(series,fireTarget(d))}</div><div class="grid monthGrid" style="grid-template-columns:repeat(4,1fr);margin-top:14px">${series.filter((x,i)=>[0,5,10,15,20].includes(i)).map(x=>`<div class="card">${metric('Jahr '+(UI.year+x.year),euro(x.value))}</div>`).join('')}</div>`}
 function year(){let rows=[],yi=0,ye=0,iv=0;for(let m=1;m<=12;m++){let d=getMonth(UI.year,m,false),t=totals(d);if(t.income||t.expenses||t.invest){rows.push({m,t});yi+=t.income;ye+=t.expenses;iv+=t.invest}}return `<div class="toolbar"><div><h1 class="sectionTitle">Jahresübersicht ${UI.year}</h1><p class="sectionSub">Monatliche Entwicklung und Jahreskennzahlen.</p></div><select class="input" id="yearSelect">${Array.from({length:7},(_,i)=>UI.year-3+i).map(y=>`<option ${y===UI.year?'selected':''}>${y}</option>`).join('')}</select></div><div class="grid kpis">${q('Income',euro(yi),'Jahr','↗')}${q('Expenses',euro(ye),'Jahr','chart')}${q('Investments',euro(iv),'Jahr','chart')}${q('Sparquote',pct(yi?(yi-ye)/yi*100:0),'Jahr','pie')}${q('Cashflow',euro(yi-ye),'Jahr','flow')}${q('Ø monatlich',euro((yi-ye)/12),'Cashflow','pulse')}</div><div class="card" style="margin-top:14px"><table class="table"><tr><th>Monat</th><th>Income</th><th>Expenses</th><th>Invest</th><th>Cashflow</th><th>Sparquote</th></tr>${rows.map(r=>`<tr><td>${monthName(r.m)}</td><td>${euro(r.t.income)}</td><td>${euro(r.t.expenses)}</td><td>${euro(r.t.invest)}</td><td class="${r.t.income-r.t.expenses>=0?'green':'red'}">${euro(r.t.income-r.t.expenses)}</td><td>${pct(r.t.income?(r.t.income-r.t.expenses)/r.t.income*100:0)}</td></tr>`).join('')}</table></div>`}
 async function fetchCoins(force=false){
- const mini=document.getElementById('coinMini');if(mini&&!UI.coins.length)mini.innerHTML='<div class="sub">Kurse werden geladen …</div>';
+ const mini=document.getElementById('coinMini');
+ if(mini&&!UI.coins.length)mini.innerHTML='<div class="sub">Kurse werden geladen …</div>';
+ const ids=(state.cryptoFavorites||[]).filter(Boolean).slice(0,20);
+ if(!ids.length){UI.coins=[];renderCoinMini();if(UI.view==='crypto')render();return}
  try{
    const ctl=new AbortController(),timer=setTimeout(()=>ctl.abort(),7000);
-   const res=await fetch('https://api.coingecko.com/api/v3/coins/markets?vs_currency=eur&ids=bitcoin,ethereum,solana,binancecoin&price_change_percentage=24h',{signal:ctl.signal,cache:force?'no-store':'default'});clearTimeout(timer);
-   if(!res.ok)throw Error('HTTP '+res.status);let data=await res.json();if(!Array.isArray(data))throw Error('Ungültige Marktdaten');UI.coins=data;
+   const url='https://api.coingecko.com/api/v3/coins/markets?vs_currency=eur&ids='+encodeURIComponent(ids.join(','))+'&price_change_percentage=24h';
+   const res=await fetch(url,{signal:ctl.signal,cache:force?'no-store':'default'});clearTimeout(timer);
+   if(!res.ok)throw Error('HTTP '+res.status);
+   const data=await res.json();if(!Array.isArray(data))throw Error('Ungültige Marktdaten');
+   const order=new Map(ids.map((id,i)=>[id,i]));
+   UI.coins=data.sort((a,b)=>(order.get(a.id)??99)-(order.get(b.id)??99));
    renderCoinMini();if(UI.view==='crypto'||UI.view==='dashboard')render();
  }catch(err){console.warn('Live-Krypto derzeit nicht verfügbar',err);renderCoinMini(true);if(force)showToast('Live-Kurse derzeit nicht erreichbar')}
 }
-function renderCoinMini(failed=false){let el=document.getElementById('coinMini');if(!el)return;if(!UI.coins.length){el.innerHTML=`<div class="sub">${failed?'Offline / API nicht erreichbar':'Noch keine Live-Daten'}</div>`;return}el.innerHTML=UI.coins.map(c=>`<div class="coinMini"><b>${esc(String(c.symbol||'').toUpperCase())}</b><span class="sensitive">${euro(c.current_price)}</span><em class="${Number(c.price_change_percentage_24h)>=0?'green':'red'}">${Number(c.price_change_percentage_24h||0).toFixed(1)}%</em></div>`).join('')}
-
-function crypto(){return `<div class="toolbar"><div><h1 class="sectionTitle">Krypto</h1><p class="sectionSub">Live Market Data, optional. Die App funktioniert auch offline.</p></div><button class="primary" data-action="refreshCrypto">↻ Aktualisieren</button></div><div class="card"><table class="table"><tr><th>Asset</th><th>Preis EUR</th><th>24h</th><th>Market Cap</th></tr>${UI.coins.length?UI.coins.map(c=>`<tr><td style="text-align:left"><b>${esc(c.name)}</b> · ${esc(c.symbol.toUpperCase())}</td><td>${euro(c.current_price)}</td><td class="${c.price_change_percentage_24h>=0?'green':'red'}">${(c.price_change_percentage_24h||0).toFixed(2)}%</td><td>${euro(c.market_cap)}</td></tr>`).join(''):'<tr><td colspan="4">Noch keine Live-Daten. Klicke Aktualisieren oder prüfe die Internetverbindung.</td></tr>'}</table></div>`}
-function goals(){return `<div class="toolbar"><div><h1 class="sectionTitle">Ziele</h1><p class="sectionSub">FIRE, Notgroschen und frei definierbare Vermögensziele.</p></div><button class="primary" data-action="addGoal">Ziel</button></div><div class="card">${state.goals.map(g=>{let cur=goalCurrent(g),p=Math.min(100,cur/Math.max(g.target,1)*100);return `<div class="goal" data-goal="${g.id}"><div class="goalTop"><input class="input goalName" value="${esc(g.name)}"><span class="sensitive">${euro(cur)} / ${euro(g.target)}</span><button class="danger goalDel" title="Ziel löschen" aria-label="Ziel löschen"></button></div><div class="formGrid" style="margin-top:8px"><div class="field"><label>Zielbetrag</label><input class="input goalTarget" type="number" value="${g.target}"></div><div class="field"><label>Deadline</label><input class="input goalDeadline" type="number" value="${g.deadline||''}"></div></div><div class="progress" style="margin-top:8px"><i style="width:${p}%"></i></div><div class="sub" style="margin-top:4px">${p.toFixed(0)}% erreicht</div></div>`}).join('')}</div>`}
+function renderCoinMini(failed=false){
+ const el=document.getElementById('coinMini');if(!el)return;
+ if(!UI.coins.length){el.innerHTML=`<div class="sub">${failed?'Offline / API nicht erreichbar':'Noch keine Live-Daten'}</div>`;return}
+ el.innerHTML=UI.coins.slice(0,5).map(c=>`<div class="coinMini"><b>${esc(String(c.symbol||'').toUpperCase())}</b><span class="sensitive">${euro(c.current_price)}</span><em class="${Number(c.price_change_percentage_24h)>=0?'green':'red'}">${Number(c.price_change_percentage_24h||0).toFixed(1)}%</em></div>`).join('')
+}
+async function searchCrypto(){
+ const q=(document.getElementById('cryptoSearch')?.value||'').trim();
+ if(q.length<2)return showToast('Mindestens 2 Zeichen eingeben');
+ UI.cryptoSearching=true;render();
+ try{
+   const res=await fetch('https://api.coingecko.com/api/v3/search?query='+encodeURIComponent(q));
+   if(!res.ok)throw Error('HTTP '+res.status);
+   const data=await res.json();
+   UI.cryptoSearchResults=(data.coins||[]).slice(0,8);
+ }catch(e){console.warn(e);UI.cryptoSearchResults=[];showToast('Coin-Suche gerade nicht erreichbar')}
+ finally{UI.cryptoSearching=false;render()}
+}
+function addCryptoFavorite(id){
+ if(!id)return;
+ state.cryptoFavorites=Array.from(new Set([...(state.cryptoFavorites||[]),id])).slice(0,20);
+ UI.cryptoSearchResults=[];save();fetchCoins(true);render();showToast('Coin zu Favoriten hinzugefügt')
+}
+function removeCryptoFavorite(id){
+ state.cryptoFavorites=(state.cryptoFavorites||[]).filter(x=>x!==id);
+ UI.coins=UI.coins.filter(x=>x.id!==id);save();fetchCoins(true);render();showToast('Coin aus Favoriten entfernt')
+}
+function crypto(){
+ const favs=state.cryptoFavorites||[];
+ const byId=new Map(UI.coins.map(c=>[c.id,c]));
+ const cards=favs.map(id=>{const c=byId.get(id);return `<article class="cryptoFavCard" data-coin="${esc(id)}">
+   <div class="cryptoFavTop">
+    <div class="coinIdentity">${c?.image?`<img src="${esc(c.image)}" alt="">`:I('coin')}<div><strong>${esc(c?.name||id)}</strong><span>${esc((c?.symbol||id).toUpperCase())}</span></div></div>
+    <button class="ghost iconOnly cryptoRemove" data-coin-remove="${esc(id)}" title="Aus Favoriten entfernen" aria-label="Aus Favoriten entfernen">${I('trash')}</button>
+   </div>
+   <div class="cryptoPrice sensitive">${c?euro(c.current_price):'—'}</div>
+   <div class="cryptoMeta"><span>24 h</span><b class="${Number(c?.price_change_percentage_24h)>=0?'green':'red'}">${c?Number(c.price_change_percentage_24h||0).toFixed(2)+'%':'—'}</b></div>
+   <div class="cryptoMeta"><span>Market Cap</span><b class="sensitive">${c?euro(c.market_cap):'—'}</b></div>
+  </article>`}).join('');
+ const results=UI.cryptoSearchResults.length?`<div class="cryptoSearchResults">${UI.cryptoSearchResults.map(c=>`<button class="cryptoSearchRow" data-coin-add="${esc(c.id)}"><span class="coinIdentity">${c.thumb?`<img src="${esc(c.thumb)}" alt="">`:''}<span><strong>${esc(c.name)}</strong><small>${esc(c.symbol.toUpperCase())}</small></span></span><span class="addCoinMark">${I('plus')}</span></button>`).join('')}</div>`:'';
+ return `<div class="toolbar cryptoToolbar"><div><h1 class="sectionTitle">Krypto ${infoTip('Deine persönliche Watchlist. Kurse und 24-Stunden-Veränderungen kommen live von CoinGecko.')}</h1><p class="sectionSub">Deine eigene Favoritenliste mit Live-Kursen in Euro.</p></div><button class="ghost" data-action="refreshCrypto">Aktualisieren</button></div>
+ <div class="card cryptoFinder"><div><h2>Coin hinzufügen</h2><span class="sub">Suche nach Name oder Kürzel, z. B. Bitcoin, ETH oder TAO.</span></div><div class="cryptoSearchBar"><input class="input" id="cryptoSearch" type="search" placeholder="Coin suchen …" autocomplete="off"><button class="primary" data-action="searchCrypto">${UI.cryptoSearching?'Suche …':'Suchen'}</button></div>${results}</div>
+ <div class="cryptoFavGrid">${cards||'<div class="card emptyState">Noch keine Favoriten. Suche oben nach einem Coin und füge ihn hinzu.</div>'}</div>`
+}
+function milestoneRing(p){
+ const r=42,c=2*Math.PI*r,dash=Math.max(0,Math.min(100,p))/100*c;
+ return `<div class="milestoneRing"><svg viewBox="0 0 100 100"><circle class="ringTrack" cx="50" cy="50" r="${r}"/><circle class="ringProgress" cx="50" cy="50" r="${r}" stroke-dasharray="${dash} ${c-dash}" transform="rotate(-90 50 50)"/></svg><strong>${Math.round(p)}%</strong></div>`
+}
+function goals(){
+ const cards=state.goals.map(g=>{const cur=goalCurrent(g),p=Math.min(100,cur/Math.max(Number(g.target)||1,1)*100),done=p>=100;
+ return `<article class="milestoneCard goal" data-goal="${g.id}">
+  <div class="milestoneCardTop">
+   ${milestoneRing(p)}
+   <div class="milestoneHeadline"><span class="milestoneEyebrow">${done?'ERREICHT':'MEILENSTEIN'}</span><input class="input goalName" value="${esc(g.name)}"><div class="milestoneAmount sensitive">${euro(cur)} <span>/ ${euro(g.target)}</span></div></div>
+   <button class="danger goalDel iconOnly" title="Ziel löschen" aria-label="Ziel löschen"></button>
+  </div>
+  <div class="milestoneProgress"><i style="width:${p}%"></i></div>
+  <div class="milestoneFields"><label><span>Zielbetrag ${infoTip('Der Betrag, bei dem dieser Meilenstein als erreicht gilt.')}</span><input class="input goalTarget" type="number" value="${g.target}"></label><label><span>Deadline ${infoTip('Optionales Zieljahr für diesen Meilenstein.')}</span><input class="input goalDeadline" type="number" value="${g.deadline||''}"></label></div>
+ </article>`}).join('');
+ return `<div class="toolbar"><div><h1 class="sectionTitle">Meilensteine ${infoTip('Persönliche Vermögensziele mit aktuellem Fortschritt und optionaler Deadline.')}</h1><p class="sectionSub">Vom Notgroschen bis FIRE. Fortschritt und Zielwerte auf einen Blick.</p></div><button class="primary" data-action="addGoal">Ziel</button></div><div class="milestoneGrid">${cards||'<div class="card emptyState">Noch keine Meilensteine angelegt.</div>'}</div>`
+}
 function liquidityRunway(){let d=getMonth(),cash=state.assets.filter(a=>a.type==='Cash').reduce((s,a)=>s+Number(a.value||0),0),monthly=totals(d).expenses;return monthly>0?cash/monthly:0}
 function twelveMonthStats(){let income=0,expenses=0,invest=0,months=0,series=[];for(let i=0;i<12;i++){let dt=new Date(UI.year,UI.month-1-i,1),d=getMonth(dt.getFullYear(),dt.getMonth()+1,false),t=totals(d);income+=t.income;expenses+=t.expenses;invest+=t.invest;if(t.income||t.expenses||t.invest)months++;series.unshift({label:monthName(dt.getMonth()+1).slice(0,3),rate:t.income?(t.income-t.expenses)/t.income*100:0})}return {income,expenses,invest,months,series,rate:income?(income-expenses)/income*100:0}}
 function fireSafety(){let d=getMonth(),target=fireTarget(d),nw=netWorth(),base=nw/Math.max(target,1),stressNW=nw*.8,stressTarget=target*1.1;return {base,stress:stressNW/Math.max(stressTarget,1),gap:stressTarget-stressNW}}
@@ -436,7 +506,7 @@ function importData(e){
      createCheckpoint('Vor Backup-Import');
      state={...initial,...x,version:9,
        settings:{...defaults,...(x.settings||{})},
-       months:x.months||{},assets:x.assets||[],liabilities:x.liabilities||[],goals:x.goals||[]};
+       months:x.months||{},assets:x.assets||[],liabilities:x.liabilities||[],cryptoFavorites:Array.isArray(x.cryptoFavorites)&&x.cryptoFavorites.length?x.cryptoFavorites:['bitcoin','ethereum','solana','binancecoin'],goals:x.goals||[]};
      save();UI.risk=null;render();showToast('Backup erfolgreich importiert');
    }catch(err){
      console.error(err);showToast('Import fehlgeschlagen: ungültige Datei');
@@ -463,6 +533,7 @@ function action(a){
  if(a==='export')return exportData();
  if(a==='reset')return reset();
  if(a==='refreshCrypto')return fetchCoins(true);
+ if(a==='searchCrypto')return searchCrypto();
  if(a==='rerunRisk'){UI.risk=null;render();return showToast('Risikoanalyse neu simuliert');}
  if(a==='resetSim'){UI.sim={...UI.sim,extra:2000,returnRate:7,crash:0};return render();} if(a==='prevMonth')return shift(-1);
  if(a==='nextMonth')return shift(1);
@@ -481,8 +552,38 @@ function closeModal(){document.getElementById('modal').classList.remove('show')}
 let __toastTimer=0;function showToast(message){const el=document.getElementById('toast');if(!el)return;el.textContent=String(message||'');el.classList.add('show');clearTimeout(__toastTimer);__toastTimer=setTimeout(()=>el.classList.remove('show'),2600)}
 function normalRandom(){let u=0,v=0;while(u===0)u=Math.random();while(v===0)v=Math.random();return Math.sqrt(-2*Math.log(u))*Math.cos(2*Math.PI*v)}
 function runMonteCarlo(){let d=getMonth(),target=fireTarget(d),start=netWorth(),monthly=totals(d).invest+Number(state.settings.monthlyExtra||0),mu=Number(state.settings.returnRate)/100,vol=.16,horizon=15,paths=1000,hit=0,terminal=[];for(let p=0;p<paths;p++){let w=start;for(let y=0;y<horizon;y++){let r=mu+vol*normalRandom();r=Math.max(-.45,Math.min(.45,r));for(let m=0;m<12;m++)w=Math.max(0,w*(1+r/12)+monthly)}if(w>=target)hit++;terminal.push(w)}terminal.sort((a,b)=>a-b);return{success:hit/paths*100,p10:terminal[Math.floor(paths*.1)],p50:terminal[Math.floor(paths*.5)],p90:terminal[Math.floor(paths*.9)],target,horizon,paths}}
-function risk(){let d=getMonth(),r=UI.risk||(UI.risk=runMonteCarlo()),fy=fireYears(d),color=r.success>=80?'green':r.success>=60?'orange':'red';let bars=[['10%',r.p10],['Median',r.p50],['90%',r.p90]];return `<div class="toolbar"><div><h1 class="sectionTitle">Risikoanalyse</h1><p class="sectionSub">Monte-Carlo-Stresstest mit 1.000 Renditepfaden. Er zeigt, wie robust dein aktueller FIRE-Plan gegen unterschiedliche Börsenverläufe ist.</p></div><button class="primary" data-action="rerunRisk"><span class="icon">${I('pulse')}</span>Neu simulieren</button></div><div class="riskGrid"><div class="riskMetric"><span>FIRE-Erreichung in ${r.horizon} Jahren</span><b class="${color}">${pct(r.success)}</b></div><div class="riskMetric"><span>Median Vermögen</span><b class="sensitive">${euro(r.p50)}</b></div><div class="riskMetric"><span>Schwaches 10%-Szenario</span><b class="sensitive red">${euro(r.p10)}</b></div><div class="riskMetric"><span>Starkes 90%-Szenario</span><b class="sensitive green">${euro(r.p90)}</b></div></div><div class="grid wide" style="margin-top:14px"><div class="card"><div class="toolbar"><div><h2>Verteilung der Ergebnisse</h2><span class="sub">Start ${euro(netWorth())} · Ziel ${euro(r.target)} · Rendite ${pct(state.settings.returnRate)} · Volatilität 16%</span></div></div><canvas id="riskCanvas" class="riskCanvas"></canvas></div><div class="card"><h2>Einordnung</h2>${stat('Konventioneller FIRE Countdown',fy===999?'N/A':fy.toFixed(1)+' Jahre')}${stat('Simulationshorizont',r.horizon+' Jahre')}${stat('Pfade',r.paths.toLocaleString('de-DE'))}${stat('FIRE Ziel',euro(r.target))}<div class="notice" style="margin-top:12px">Die Simulation ist ein Planungsmodell, keine Prognose. Sie berücksichtigt eine variable Renditereihenfolge und macht das Sequence-of-Returns-Risiko sichtbar. Inflation und Steuern sind nicht separat modelliert.</div></div></div>`}
-function drawRisk(){let c=document.getElementById('riskCanvas');if(!c)return;let r=UI.risk||(UI.risk=runMonteCarlo()),ctx=c.getContext('2d'),dpr=window.devicePixelRatio||1,w=c.clientWidth,h=c.clientHeight;c.width=w*dpr;c.height=h*dpr;ctx.scale(dpr,dpr);ctx.clearRect(0,0,w,h);let vals=[],mu=state.settings.returnRate/100,vol=.16,start=netWorth(),monthly=totals(getMonth()).invest+Number(state.settings.monthlyExtra||0),target=r.target;for(let p=0;p<500;p++){let x=start;for(let y=0;y<r.horizon;y++){let rr=Math.max(-.45,Math.min(.45,mu+vol*normalRandom()));for(let m=0;m<12;m++)x=Math.max(0,x*(1+rr/12)+monthly)}vals.push(x)}vals.sort((a,b)=>a-b);let max=Math.max(...vals,target),pad=35;ctx.strokeStyle=getComputedStyle(document.documentElement).getPropertyValue('--line');ctx.lineWidth=1;ctx.beginPath();ctx.moveTo(pad,h-28);ctx.lineTo(w-pad,h-28);ctx.stroke();let bins=28,counts=new Array(bins).fill(0);vals.forEach(v=>counts[Math.min(bins-1,Math.floor(v/max*bins))]++);let bw=(w-2*pad)/bins;counts.forEach((n,i)=>{let bh=(h-55)*n/Math.max(...counts);ctx.fillStyle='#1688ff';ctx.fillRect(pad+i*bw,h-29-bh,bw-3,bh)});let tx=pad+target/max*(w-2*pad);ctx.strokeStyle='#ff4f70';ctx.setLineDash([6,5]);ctx.beginPath();ctx.moveTo(tx,18);ctx.lineTo(tx,h-25);ctx.stroke();ctx.setLineDash([]);ctx.fillStyle='#ff6a85';ctx.font='11px Inter, sans-serif';ctx.fillText('FIRE Ziel',Math.min(tx+6,w-85),28)}
+function risk(){
+ let d=getMonth(),r=UI.risk||(UI.risk=runMonteCarlo()),fy=fireYears(d),color=r.success>=80?'green':r.success>=60?'orange':'red';
+ return `<div class="toolbar"><div><h1 class="sectionTitle">Risikoanalyse ${infoTip('Monte-Carlo-Modell mit zufälligen Renditepfaden. Es zeigt Bandbreiten und Wahrscheinlichkeit, keine sichere Prognose.')}</h1><p class="sectionSub">1.000 simulierte Renditepfade zeigen, wie robust dein aktueller FIRE-Plan ist.</p></div><button class="primary" data-action="rerunRisk">Neu simulieren</button></div>
+ <div class="riskGrid modernRiskMetrics">
+  <div class="riskMetric"><span>FIRE-Chance ${infoTip('Anteil der Simulationen, die das FIRE-Ziel innerhalb des Horizonts erreichen.')}</span><b class="${color}">${pct(r.success)}</b><small>in ${r.horizon} Jahren</small></div>
+  <div class="riskMetric"><span>Median ${infoTip('Mittleres Simulationsergebnis. 50 % liegen darunter, 50 % darüber.')}</span><b class="sensitive">${euro(r.p50)}</b><small>50%-Szenario</small></div>
+  <div class="riskMetric"><span>Defensiv ${infoTip('Nur 10 % der simulierten Ergebnisse liegen unter diesem Wert.')}</span><b class="sensitive red">${euro(r.p10)}</b><small>10%-Perzentil</small></div>
+  <div class="riskMetric"><span>Optimistisch ${infoTip('90 % der simulierten Ergebnisse liegen unter diesem Wert.')}</span><b class="sensitive green">${euro(r.p90)}</b><small>90%-Perzentil</small></div>
+ </div>
+ <div class="grid riskLayout">
+  <div class="card riskDistributionCard"><div class="toolbar"><div><h2>Verteilung der Ergebnisse ${infoTip('Je höher die Kurve, desto häufiger endeten Simulationen in diesem Vermögensbereich.')}</h2><span class="sub">Start ${euro(netWorth())} · FIRE-Ziel ${euro(r.target)}</span></div><span class="riskModelBadge">Monte Carlo</span></div><canvas id="riskCanvas" class="riskCanvas"></canvas><div class="riskLegend"><span><i class="riskDot defensive"></i>10 % ${euro(r.p10)}</span><span><i class="riskDot median"></i>Median ${euro(r.p50)}</span><span><i class="riskDot optimistic"></i>90 % ${euro(r.p90)}</span><span><i class="riskDot target"></i>FIRE Ziel ${euro(r.target)}</span></div></div>
+  <div class="card riskExplain"><h2>Einordnung</h2>${stat('FIRE Countdown',fy===999?'N/A':fy.toFixed(1)+' Jahre')}${stat('Simulationshorizont',r.horizon+' Jahre')}${stat('Pfade',r.paths.toLocaleString('de-DE'))}${stat('Erwartete Rendite',pct(state.settings.returnRate))}<div class="notice">Das Modell zeigt mögliche Bandbreiten. Renditereihenfolge, Steuern und reale Marktbedingungen können anders ausfallen.</div></div>
+ </div>`
+}
+function roundedRect(ctx,x,y,w,h,r){const rr=Math.min(r,w/2,h/2);ctx.beginPath();ctx.roundRect?ctx.roundRect(x,y,w,h,rr):(ctx.rect(x,y,w,h));}
+function drawRisk(){
+ const c=document.getElementById('riskCanvas');if(!c)return;
+ const r=UI.risk||(UI.risk=runMonteCarlo()),ctx=c.getContext('2d'),dpr=window.devicePixelRatio||1,w=Math.max(c.clientWidth,280),h=Math.max(c.clientHeight,260);
+ c.width=w*dpr;c.height=h*dpr;ctx.setTransform(dpr,0,0,dpr,0,0);ctx.clearRect(0,0,w,h);
+ const vals=[],mu=state.settings.returnRate/100,vol=.16,start=netWorth(),monthly=totals(getMonth()).invest+Number(state.settings.monthlyExtra||0);
+ for(let p=0;p<900;p++){let x=start;for(let y=0;y<r.horizon;y++){let rr=Math.max(-.45,Math.min(.45,mu+vol*normalRandom()));for(let m=0;m<12;m++)x=Math.max(0,x*(1+rr/12)+monthly)}vals.push(x)}
+ vals.sort((a,b)=>a-b);
+ const cap=Math.max(r.target,vals[Math.floor(vals.length*.97)]||1),padL=24,padR=24,padT=28,padB=38,plotW=w-padL-padR,plotH=h-padT-padB;
+ const bins=32,counts=new Array(bins).fill(0);vals.forEach(v=>{const i=Math.max(0,Math.min(bins-1,Math.floor(v/cap*bins)));counts[i]++});
+ const maxCount=Math.max(...counts,1),bw=plotW/bins;
+ const grad=ctx.createLinearGradient(0,padT,0,padT+plotH);grad.addColorStop(0,'rgba(47,124,255,.92)');grad.addColorStop(1,'rgba(67,208,190,.28)');
+ counts.forEach((n,i)=>{const bh=Math.max(2,n/maxCount*plotH);const x=padL+i*bw+1,y=padT+plotH-bh;ctx.fillStyle=grad;roundedRect(ctx,x,y,Math.max(2,bw-3),bh,4);ctx.fill()});
+ const marker=(value,color,label,offset=0)=>{const x=padL+Math.min(1,value/cap)*plotW;ctx.strokeStyle=color;ctx.lineWidth=1.5;ctx.setLineDash([4,5]);ctx.beginPath();ctx.moveTo(x,padT);ctx.lineTo(x,padT+plotH);ctx.stroke();ctx.setLineDash([]);ctx.fillStyle=color;ctx.font='700 10px system-ui';ctx.textAlign=x>w*.72?'right':'left';ctx.fillText(label,x+(x>w*.72?-5:5),padT+10+offset)};
+ marker(r.p50,'#67a8ff','Median');marker(r.target,'#ff5f7d','FIRE Ziel',14);
+ ctx.strokeStyle='rgba(122,158,197,.18)';ctx.beginPath();ctx.moveTo(padL,padT+plotH+.5);ctx.lineTo(w-padR,padT+plotH+.5);ctx.stroke();
+ ctx.fillStyle='rgba(145,166,193,.78)';ctx.font='10px system-ui';ctx.textAlign='left';ctx.fillText(euro(0),padL,padT+plotH+22);ctx.textAlign='right';ctx.fillText(euro(cap),w-padR,padT+plotH+22)
+}
 function applyAppearance(){document.documentElement.classList.toggle('light',!UI.dark);document.documentElement.style.colorScheme=UI.dark?'dark':'light';const b=document.getElementById('appearanceToggle');if(!b)return;const icon=document.getElementById('appearanceIcon');const text=document.getElementById('appearanceText');if(icon)icon.setAttribute('data-icon',UI.dark?'sun':'moon');if(text)text.textContent=UI.dark?'Light Mode':'Dark Mode';b.title=UI.dark?'Zu Light Mode wechseln':'Zu Dark Mode wechseln';}
 function render(){
  const monthText=`${monthName(UI.month)} ${UI.year}`;
@@ -523,6 +624,8 @@ document.addEventListener('click',function(e){
  if(b.classList.contains('assetDel')){e.preventDefault();return deleteAsset(b);}
  if(b.classList.contains('debtDel')){e.preventDefault();return deleteDebt(b);}
  if(b.classList.contains('goalDel')){e.preventDefault();return deleteGoal(b);}
+ if(b.dataset.coinAdd){e.preventDefault();return addCryptoFavorite(b.dataset.coinAdd);}
+ if(b.dataset.coinRemove){e.preventDefault();return removeCryptoFavorite(b.dataset.coinRemove);}
 });
 document.addEventListener('change',function(e){
  const t=e.target;
@@ -544,6 +647,7 @@ document.addEventListener('input',function(e){
  if(t.id==='globalSearch'){UI.search=t.value;applySearchFilter();}
 });
 document.addEventListener('keydown',function(e){
+ if(e.key==='Enter' && document.activeElement?.id==='cryptoSearch'){e.preventDefault();return searchCrypto();}
  if(e.key==='/' && !/input|textarea|select/i.test(document.activeElement.tagName)){e.preventDefault();const s=document.getElementById('globalSearch');if(s){s.focus();s.select();}}
 });
 
