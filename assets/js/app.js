@@ -551,7 +551,7 @@ async function fetchCoins(force=false){
  if(!ids.length){UI.coins=[];renderCoinMini();if(UI.view==='crypto')render();return}
  try{
    const ctl=new AbortController(),timer=setTimeout(()=>ctl.abort(),7000);
-   const url='https://api.coingecko.com/api/v3/coins/markets?vs_currency=eur&ids='+encodeURIComponent(ids.join(','))+'&price_change_percentage=24h';
+   const url='/api/coingecko?type=markets&ids='+encodeURIComponent(ids.join(','));
    const res=await fetch(url,{signal:ctl.signal,cache:force?'no-store':'default'});clearTimeout(timer);
    if(!res.ok)throw Error('HTTP '+res.status);
    const data=await res.json();if(!Array.isArray(data))throw Error('Ungültige Marktdaten');
@@ -570,7 +570,7 @@ async function searchCrypto(){
  if(q.length<2)return showToast('Mindestens 2 Zeichen eingeben');
  UI.cryptoSearching=true;render();
  try{
-   const res=await fetch('https://api.coingecko.com/api/v3/search?query='+encodeURIComponent(q));
+   const res=await fetch('/api/coingecko?type=search&q='+encodeURIComponent(q));
    if(!res.ok)throw Error('HTTP '+res.status);
    const data=await res.json();
    UI.cryptoSearchResults=(data.coins||[]).slice(0,8);
@@ -663,7 +663,7 @@ async function fetchCryptoHistoryData(id,range,force=false){
  const req=(async()=>{
   const ctl=new AbortController(),timer=setTimeout(()=>ctl.abort(),9000);
   try{
-   const res=await fetch(`https://api.coingecko.com/api/v3/coins/${encodeURIComponent(id)}/market_chart?vs_currency=eur&days=${encodeURIComponent(cfg.days)}`,{signal:ctl.signal,cache:'no-store'});
+   const res=await fetch(`/api/coingecko?type=history&id=${encodeURIComponent(id)}&days=${encodeURIComponent(cfg.days)}`,{signal:ctl.signal,cache:force?'no-store':'default'});
    if(!res.ok)throw Error('HTTP '+res.status);
    const data=await res.json(),prices=compactCryptoHistory(Array.isArray(data.prices)?data.prices:[]);
    UI.cryptoHistory[key]={ts:Date.now(),prices};persistCryptoHistoryCache();
@@ -921,7 +921,7 @@ function settingsView(){
    <div class="actions"><button class="primary" data-action="checkpoint"><span class="icon" data-icon="save"></span>Checkpoint erstellen</button><button class="ghost" data-action="restoreCheckpoint"><span class="icon" data-icon="undo"></span>Letzten wiederherstellen</button></div>
   </div>
   <div class="card"><div class="toolbar"><div><h2>Daten & Cloud</h2><span class="sub">Geräteübergreifender Login mit lokalem Sicherheitsfallback.</span></div><span class="syncBadge"><i></i>Cloud + Lokal</span></div>
-   <div class="quickFacts"><div class="quickFact"><span>Gespeicherte Monate</span><b>${Object.keys(state.months||{}).length}</b></div><div class="quickFact"><span>Assets</span><b>${(state.assets||[]).length}</b></div><div class="quickFact"><span>Meilensteine</span><b>${(state.goals||[]).length}</b></div><div class="quickFact"><span>Datenformat</span><b>v9 · UI v35</b></div></div>
+   <div class="quickFacts"><div class="quickFact"><span>Gespeicherte Monate</span><b>${Object.keys(state.months||{}).length}</b></div><div class="quickFact"><span>Assets</span><b>${(state.assets||[]).length}</b></div><div class="quickFact"><span>Meilensteine</span><b>${(state.goals||[]).length}</b></div><div class="quickFact"><span>Datenformat</span><b>v9 · UI v36</b></div></div>
    <div class="actions"><button class="primary" data-action="export"><span class="icon" data-icon="download"></span>JSON Backup</button><button class="ghost" data-action="chooseImport"><span class="icon" data-icon="upload"></span>Import</button><button class="ghost" data-action="cloudInfo"><span class="icon" data-icon="cloud"></span>Login & Sync</button><button class="danger" data-action="resetDemo"><span class="icon" data-icon="trash"></span>Demo zurücksetzen</button></div>
   </div>
  </div>`;
