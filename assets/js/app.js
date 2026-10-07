@@ -38,80 +38,92 @@ function fireTarget(d,sw=state.settings.swr){return state.settings.targetMode===
 function monthlyInvest(d){return totals(d).invest+Number(state.settings.monthlyExtra||0)}
 function fireYears(d,extra=0,returnRate=state.settings.returnRate,start=netWorth(),target=fireTarget(d)){if(start>=target)return 0;let p=Number(start),r=Number(returnRate)/100/12,con=totals(d).invest+Number(extra||0);if(con<=0)return 999;if(r===0)return (target-p)/con/12;for(let i=1;i<=1200;i++){p=p*(1+r)+con;if(p>=target)return i/12}return 999}
 function projectedSeries(d,years=15,returnRate=state.settings.returnRate,extra=state.settings.monthlyExtra,start=netWorth(),crash=0){let r=returnRate/100/12,con=totals(d).invest+Number(extra||0),p=start,out=[];if(crash) p*=1-crash;for(let y=0;y<=years;y++){out.push({year:y,value:p});for(let i=0;i<12;i++)p=p*(1+r)+con}return out}
-function I(name){const p={
-home:'M4 10.5 12 4l8 6.5M6 10v10h12V10M10 20v-5h4v5',
-wallet:'M4 7h16v10a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V7zm0 3h16M15 13h2',
-flow:'M4 7h12m0 0-3-3m3 3-3 3M20 17H8m0 0 3-3m-3 3 3 3',
-fire:'M12 21c4.2 0 7-2.7 7-6.6 0-3.2-2-5.5-4.6-7.7.1 2.3-1 3.8-2.4 4.7.2-4.1-1.5-7-4.4-9.4.2 3.4-2.6 5.8-2.6 9.4C5 17.8 7.9 21 12 21z',
-sliders:'M4 6h16M7 6v0M4 12h16M14 12v0M4 18h16M10 18v0',
-chart:'M4 19V5M4 19h16M8 15l3-4 3 2 5-7',
-calendar:'M5 5h14v14H5zM8 3v4m8-4v4M5 9h14',
-pie:'M12 3a9 9 0 1 0 9 9h-9zM12 3v9h9',
-coin:'M12 3v18M8.5 7.5c.8-1 2-1.5 3.7-1.5 2.3 0 3.8 1.1 3.8 2.8 0 4.2-7.5 1.9-7.5 5.6 0 1.7 1.5 2.8 3.8 2.8 1.7 0 3-.5 3.8-1.5',
-target:'M12 21a9 9 0 1 0 0-18 9 9 0 0 0 0 18zM12 17a5 5 0 1 0 0-10 5 5 0 0 0 0 10zM12 13a1 1 0 1 0 0-2 1 1 0 0 0 0 2z',
-shield:'M12 3l7 3v5c0 4.5-2.9 7.8-7 10-4.1-2.2-7-5.5-7-10V6zM9 12l2 2 4-4',
-pulse:'M3 12h4l2-5 4 10 2-5h6',
-settings:'M12 15.5a3.5 3.5 0 1 0 0-7 3.5 3.5 0 0 0 0 7zM19 12h2M3 12h2M12 3v2M12 19v2M17.5 6.5l1.5-1.5M5 19l1.5-1.5M6.5 6.5 5 5M19 19l-1.5-1.5',
-plus:'M12 5v14M5 12h14',
-moon:'M20 15.2A8.5 8.5 0 0 1 8.8 4 8.5 8.5 0 1 0 20 15.2z',
-sun:'M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4M12 8a4 4 0 1 0 0 8 4 4 0 0 0 0-8',
-eyeOff:'M3 3l18 18M10.6 10.6a2 2 0 0 0 2.8 2.8M9.9 5.2A10.6 10.6 0 0 1 12 5c5 0 8.7 4 9.8 7-.4 1.1-1.3 2.5-2.6 3.7M6.7 6.8C5.1 8 4 9.7 3.2 12c1.1 3 4.8 7 9.8 7 1.7 0 3.2-.4 4.6-1',
-chevronLeft:'M15 18l-6-6 6-6',
-chevronRight:'M9 18l6-6-6-6',
-today:'M12 8v4l3 2',
-search:'M11 18a7 7 0 1 1 0-14 7 7 0 0 1 0 14zM20 20l-3.5-3.5',
-save:'M5 4h11l3 3v13H5zM8 4v6h7V4M8 20v-6h8v6',
-trash:'M5 7h14M9 7V4h6v3M8 10v8M12 10v8M16 10v8M6 7l1 14h10l1-14',
-edit:'M5 16l-1 4 4-1L19 8l-3-3-11 11zM14 6l3 3',
-list:'M8 7h11M8 12h11M8 17h11M4.5 7h0M4.5 12h0M4.5 17h0',
-open:'M14 5h5v5M10 14 19 5M19 13v6H5V5h6',
-download:'M12 4v11M8 11l4 4 4-4M5 19h14',
-upload:'M12 20V9M8 13l4-4 4 4M5 5h14',
-close:'M6 6l12 12M18 6 6 18',
-btc:'M9 3v3m4-3v3M8 6h5.5a3.5 3.5 0 0 1 0 7H8m0-7v12h6a3.5 3.5 0 0 0 0-7H8',
-milestone:'M5 20V5m0 1h11l-2 3 2 3H5',
-menu:'M4 7h16M4 12h16M4 17h16',
-cloud:'M7 18h10a4 4 0 0 0 .7-7.9A6 6 0 0 0 6.2 9.2 4.5 4.5 0 0 0 7 18z',
-undo:'M9 7H4v-5M4 7l4-4M5 12a7 7 0 1 0 2-5',
-lock:'M8 10V8a4 4 0 1 1 8 0v2M6 10h12v10H6z'
-};return `<svg viewBox="0 0 24 24"><path d="${p[name]||p.target}"></path></svg>`}
+function I(name){
+ const icons={
+  home:'<path d="M3 10.8 12 3l9 7.8"/><path d="M5.5 9.5V21h13V9.5"/><path d="M9.5 21v-7h5v7"/>',
+  wallet:'<path d="M3.5 7.5h15a2 2 0 0 1 2 2v8.5a2 2 0 0 1-2 2h-13a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2H17"/><path d="M16 12h4.5v4H16a2 2 0 1 1 0-4z"/>',
+  flow:'<path d="M4 7h12"/><path d="m13 4 3 3-3 3"/><path d="M20 17H8"/><path d="m11 14-3 3 3 3"/>',
+  fire:'<path d="M12.5 2.8c.6 3.8-2.1 5.2-2.1 7.8 0 1.7 1.1 2.7 2.6 2.7 2.2 0 3.4-1.8 3-4.3 2.4 2 4 4.6 4 7.1A7.8 7.8 0 0 1 4.4 17c-.2-3.2 1.4-6.1 4.4-8.8-.2 2.7.7 4 2 4 .9 0 1.4-.7 1.4-1.7 0-2.1-1.7-3.6.3-7.7z"/>',
+  sliders:'<path d="M4 6h5M15 6h5"/><circle cx="12" cy="6" r="2.2"/><path d="M4 12h10M20 12h0"/><circle cx="17" cy="12" r="2.2"/><path d="M4 18h2M12 18h8"/><circle cx="9" cy="18" r="2.2"/>',
+  chart:'<path d="M4 20V5"/><path d="M4 20h16"/><path d="m7 16 4-5 3 2 5-7"/><circle cx="7" cy="16" r="1"/><circle cx="11" cy="11" r="1"/><circle cx="14" cy="13" r="1"/><circle cx="19" cy="6" r="1"/>',
+  calendar:'<rect x="3.5" y="5.5" width="17" height="15" rx="2"/><path d="M7.5 3v5M16.5 3v5M3.5 10h17"/><path d="M8 14h.01M12 14h.01M16 14h.01M8 17.5h.01M12 17.5h.01"/>',
+  pie:'<path d="M11 3.2a8.8 8.8 0 1 0 9.8 9.8H11z"/><path d="M14 3.2A7 7 0 0 1 20.8 10H14z"/>',
+  coin:'<circle cx="12" cy="12" r="8.5"/><path d="M9 8.5h4.1a2.4 2.4 0 0 1 0 4.8H9m0-4.8v8h4.5a2.2 2.2 0 1 0 0-4.4H9M11 6.5v2M14 6.5v2M11 17v2M14 17v2"/>',
+  btc:'<path d="M9 4v16M13 4v2M13 18v2M8 6h6a3 3 0 0 1 0 6H8m0 0h6.5a3 3 0 0 1 0 6H8"/>',
+  target:'<circle cx="12" cy="12" r="8.5"/><circle cx="12" cy="12" r="4.5"/><circle cx="12" cy="12" r="1"/><path d="M15.5 8.5 21 3M17 3h4v4"/>',
+  shield:'<path d="M12 3 19 6v5.3c0 4.2-2.5 7.4-7 9.7-4.5-2.3-7-5.5-7-9.7V6z"/><path d="m8.8 12.1 2.1 2.1 4.5-4.5"/>',
+  pulse:'<path d="M3 12h4l2-5 4 10 2.2-5H21"/>',
+  settings:'<circle cx="12" cy="12" r="3.2"/><path d="M19 12a7.2 7.2 0 0 0-.1-1.2l2-1.5-2-3.5-2.4 1a8 8 0 0 0-2-1.2L14.2 3h-4.4l-.4 2.6a8 8 0 0 0-2 1.2l-2.4-1-2 3.5 2 1.5A7.2 7.2 0 0 0 5 12c0 .4 0 .8.1 1.2l-2 1.5 2 3.5 2.4-1a8 8 0 0 0 2 1.2l.4 2.6h4.4l.4-2.6a8 8 0 0 0 2-1.2l2.4 1 2-3.5-2-1.5c.1-.4.1-.8.1-1.2z"/>',
+  plus:'<path d="M12 5v14M5 12h14"/>',
+  moon:'<path d="M20.5 15.4A8.5 8.5 0 0 1 8.6 3.5a8.7 8.7 0 1 0 11.9 11.9z"/>',
+  sun:'<circle cx="12" cy="12" r="3.8"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/>',
+  eyeOff:'<path d="M3 3l18 18"/><path d="M10.7 10.7a2 2 0 0 0 2.6 2.6"/><path d="M9.8 5.3A10.4 10.4 0 0 1 12 5c5 0 8.6 4 9.8 7a11.8 11.8 0 0 1-2.5 3.8M6.7 6.8A12.1 12.1 0 0 0 2.2 12c1.2 3 4.8 7 9.8 7 1.7 0 3.2-.4 4.6-1"/>',
+  chevronLeft:'<path d="m15 18-6-6 6-6"/>',
+  chevronRight:'<path d="m9 18 6-6-6-6"/>',
+  today:'<circle cx="12" cy="12" r="8.5"/><path d="M12 7.5V12l3 2"/>',
+  search:'<circle cx="10.8" cy="10.8" r="6.5"/><path d="m16 16 4.3 4.3"/>',
+  save:'<path d="M5 3.5h11l3 3V20H5z"/><path d="M8 3.5V9h7V3.5M8 20v-6h8v6"/>',
+  trash:'<path d="M4.5 7h15"/><path d="M9 7V4h6v3M7 7l.8 13h8.4L17 7M10 10.5v6M14 10.5v6"/>',
+  edit:'<path d="m4 20 4.2-1 10.6-10.6-3.2-3.2L5 15.8z"/><path d="m13.8 7 3.2 3.2"/>',
+  list:'<path d="M9 6h11M9 12h11M9 18h11"/><circle cx="4.5" cy="6" r=".8"/><circle cx="4.5" cy="12" r=".8"/><circle cx="4.5" cy="18" r=".8"/>',
+  open:'<path d="M14 4h6v6M11 13l9-9"/><path d="M18 13v6H5V6h6"/>',
+  download:'<path d="M12 3v11"/><path d="m8 11 4 4 4-4"/><path d="M5 20h14"/>',
+  upload:'<path d="M12 21V10"/><path d="m8 13 4-4 4 4"/><path d="M5 4h14"/>',
+  close:'<path d="M6 6l12 12M18 6 6 18"/>',
+  milestone:'<path d="M5 21V4"/><path d="M5 5h11l-2 3 2 3H5"/><circle cx="5" cy="4" r="1"/>',
+  menu:'<path d="M4 7h16M4 12h16M4 17h16"/>',
+  cloud:'<path d="M7 18h10a4 4 0 0 0 .8-7.9A6 6 0 0 0 6.2 9.2 4.5 4.5 0 0 0 7 18z"/>',
+  undo:'<path d="M9 7H4V2"/><path d="m4 7 4-4"/><path d="M5.5 12A7 7 0 1 0 8 7"/>',
+  lock:'<rect x="5.5" y="10" width="13" height="10" rx="2"/><path d="M8.5 10V7.5a3.5 3.5 0 1 1 7 0V10"/>',
+  refresh:'<path d="M20 6v5h-5"/><path d="M4 18v-5h5"/><path d="M18.5 10A7 7 0 0 0 6.2 6.2L4 8M5.5 14A7 7 0 0 0 17.8 17.8L20 16"/>',
+  copy:'<rect x="8" y="8" width="11" height="11" rx="2"/><path d="M16 8V5a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h3"/>'
+ };
+ return `<svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">${icons[name]||icons.target}</svg>`;
+}
 function paintIcons(){document.querySelectorAll('[data-icon]').forEach(el=>{if(!el.innerHTML.trim())el.innerHTML=I(el.dataset.icon)})}
 function buttonIconName(btn){
  const txt=(btn.textContent||'').replace(/\s+/g,' ').trim().toLowerCase();
  if(btn.classList.contains('assetDel')||btn.classList.contains('debtDel')||btn.classList.contains('goalDel')||btn.classList.contains('del')) return 'trash';
  if(btn.classList.contains('addEntry')) return 'plus';
  if(btn.dataset.view){
-   const m={dashboard:'home',wealth:'wallet',cashflow:'flow',fire:'fire',simulator:'sliders',projection:'chart',year:'calendar',portfolio:'pie',crypto:'coin',goals:'target',financeCheck:'shield',risk:'pulse',settings:'settings'};
-   return m[btn.dataset.view]||'list';
+   const m={dashboard:'home',wealth:'wallet',cashflow:'flow',fire:'fire',simulator:'sliders',projection:'chart',year:'calendar',portfolio:'pie',crypto:'btc',goals:'target',financeCheck:'shield',risk:'pulse',settings:'settings'};
+   return m[btn.dataset.view]||null;
  }
  if(btn.dataset.nav){
    const n={portfolio:'pie',cashflow:'flow',projection:'chart',goals:'target',settings:'settings',fire:'fire',simulator:'sliders',financeCheck:'shield'};
    return n[btn.dataset.nav]||'open';
  }
  if(btn.dataset.action){
-   const a={quick:'plus',calendar:'calendar',today:'today',toggleAppearance:UI.dark?'sun':'moon',toggleStealth:'eyeOff',openSettings:'settings',closeModal:'close',export:'download',saveSettings:'save',rerunRisk:'pulse',copyRecurring:'list',resetDemo:'trash',refreshCrypto:'search',prevMonth:'chevronLeft',nextMonth:'chevronRight',addAsset:'plus',addDebt:'plus',addGoal:'plus'};
+   const a={quick:'plus',calendar:'calendar',today:'today',toggleAppearance:UI.dark?'sun':'moon',toggleStealth:'eyeOff',openSettings:'settings',closeModal:'close',export:'download',chooseImport:'upload',checkpoint:'save',restoreCheckpoint:'undo',cloudInfo:'cloud',saveSettings:'save',rerunRisk:'refresh',copyPrev:'copy',applyRecurring:'refresh',resetDemo:'trash',refreshCrypto:'refresh',prevMonth:'chevronLeft',nextMonth:'chevronRight',addAsset:'plus',addDebt:'plus',addGoal:'plus'};
    if(a[btn.dataset.action]) return a[btn.dataset.action];
  }
- if(txt==='×') return 'trash';
  if(/speichern|übernehmen/.test(txt)) return 'save';
  if(/schließen|abbrechen/.test(txt)) return 'close';
  if(/löschen|entfernen/.test(txt)) return 'trash';
  if(/bearbeiten/.test(txt)) return 'edit';
- if(/details|vollansicht|alle/.test(txt)) return 'open';
+ if(/details|vollansicht/.test(txt)) return 'open';
  if(/eintrag|asset|schuld|ziel|hinzufügen/.test(txt)) return 'plus';
- if(/kalender|monat öffnen/.test(txt)) return 'calendar';
+ if(/kalender/.test(txt)) return 'calendar';
  if(/heute/.test(txt)) return 'today';
- if(/export/.test(txt)) return 'download';
+ if(/export|backup/.test(txt)) return 'download';
  if(/import/.test(txt)) return 'upload';
  if(/einstellungen|annahmen prüfen/.test(txt)) return 'settings';
- if(/cashflow/.test(txt)) return 'flow';
- if(/portfolio/.test(txt)) return 'pie';
- if(/fire/.test(txt)) return 'fire';
- if(/simulator|simulation|simulieren/.test(txt)) return 'sliders';
- if(/finanz-check|reserve/.test(txt)) return 'shield';
- if(/risiko/.test(txt)) return 'pulse';
- if(/krypto|crypto/.test(txt)) return 'coin';
- return 'list';
+ if(/synchron/.test(txt)) return 'refresh';
+ return null;
+}
+function cleanRedundantButtonGlyph(btn,icon){
+ let html=btn.innerHTML;
+ if(icon==='plus') html=html.replace(/^\s*[+＋]\s*/,'');
+ if(icon==='trash'){
+   const txt=(btn.textContent||'').trim();
+   if(/^[×xX✕✖]$/.test(txt)) html='';
+ }
+ btn.innerHTML=html;
+ if(icon==='trash' && !btn.textContent.trim()){
+   btn.classList.add('iconOnly');
+   if(!btn.getAttribute('aria-label')) btn.setAttribute('aria-label',btn.title||'Löschen');
+   if(!btn.title) btn.title='Löschen';
+ }
 }
 function decorateButtons(root=document){
  root.querySelectorAll('button').forEach(btn=>{
@@ -119,6 +131,7 @@ function decorateButtons(root=document){
    if(btn.querySelector('[data-icon],.icon svg,svg')) return;
    const icon=buttonIconName(btn);
    if(!icon) return;
+   cleanRedundantButtonGlyph(btn,icon);
    const span=document.createElement('span');
    span.className='icon autoIcon';
    span.dataset.icon=icon;
@@ -153,7 +166,29 @@ function applySearchFilter(){
 function q(label,value,sub,icon,cls=''){return `<div class="card kpi"><span class="kicon">${I(icon)}</span><div class="klabel">${label}</div><div class="kvalue sensitive ${cls}">${value}</div><div class="ksub">${sub}</div></div>`}
 function metric(label,value){return `<div class="metric"><span>${label}</span><b class="sensitive">${value}</b></div>`}
 function stat(label,value,cls=''){return `<div class="stat"><span>${label}</span><b class="sensitive ${cls}">${value}</b></div>`}
-function donut(){let total=Math.max(netWorth(),1);let groups={ETF:0,Crypto:0,Aktien:0,Cash:0,Immobilie:0,Sonstige:0};state.assets.forEach(a=>groups[a.type]=(groups[a.type]||0)+Number(a.value||0));let colors=['#1688ff','#ff9c24','#7d57ff','#20d8bd','#d5c7a8','#93dc35'];let labels=Object.entries(groups).filter(x=>x[1]>0);let deg=0;let stops=labels.map((x,i)=>{let s=deg;deg+=x[1]/total*360;return `${colors[i%colors.length]} ${s}deg ${deg}deg`}).join(',');return `<div class="donut" style="background:conic-gradient(${stops})"><div class="donutCenter sensitive">${euro(netWorth())}<small>${pct(100)}</small></div></div>`}
+function donut(){
+ const total=Math.max(netWorth(),1);
+ const groups={ETF:0,Crypto:0,Aktien:0,Cash:0,Immobilie:0,Sonstige:0};
+ state.assets.forEach(a=>groups[a.type]=(groups[a.type]||0)+Number(a.value||0));
+ const colors=['#2f7cff','#ff9d3d','#8865ff','#24cdb8','#d6b982','#7dbb5a'];
+ const labels=Object.entries(groups).filter(x=>x[1]>0);
+ const r=48,c=2*Math.PI*r,gap=2.8;
+ let offset=0;
+ const maxVal=Math.max(...labels.map(x=>x[1]),0);
+ const arcs=labels.map((x,i)=>{
+   const len=Math.max(0,(x[1]/total)*c-gap);
+   const arc=`<circle class="donutSegment ${x[1]===maxVal?'pulseSegment':''}" cx="60" cy="60" r="${r}" pathLength="${c.toFixed(3)}" stroke="${colors[i%colors.length]}" stroke-dasharray="${len.toFixed(3)} ${(c-len).toFixed(3)}" stroke-dashoffset="${(-offset).toFixed(3)}"><title>${esc(x[0])}: ${euro(x[1])}</title></circle>`;
+   offset+=(x[1]/total)*c;
+   return arc;
+ }).join('');
+ return `<div class="donut donutSvg">
+   <svg viewBox="0 0 120 120" role="img" aria-label="Vermögensaufteilung">
+     <circle class="donutTrack" cx="60" cy="60" r="${r}"></circle>
+     <g transform="rotate(-90 60 60)">${arcs}</g>
+   </svg>
+   <div class="donutCenter sensitive"><span>Net Worth</span><strong>${euro(netWorth())}</strong><small>100 %</small></div>
+ </div>`;
+}
 function allocationLegend(){let total=Math.max(netWorth(),1),groups={ETF:0,Crypto:0,Aktien:0,Cash:0,Immobilie:0,Sonstige:0},colors=['#1688ff','#ff9c24','#7d57ff','#20d8bd','#d5c7a8','#93dc35'];state.assets.forEach(a=>groups[a.type]=(groups[a.type]||0)+Number(a.value||0));return `<div class="legend">${Object.entries(groups).filter(x=>x[1]>0).map((x,i)=>`<div class="legendRow"><i class="sw" style="background:${colors[i%colors.length]}"></i><span>${x[0]}</span><b>${pct(x[1]/total*100)}</b><span class="sensitive">${euro(x[1])}</span></div>`).join('')}</div>`}
 function sankey(d){
   const t=totals(d);
@@ -247,7 +282,7 @@ function dashboard(){
     <div class="monthSummaryRow"><span>Netto Cashflow</span><b class="${cash>=0?'green':'red'} sensitive">${euro(cash)}</b></div>
     <div class="monthSummaryRow"><span>Sparquote</span><b>${pct(saveRate)}</b></div>
    </div>
-   <div class="compactActions"><button class="primary" data-action="quick">+ Eintrag</button><button class="ghost" data-action="copyPrev">Vormonat kopieren</button></div>
+   <div class="compactActions"><button class="primary" data-action="quick">Eintrag</button><button class="ghost" data-action="copyPrev">Vormonat kopieren</button></div>
   </div>
  </div>
  <div class="dashboardGridMid">
@@ -291,9 +326,9 @@ function dashboard(){
 function scenario(name,v){return `<button class="scenario ${UI.sim.crash===v?'active':''}" data-crash="${v}">${name}<b>${v?`-${v*100}%`:'Basis'}</b></button>`}
 function largest(a){let x=(a||[]).slice().sort((a,b)=>b.val-a.val)[0];return x?esc(x.name):'—'}
 function goalMini(){return state.goals.slice(0,4).map(g=>{let cur=goalCurrent(g),p=Math.min(100,cur/g.target*100);return `<div class="goal"><div class="goalTop"><span>${esc(g.name)}</span><b>${euro(cur)} / ${euro(g.target)}</b></div><div class="progress" style="margin-top:6px"><i style="width:${p}%"></i></div></div>`}).join('')}
-function entries(cat){let d=getMonth(),arr=d[cat]||[];return `<div>${arr.map(x=>`<div class="entry" data-cat="${cat}" data-id="${x.id}"><input class="input name" value="${esc(x.name)}"><input class="input amount sensitive" type="number" step="0.01" value="${x.val}"><label class="toggle"><input class="rec" type="checkbox" ${x.recurring?'checked':''}>wiederkehrend</label><button class="danger del" title="löschen">×</button></div>`).join('')}</div><div class="addRow"><input class="input grow newName" placeholder="Bezeichnung"><input class="input" style="width:120px" type="number" step="0.01" placeholder="€" data-new="val"><label class="toggle"><input type="checkbox" data-new="rec">wiederkehrend</label><button class="primary addEntry" data-cat="${cat}">＋</button></div>`}
+function entries(cat){let d=getMonth(),arr=d[cat]||[];return `<div>${arr.map(x=>`<div class="entry" data-cat="${cat}" data-id="${x.id}"><input class="input name" value="${esc(x.name)}"><input class="input amount sensitive" type="number" step="0.01" value="${x.val}"><label class="toggle"><input class="rec" type="checkbox" ${x.recurring?'checked':''}>wiederkehrend</label><button class="danger del" title="Löschen" aria-label="Löschen"></button></div>`).join('')}</div><div class="addRow"><input class="input grow newName" placeholder="Bezeichnung"><input class="input" style="width:120px" type="number" step="0.01" placeholder="€" data-new="val"><label class="toggle"><input type="checkbox" data-new="rec">wiederkehrend</label><button class="primary addEntry" data-cat="${cat}">＋</button></div>`}
 function cashflow(){let d=getMonth(),t=totals(d);return `<div class="toolbar"><div><h1 class="sectionTitle">Cashflow</h1><p class="sectionSub">Monatliche Einnahmen, Ausgaben und Investments verwalten.</p></div><div><button class="ghost" data-action="applyRecurring">↻ Recurring anwenden</button><button class="primary" data-action="copyPrev">Kopiere Vormonat</button></div></div><div class="grid monthGrid" style="grid-template-columns:repeat(3,1fr)"><div class="card"><div class="toolbar"><h2>Einnahmen</h2><b class="green">${euro(t.income)}</b></div>${entries('income')}</div><div class="card"><div class="toolbar"><h2>Ausgaben</h2><b class="red">${euro(t.expenses)}</b></div>${entries('expenses')}</div><div class="card"><div class="toolbar"><h2>Investments</h2><b class="purple">${euro(t.invest)}</b></div>${entries('invest')}</div></div>`}
-function wealth(){return `<div class="toolbar"><div><h1 class="sectionTitle">Vermögen</h1><p class="sectionSub">Assets, Einstandswerte, erwartete Renditen und Schulden.</p></div><button class="primary" data-action="addAsset">＋ Asset</button></div><div class="grid wide"><div class="card"><div class="toolbar"><h2>Assets</h2><b>${euro(assetsTotal())}</b></div>${state.assets.map(a=>`<div class="assetCard" data-asset="${a.id}"><input class="input assetName" value="${esc(a.name)}"><input class="input assetVal sensitive" type="number" value="${a.value}"><select class="input assetType"><option ${a.type==='ETF'?'selected':''}>ETF</option><option ${a.type==='Crypto'?'selected':''}>Crypto</option><option ${a.type==='Aktien'?'selected':''}>Aktien</option><option ${a.type==='Cash'?'selected':''}>Cash</option><option ${a.type==='Immobilie'?'selected':''}>Immobilie</option><option ${a.type==='Sonstige'?'selected':''}>Sonstige</option></select><button class="danger assetDel">×</button></div>`).join('')}</div><div class="card"><div class="toolbar"><h2>Schulden</h2><button class="primary" data-action="addDebt">＋ Schuld</button></div>${state.liabilities.map(a=>`<div class="assetCard" data-debt="${a.id}"><input class="input debtName" value="${esc(a.name)}"><input class="input debtVal sensitive" type="number" value="${a.value}"><span class="assetType">${esc(a.type||'Schuld')}</span><button class="danger debtDel">×</button></div>`).join('')}<div class="sub" style="margin-top:8px">Gesamt: ${euro(debtTotal())}</div></div><div class="card"><h2>Vermögenskennzahlen</h2>${stat('Assets',euro(assetsTotal()))}${stat('Schulden',euro(debtTotal()),'red')}${stat('Net Worth',euro(netWorth()),'green')}${stat('Liquidität',euro(state.assets.filter(a=>a.type==='Cash').reduce((s,a)=>s+a.value,0)))}${stat('FIRE Fortschritt',pct(netWorth()/fireTarget(getMonth())*100))}</div></div>`}
+function wealth(){return `<div class="toolbar"><div><h1 class="sectionTitle">Vermögen</h1><p class="sectionSub">Assets, Einstandswerte, erwartete Renditen und Schulden.</p></div><button class="primary" data-action="addAsset">Asset</button></div><div class="grid wide"><div class="card"><div class="toolbar"><h2>Assets</h2><b>${euro(assetsTotal())}</b></div>${state.assets.map(a=>`<div class="assetCard" data-asset="${a.id}"><input class="input assetName" value="${esc(a.name)}"><input class="input assetVal sensitive" type="number" value="${a.value}"><select class="input assetType"><option ${a.type==='ETF'?'selected':''}>ETF</option><option ${a.type==='Crypto'?'selected':''}>Crypto</option><option ${a.type==='Aktien'?'selected':''}>Aktien</option><option ${a.type==='Cash'?'selected':''}>Cash</option><option ${a.type==='Immobilie'?'selected':''}>Immobilie</option><option ${a.type==='Sonstige'?'selected':''}>Sonstige</option></select><button class="danger assetDel" title="Asset löschen" aria-label="Asset löschen"></button></div>`).join('')}</div><div class="card"><div class="toolbar"><h2>Schulden</h2><button class="primary" data-action="addDebt">Schuld</button></div>${state.liabilities.map(a=>`<div class="assetCard" data-debt="${a.id}"><input class="input debtName" value="${esc(a.name)}"><input class="input debtVal sensitive" type="number" value="${a.value}"><span class="assetType">${esc(a.type||'Schuld')}</span><button class="danger debtDel" title="Schuld löschen" aria-label="Schuld löschen"></button></div>`).join('')}<div class="sub" style="margin-top:8px">Gesamt: ${euro(debtTotal())}</div></div><div class="card"><h2>Vermögenskennzahlen</h2>${stat('Assets',euro(assetsTotal()))}${stat('Schulden',euro(debtTotal()),'red')}${stat('Net Worth',euro(netWorth()),'green')}${stat('Liquidität',euro(state.assets.filter(a=>a.type==='Cash').reduce((s,a)=>s+a.value,0)))}${stat('FIRE Fortschritt',pct(netWorth()/fireTarget(getMonth())*100))}</div></div>`}
 function portfolio(){return `<div class="grid wide"><div class="card"><div class="toolbar"><div><h1 class="sectionTitle">Portfolio</h1><p class="sectionSub">Allocation und Konzentrationsrisiko.</p></div></div>${donut()}<div style="margin-top:10px">${allocationLegend()}</div></div><div class="card"><h2>Risiko-Check</h2>${riskRows()}</div></div>`}
 function riskRows(){let total=Math.max(netWorth(),1),crypto=state.assets.filter(a=>a.type==='Crypto').reduce((s,a)=>s+a.value,0),cash=state.assets.filter(a=>a.type==='Cash').reduce((s,a)=>s+a.value,0);return `${stat('Crypto Anteil',pct(crypto/total*100),crypto/total>.3?'red':'green')}${stat('Cash Anteil',pct(cash/total*100),cash/total<.05?'red':'green')}${stat('Größte Position',largestAsset())}${stat('FIRE Ziel',euro(fireTarget(getMonth())))}`}
 function largestAsset(){let a=state.assets.slice().sort((a,b)=>b.value-a.value)[0];return a?`${esc(a.name)} · ${euro(a.value)}`:'—'}
@@ -314,7 +349,7 @@ async function fetchCoins(force=false){
 function renderCoinMini(failed=false){let el=document.getElementById('coinMini');if(!el)return;if(!UI.coins.length){el.innerHTML=`<div class="sub">${failed?'Offline / API nicht erreichbar':'Noch keine Live-Daten'}</div>`;return}el.innerHTML=UI.coins.map(c=>`<div class="coinMini"><b>${esc(String(c.symbol||'').toUpperCase())}</b><span class="sensitive">${euro(c.current_price)}</span><em class="${Number(c.price_change_percentage_24h)>=0?'green':'red'}">${Number(c.price_change_percentage_24h||0).toFixed(1)}%</em></div>`).join('')}
 
 function crypto(){return `<div class="toolbar"><div><h1 class="sectionTitle">Krypto</h1><p class="sectionSub">Live Market Data, optional. Die App funktioniert auch offline.</p></div><button class="primary" data-action="refreshCrypto">↻ Aktualisieren</button></div><div class="card"><table class="table"><tr><th>Asset</th><th>Preis EUR</th><th>24h</th><th>Market Cap</th></tr>${UI.coins.length?UI.coins.map(c=>`<tr><td style="text-align:left"><b>${esc(c.name)}</b> · ${esc(c.symbol.toUpperCase())}</td><td>${euro(c.current_price)}</td><td class="${c.price_change_percentage_24h>=0?'green':'red'}">${(c.price_change_percentage_24h||0).toFixed(2)}%</td><td>${euro(c.market_cap)}</td></tr>`).join(''):'<tr><td colspan="4">Noch keine Live-Daten. Klicke Aktualisieren oder prüfe die Internetverbindung.</td></tr>'}</table></div>`}
-function goals(){return `<div class="toolbar"><div><h1 class="sectionTitle">Ziele</h1><p class="sectionSub">FIRE, Notgroschen und frei definierbare Vermögensziele.</p></div><button class="primary" data-action="addGoal">＋ Ziel</button></div><div class="card">${state.goals.map(g=>{let cur=goalCurrent(g),p=Math.min(100,cur/Math.max(g.target,1)*100);return `<div class="goal" data-goal="${g.id}"><div class="goalTop"><input class="input goalName" value="${esc(g.name)}"><span class="sensitive">${euro(cur)} / ${euro(g.target)}</span><button class="danger goalDel">×</button></div><div class="formGrid" style="margin-top:8px"><div class="field"><label>Zielbetrag</label><input class="input goalTarget" type="number" value="${g.target}"></div><div class="field"><label>Deadline</label><input class="input goalDeadline" type="number" value="${g.deadline||''}"></div></div><div class="progress" style="margin-top:8px"><i style="width:${p}%"></i></div><div class="sub" style="margin-top:4px">${p.toFixed(0)}% erreicht</div></div>`}).join('')}</div>`}
+function goals(){return `<div class="toolbar"><div><h1 class="sectionTitle">Ziele</h1><p class="sectionSub">FIRE, Notgroschen und frei definierbare Vermögensziele.</p></div><button class="primary" data-action="addGoal">Ziel</button></div><div class="card">${state.goals.map(g=>{let cur=goalCurrent(g),p=Math.min(100,cur/Math.max(g.target,1)*100);return `<div class="goal" data-goal="${g.id}"><div class="goalTop"><input class="input goalName" value="${esc(g.name)}"><span class="sensitive">${euro(cur)} / ${euro(g.target)}</span><button class="danger goalDel" title="Ziel löschen" aria-label="Ziel löschen"></button></div><div class="formGrid" style="margin-top:8px"><div class="field"><label>Zielbetrag</label><input class="input goalTarget" type="number" value="${g.target}"></div><div class="field"><label>Deadline</label><input class="input goalDeadline" type="number" value="${g.deadline||''}"></div></div><div class="progress" style="margin-top:8px"><i style="width:${p}%"></i></div><div class="sub" style="margin-top:4px">${p.toFixed(0)}% erreicht</div></div>`}).join('')}</div>`}
 function liquidityRunway(){let d=getMonth(),cash=state.assets.filter(a=>a.type==='Cash').reduce((s,a)=>s+Number(a.value||0),0),monthly=totals(d).expenses;return monthly>0?cash/monthly:0}
 function twelveMonthStats(){let income=0,expenses=0,invest=0,months=0,series=[];for(let i=0;i<12;i++){let dt=new Date(UI.year,UI.month-1-i,1),d=getMonth(dt.getFullYear(),dt.getMonth()+1,false),t=totals(d);income+=t.income;expenses+=t.expenses;invest+=t.invest;if(t.income||t.expenses||t.invest)months++;series.unshift({label:monthName(dt.getMonth()+1).slice(0,3),rate:t.income?(t.income-t.expenses)/t.income*100:0})}return {income,expenses,invest,months,series,rate:income?(income-expenses)/income*100:0}}
 function fireSafety(){let d=getMonth(),target=fireTarget(d),nw=netWorth(),base=nw/Math.max(target,1),stressNW=nw*.8,stressTarget=target*1.1;return {base,stress:stressNW/Math.max(stressTarget,1),gap:stressTarget-stressNW}}
