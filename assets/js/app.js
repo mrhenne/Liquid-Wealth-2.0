@@ -16,9 +16,9 @@ function createCheckpoint(reason='Manuell',raw=localStorage.getItem(APP)||JSON.s
  try{if(!raw)return false;let list=checkpointList();if(list[0]?.raw===raw&&list[0]?.reason===reason)return true;list.unshift({ts:Date.now(),reason,raw});writeCheckpointList(list);return true}catch(e){console.warn(e);return false}
 }
 function maybeAutoCheckpoint(previousRaw){if(!previousRaw)return;let list=checkpointList(),last=list[0];if(last&&Date.now()-last.ts<10*60*1000)return;if(last?.raw===previousRaw)return;createCheckpoint('Auto-Sicherung',previousRaw)}
-function save(skipCheckpoint=false){let next=JSON.stringify(state),prev=localStorage.getItem(APP);if(!skipCheckpoint&&prev&&prev!==next)maybeAutoCheckpoint(prev);localStorage.setItem(APP,next)}
+function save(skipCheckpoint=false){let next=JSON.stringify(state),prev=localStorage.getItem(APP);if(!skipCheckpoint&&prev&&prev!==next)maybeAutoCheckpoint(prev);localStorage.setItem(APP,next);window.LWCloud?.queueSave?.(state)}
 function manualCheckpoint(){createCheckpoint('Manueller Checkpoint');render();showToast('Sicherheits-Checkpoint erstellt')}
-function restoreCheckpoint(){let list=checkpointList();if(!list.length)return showToast('Noch kein Checkpoint vorhanden');let cp=list[0];if(!confirm(`Checkpoint vom ${new Date(cp.ts).toLocaleString('de-DE')} wiederherstellen?`))return;createCheckpoint('Vor Wiederherstellung');try{let x=JSON.parse(cp.raw);state={...initial,...x,version:9,settings:{...defaults,...(x.settings||{})},months:x.months||{},assets:x.assets||[],liabilities:x.liabilities||[],goals:x.goals||[]};localStorage.setItem(APP,JSON.stringify(state));UI.risk=null;render();showToast('Checkpoint wiederhergestellt')}catch(e){console.error(e);showToast('Checkpoint ist beschädigt')}}
+function restoreCheckpoint(){let list=checkpointList();if(!list.length)return showToast('Noch kein Checkpoint vorhanden');let cp=list[0];if(!confirm(`Checkpoint vom ${new Date(cp.ts).toLocaleString('de-DE')} wiederherstellen?`))return;createCheckpoint('Vor Wiederherstellung');try{let x=JSON.parse(cp.raw);state={...initial,...x,version:9,settings:{...defaults,...(x.settings||{})},months:x.months||{},assets:x.assets||[],liabilities:x.liabilities||[],goals:x.goals||[]};localStorage.setItem(APP,JSON.stringify(state));window.LWCloud?.queueSave?.(state);UI.risk=null;render();showToast('Checkpoint wiederhergestellt')}catch(e){console.error(e);showToast('Checkpoint ist beschädigt')}}
 function key(y=UI.year,m=UI.month){return `${y}-${String(m).padStart(2,'0')}`}
 function getMonth(y=UI.year,m=UI.month,create=true){let k=key(y,m);if(!state.months[k]&&create)state.months[k]={income:[],expenses:[],invest:[]};return state.months[k]||{income:[],expenses:[],invest:[]}}
 function sum(a){return(a||[]).reduce((s,x)=>s+(Number(x.val)||0),0)}
@@ -362,7 +362,7 @@ function action(a){
  if(a==='checkpoint')return manualCheckpoint();
  if(a==='restoreCheckpoint')return restoreCheckpoint();
  if(a==='toggleMobileMenu')return toggleMobileMenu();
- if(a==='cloudInfo')return openModal('Login & Geräte-Sync','Cloud-Stufe ist vorbereitet',`<div class="notice">Für echten Geräte-Sync braucht Liquid Wealth ein eigenes Supabase-Projekt mit Auth und Row Level Security. Ich verwende dafür bewusst kein bestehendes Klinik- oder TestsiegerTV-Projekt.</div><div class="quickFacts" style="margin-top:12px"><div class="quickFact"><span>Frontend</span><b class="green">bereit</b></div><div class="quickFact"><span>Mobile UI</span><b class="green">bereit</b></div><div class="quickFact"><span>Cloud-Backend</span><b class="orange">noch zu verbinden</b></div></div>`);
+ if(a==='cloudInfo')return window.LWCloud?.openAccount?.()||showToast('Cloud-Modul lädt noch');
  if(a==='saveSettings')return saveSettings();
  if(a==='resetDemo')return reset();
  if(a==='quick')return openQuick();
