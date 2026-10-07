@@ -953,3 +953,18 @@ html.light .infoTip:after{background:rgba(255,255,255,.98);color:#17243a}
 .dashboardBadge.paceGood{color:#36d6a2!important;border-color:rgba(54,214,162,.20)!important;background:rgba(54,214,162,.08)!important}
 .dashboardBadge.paceWarn{color:#ff7b91!important;border-color:rgba(255,91,119,.20)!important;background:rgba(255,91,119,.08)!important}
 @media(max-width:430px){.paceGauge{grid-template-columns:1fr}.paceGauge>div{padding:3px 0}}
+
+
+/* v25 · cashflow row drag & drop */
+.cashflowEntries{display:grid;gap:7px}
+.cashflowEntry{position:relative;padding-left:40px!important;padding-right:44px!important}
+.cashflowEntry>.dragHandle{left:5px!important;right:auto!important;top:50%!important;transform:translateY(-50%)!important;width:30px!important;height:30px!important;min-width:30px!important}
+.cashflowEntry>.dragHandle:active{transform:translateY(-50%) scale(.96)!important}
+.cashflowEntry>.del{position:absolute!important;right:5px!important;top:50%!important;transform:translateY(-50%)!important}
+.cashflowEntry.dragOrigin{min-height:42px}
+@media(hover:hover){.cashflowEntry:hover>.dragHandle{opacity:1}}
+@media(max-width:720px){
+ .cashflowEntry{padding-left:43px!important;padding-right:47px!important}
+ .cashflowEntry>.dragHandle{left:4px!important;width:34px!important;height:34px!important}
+ .cashflowEntry>.del{right:4px!important}
+}
