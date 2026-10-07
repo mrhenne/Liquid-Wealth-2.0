@@ -1307,3 +1307,14 @@ html.light .cryptoDonutCenter{background:rgba(255,255,255,.96)}
  #cryptoChartBody{min-height:230px}
  .cryptoHoldingInput,.cryptoAvgInput{font-size:16px!important}
 }
+
+
+/* v35 · crypto chart stability */
+#cryptoChartBody{position:relative}
+.cryptoChartControls{position:relative;z-index:5}
+.cryptoChartControls select,.cryptoRanges button{pointer-events:auto!important}
+.cryptoChartLoading,.cryptoChartEmpty{pointer-events:none}
+.cryptoChartLoading span{flex:0 0 auto}
+@media(max-width:720px){
+ .cryptoChartControls{position:sticky;top:0;padding:4px 0 6px;background:linear-gradient(180deg,var(--panel) 72%,transparent);z-index:7}
+}
