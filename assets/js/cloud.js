@@ -40,7 +40,7 @@
         if(data?.app_state&&Object.keys(data.app_state).length){
           try{createCheckpoint('Vor Cloud-Sync');}catch(_){}
           state={...initial,...data.app_state,version:9,settings:{...defaults,...(data.app_state.settings||{})},
-            months:data.app_state.months||{},assets:data.app_state.assets||[],liabilities:data.app_state.liabilities||[],goals:data.app_state.goals||[]};
+            months:data.app_state.months||{},assets:data.app_state.assets||[],liabilities:data.app_state.liabilities||[],cryptoFavorites:Array.isArray(data.app_state.cryptoFavorites)&&data.app_state.cryptoFavorites.length?data.app_state.cryptoFavorites:['bitcoin','ethereum','solana','binancecoin'],goals:data.app_state.goals||[]};
           localStorage.setItem(APP,JSON.stringify(state));
           UI.risk=null;render();
           this.setStatus('Synchronisiert',true);
