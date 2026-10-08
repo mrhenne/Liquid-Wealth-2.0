@@ -6,7 +6,7 @@ function demoMonth(){return{income:[tx('Gehalt',6000,true),tx('Nebenjob',500,tru
 function tx(name,val,recurring=false,cat=''){return{id:crypto.randomUUID?crypto.randomUUID():String(Date.now()+Math.random()),name,val:+val||0,recurring,cat}}
 const defaultAssets=[{id:'a1',name:'ETF',value:57000,type:'ETF',cost:42000,rate:7},{id:'a2',name:'Bitcoin',value:35600,type:'Crypto',cost:18000,rate:12},{id:'a3',name:'Depot',value:21400,type:'Aktien',cost:16000,rate:7},{id:'a4',name:'Cash',value:14300,type:'Cash',cost:14300,rate:1},{id:'a5',name:'Immobilien',value:9800,type:'Immobilie',cost:7000,rate:3},{id:'a6',name:'Sonstige',value:4400,type:'Sonstige',cost:3000,rate:2}];
 const initial={version:8,settings:{...defaults},months:{},assets:defaultAssets,liabilities:[],cryptoFavorites:['bitcoin','ethereum','solana','binancecoin'],cryptoHoldings:{},cryptoAveragePrices:{},cryptoPortfolioSnapshots:[],layout:{dashboard:{}},goals:[{id:'g1',name:'FIRE',target:1200000,current:0,deadline:2042},{id:'g2',name:'Notgroschen',target:15000,current:0,deadline:2027}],meta:{created:new Date().toISOString()}};
-let state=loadState();let UI={year:now.getFullYear(),month:now.getMonth()+1,view:'dashboard',stealth:false,coins:[],cryptoSearchResults:[],cryptoSearching:false,cryptoChartCoin:null,cryptoChartRange:'24h',cryptoHistory:{},cryptoHistoryInflight:{},cryptoHistoryLoading:false,sim:{extra:2000,returnRate:7,crash:0,years:15},risk:null};
+let state=loadState();let UI={year:now.getFullYear(),month:now.getMonth()+1,view:'dashboard',stealth:false,coins:[],cryptoSearchResults:[],cryptoSearching:false,cryptoChartCoin:null,cryptoChartRange:'24h',cryptoHistory:{},cryptoHistoryInflight:{},sim:{extra:2000,returnRate:7,crash:0,years:15},risk:null};
 const CHECKPOINT_KEY=APP+'_checkpoints_v1';
 const CRYPTO_HISTORY_CACHE=APP+'_crypto_history_v2';
 try{const cached=JSON.parse(sessionStorage.getItem(CRYPTO_HISTORY_CACHE)||'{}');if(cached&&typeof cached==='object')UI.cryptoHistory=cached}catch(e){}
@@ -126,7 +126,7 @@ function buttonIconName(btn){
    return n[btn.dataset.nav]||'open';
  }
  if(btn.dataset.action){
-   const a={quick:'plus',calendar:'calendar',today:'today',toggleAppearance:UI.dark?'sun':'moon',toggleStealth:'eyeOff',openSettings:'settings',closeModal:'close',export:'download',chooseImport:'upload',checkpoint:'save',restoreCheckpoint:'undo',cloudInfo:'cloud',saveSettings:'save',rerunRisk:'refresh',copyPrev:'copy',copyFromMonth:'calendar',applyRecurring:'refresh',resetDemo:'trash',refreshCrypto:'refresh',prevMonth:'chevronLeft',nextMonth:'chevronRight',addAsset:'plus',addDebt:'plus',addGoal:'plus'};
+   const a={quick:'plus',calendar:'calendar',today:'today',toggleAppearance:UI.dark?'sun':'moon',toggleStealth:'eyeOff',openSettings:'settings',closeModal:'close',export:'download',chooseImport:'upload',checkpoint:'save',restoreCheckpoint:'undo',cloudInfo:'cloud',saveSettings:'save',rerunRisk:'refresh',copyFromMonth:'calendar',applyRecurring:'refresh',resetDemo:'trash',refreshCrypto:'refresh',prevMonth:'chevronLeft',nextMonth:'chevronRight',addAsset:'plus',addDebt:'plus',addGoal:'plus'};
    if(a[btn.dataset.action]) return a[btn.dataset.action];
  }
  if(/speichern|übernehmen/.test(txt)) return 'save';
@@ -720,7 +720,7 @@ async function fetchCryptoHistoryData(id,range,force=false){
  finally{delete UI.cryptoHistoryInflight[key]}
 }
 async function fetchCryptoHistory(id=UI.cryptoChartCoin,range=UI.cryptoChartRange,force=false){
- if(!id||id==='__portfolio__')return fetchCryptoPortfolioHistory(range,force);
+ if(!id)return;if(id==='__portfolio__'){recordCryptoPortfolioSnapshot(false);refreshCryptoChartPanel();return}
  refreshCryptoChartPanel();
  try{await fetchCryptoHistoryData(id,range,force)}
  catch(e){console.warn('Historische Krypto-Daten nicht verfügbar',e);if(force)showToast('Chart-Daten derzeit nicht erreichbar')}
@@ -728,27 +728,6 @@ async function fetchCryptoHistory(id=UI.cryptoChartCoin,range=UI.cryptoChartRang
 }
 function heldCryptoIds(){
  return (state.cryptoFavorites||[]).filter(id=>(Number(state.cryptoHoldings?.[id])||0)>0)
-}
-async function fetchWithConcurrency(ids,worker,limit=4){
- let cursor=0;const jobs=Array.from({length:Math.min(limit,ids.length)},async()=>{while(cursor<ids.length){const id=ids[cursor++];await worker(id)}});await Promise.all(jobs)
-}
-async function fetchCryptoPortfolioHistory(range=UI.cryptoChartRange,force=false){
- const ids=heldCryptoIds();if(!ids.length)return;
- const missing=ids.filter(id=>force||!sliceCryptoPrices(UI.cryptoHistory[cryptoHistoryKey(id,range)]?.prices,range).length);
- if(!missing.length){refreshCryptoChartPanel();return}
- refreshCryptoChartPanel();
- try{
-  await fetchWithConcurrency(missing,async id=>{try{await fetchCryptoHistoryData(id,range,force)}catch(e){console.warn('Historie fehlt für',id,e)}},3)
- }finally{refreshCryptoChartPanel()}
-}
-function nearestCryptoPrice(prices,ts){
- if(!prices?.length)return null;
- let lo=0,hi=prices.length-1;
- while(lo<hi){const mid=Math.floor((lo+hi)/2);if(Number(prices[mid][0])<ts)lo=mid+1;else hi=mid}
- const a=prices[lo],b=prices[Math.max(0,lo-1)];
- if(!b)return Number(a?.[1])||null;
- if(!a)return Number(b?.[1])||null;
- return Math.abs(Number(a[0])-ts)<Math.abs(Number(b[0])-ts)?Number(a[1]):Number(b[1])
 }
 function cryptoPortfolioHistory(range=UI.cryptoChartRange){
  const data=cryptoSnapshotSeries(range);
@@ -766,10 +745,6 @@ function formatCryptoTime(ts,range){
  if(range==='1h'||range==='4h'||range==='24h')return d.toLocaleTimeString('de-DE',{hour:'2-digit',minute:'2-digit'});
  if(range==='7d'||range==='30d')return d.toLocaleDateString('de-DE',{day:'2-digit',month:'2-digit'});
  return d.toLocaleDateString('de-DE',{month:'short',year:'2-digit'})
-}
-function currentCoinValue(id){
- const c=UI.coins.find(x=>x.id===id),qty=Number(state.cryptoHoldings?.[id])||0;
- return qty>0&&c?qty*Number(c.current_price||0):Number(c?.current_price||0)
 }
 function refreshCryptoChartPanel(){
  if(UI.view!=='crypto')return;
@@ -914,8 +889,6 @@ function addGoal(){state.goals.push({id:String(Date.now()),name:'Neues Ziel',tar
 function updateGoal(el){let g=state.goals.find(x=>String(x.id)===el.closest('.goal').dataset.goal);if(!g)return;if(el.classList.contains('goalName'))g.name=el.value;if(el.classList.contains('goalTarget'))g.target=Number(el.value)||0;if(el.classList.contains('goalDeadline'))g.deadline=Number(el.value)||0;save();render()}
 function deleteGoal(b){state.goals=state.goals.filter(g=>String(g.id)!==b.closest('.goal').dataset.goal);save();render()}
 function applyRecurring(){let d=getMonth();for(const cat of ['income','expenses','invest'])for(const x of d[cat])if(x.recurring&&x.val===0)x.val=0;let prev=new Date(UI.year,UI.month-2,1),p=getMonth(prev.getFullYear(),prev.getMonth()+1,false);if(!p){showToast('Kein Vormonat vorhanden');return}for(const cat of ['income','expenses','invest'])for(const x of p[cat]||[])if(x.recurring&&!d[cat].some(y=>y.name===x.name))d[cat].push({...x,id:String(Date.now()+Math.random())});save();render();showToast('Wiederkehrende Einträge übernommen')}
-function copyPrev(){let p=new Date(UI.year,UI.month-2,1),src=getMonth(p.getFullYear(),p.getMonth()+1,false),d=getMonth();if(!src||!monthHasData(src)){showToast('Kein gefüllter Vormonat vorhanden');return}if(monthHasData(d)){showToast('Der aktuelle Monat ist nicht leer');return}createCheckpoint('Vor Vormonatsübernahme');for(const cat of ['income','expenses','invest'])d[cat]=(src[cat]||[]).map(x=>({...x,id:crypto.randomUUID?crypto.randomUUID():String(Date.now()+Math.random())}));save();render();showToast('Vormonat übernommen')}
-
 function monthHasData(d){return ['income','expenses','invest'].some(cat=>(d?.[cat]||[]).length>0)}
 function availableSourceMonths(){
  return Object.keys(state.months||{}).filter(k=>k!==key()&&monthHasData(state.months[k])).sort().reverse()
@@ -960,7 +933,7 @@ function settingsView(){
    <div class="actions"><button class="primary" data-action="checkpoint"><span class="icon" data-icon="save"></span>Checkpoint erstellen</button><button class="ghost" data-action="restoreCheckpoint"><span class="icon" data-icon="undo"></span>Letzten wiederherstellen</button></div>
   </div>
   <div class="card"><div class="toolbar"><div><h2>Daten & Cloud</h2><span class="sub">Geräteübergreifender Login mit lokalem Sicherheitsfallback.</span></div><span class="syncBadge"><i></i>Cloud + Lokal</span></div>
-   <div class="quickFacts"><div class="quickFact"><span>Gespeicherte Monate</span><b>${Object.keys(state.months||{}).length}</b></div><div class="quickFact"><span>Assets</span><b>${(state.assets||[]).length}</b></div><div class="quickFact"><span>Meilensteine</span><b>${(state.goals||[]).length}</b></div><div class="quickFact"><span>Datenformat</span><b>v9 · UI v38</b></div></div>
+   <div class="quickFacts"><div class="quickFact"><span>Gespeicherte Monate</span><b>${Object.keys(state.months||{}).length}</b></div><div class="quickFact"><span>Assets</span><b>${(state.assets||[]).length}</b></div><div class="quickFact"><span>Meilensteine</span><b>${(state.goals||[]).length}</b></div><div class="quickFact"><span>Datenformat</span><b>v9 · UI v39</b></div></div>
    <div class="actions"><button class="primary" data-action="export"><span class="icon" data-icon="download"></span>JSON Backup</button><button class="ghost" data-action="chooseImport"><span class="icon" data-icon="upload"></span>Import</button><button class="ghost" data-action="cloudInfo"><span class="icon" data-icon="cloud"></span>Login & Sync</button><button class="danger" data-action="resetDemo"><span class="icon" data-icon="trash"></span>Demo zurücksetzen</button></div>
   </div>
  </div>`;
@@ -1019,7 +992,6 @@ function action(a){
  if(a==='saveSettings')return saveSettings();
  if(a==='resetDemo')return reset();
  if(a==='quick')return openQuick();
- if(a==='copyPrev')return copyPrev();
  if(a==='copyFromMonth')return openCopyMonth();
  if(a==='applyRecurring')return applyRecurring();
  if(a==='addAsset')return addAsset();
