@@ -1695,3 +1695,16 @@ html.light .cryptoDonutCenter{background:rgba(255,255,255,.96)}
 .cryptoHistoryStart strong{font-size:14px}
 .cryptoHistoryStart span{max-width:520px;color:var(--muted);font-size:11px;line-height:1.5}
 .cryptoHistoryStart b{font-size:22px;margin-top:4px}
+
+
+/* v39 · final crypto spacing normalization */
+.cryptoChartCard .toolbar,
+.cryptoDistributionCard .toolbar{margin-bottom:10px!important}
+.cryptoSnapshotActions{align-items:center}
+.cryptoChartControls{min-width:0}
+.cryptoChartControls>*{min-width:0}
+@media(max-width:820px){
+  .cryptoPortfolioGrid>.card{padding:14px!important}
+  .cryptoChartCard,.cryptoDistributionCard{overflow:hidden!important}
+  .cryptoChartHeadline{gap:10px!important}
+}
