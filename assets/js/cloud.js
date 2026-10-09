@@ -3,7 +3,7 @@
   const cfg=window.LW_CONFIG||{}; const APP_URL=cfg.appUrl||window.location.origin;
   const sdk=window.supabase;
   const api={
-    client:null,user:null,saveTimer:0,ready:false,syncing:false,
+    client:null,user:null,saveTimer:0,ready:false,syncing:false,idleTimer:0,idleTick:0,lastActivity:Date.now(),idleLimit:15*60*1000,
     async init(){
       if(!sdk?.createClient||!cfg.supabaseUrl||!cfg.supabasePublishableKey){ this.showGateError('Cloud-Verbindung konnte nicht geladen werden.'); return; }
       this.client=sdk.createClient(cfg.supabaseUrl,cfg.supabasePublishableKey,{
@@ -13,11 +13,41 @@
       await this.onSession(session);
       this.client.auth.onAuthStateChange((_event,newSession)=>setTimeout(()=>this.onSession(newSession),0));
       this.bind();
+      this.startIdleTracking();
       this.ready=true;
     },
     bind(){
       const pill=document.getElementById('userPill');
       if(pill&&!pill.dataset.cloudBound){pill.dataset.cloudBound='1';pill.addEventListener('click',()=>this.openAccount());}
+    },
+    startIdleTracking(){
+      if(this.idleTick)return;
+      const mark=()=>this.markActivity();
+      ['pointerdown','keydown','touchstart','input','scroll'].forEach(ev=>window.addEventListener(ev,mark,{passive:true,capture:true}));
+      document.addEventListener('visibilitychange',()=>{if(!document.hidden)this.checkIdle();});
+      this.lastActivity=Date.now();
+      this.updateIdleTimer();
+      this.idleTick=setInterval(()=>this.checkIdle(),1000);
+    },
+    markActivity(){
+      if(!this.user)return;
+      this.lastActivity=Date.now();
+      this.updateIdleTimer();
+    },
+    updateIdleTimer(){
+      const wrap=document.getElementById('sessionTimer'),txt=document.getElementById('sessionTimerText');
+      if(!wrap||!txt)return;
+      if(!this.user){wrap.hidden=true;return}
+      const remaining=Math.max(0,this.idleLimit-(Date.now()-this.lastActivity));
+      const total=Math.ceil(remaining/1000),m=Math.floor(total/60),s=String(total%60).padStart(2,'0');
+      txt.textContent=`${m}:${s}`;wrap.hidden=false;
+      wrap.classList.toggle('warning',remaining<=2*60*1000);
+    },
+    async checkIdle(){
+      if(!this.user){this.updateIdleTimer();return}
+      const remaining=this.idleLimit-(Date.now()-this.lastActivity);
+      this.updateIdleTimer();
+      if(remaining<=0)await this.logout('inactivity');
     },
     setStatus(text,online){
       const s=document.getElementById('userStatus');if(s)s.textContent=text;
@@ -27,7 +57,7 @@
     },
     async onSession(session){
       this.user=session?.user||null;
-      if(!this.user){this.setStatus('Nicht angemeldet',false);this.showLoginGate();return;} document.body.classList.remove('authPending','authRequired');document.body.classList.add('authReady');const gate=document.getElementById('authGate');if(gate)gate.hidden=true;
+      if(!this.user){this.setStatus('Nicht angemeldet',false);this.updateIdleTimer();this.showLoginGate();return;} this.lastActivity=Date.now();this.updateIdleTimer(); document.body.classList.remove('authPending','authRequired');document.body.classList.add('authReady');const gate=document.getElementById('authGate');if(gate)gate.hidden=true;
       this.setStatus('Cloud wird geladen …',true);
       await this.pullOrSeed();
     },
@@ -114,7 +144,7 @@
       document.getElementById('syncNow').onclick=async()=>{await this.push(state);showToast?.('Synchronisiert');};
       document.getElementById('authLogout').onclick=()=>this.logout();
     },
-    async logout(){await this.client.auth.signOut();this.user=null;this.setStatus('Nicht angemeldet',false);closeModal();this.showLoginGate();showToast?.('Abgemeldet');}
+    async logout(reason='manual'){await this.client.auth.signOut();this.user=null;this.updateIdleTimer();this.setStatus('Nicht angemeldet',false);closeModal();this.showLoginGate();showToast?.(reason==='inactivity'?'Nach 15 Minuten Inaktivität automatisch abgemeldet':'Abgemeldet');}
   };
   window.LWCloud=api;
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',()=>api.init());
