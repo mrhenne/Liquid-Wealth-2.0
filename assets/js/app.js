@@ -1092,7 +1092,20 @@ function goals(){
  return `<div class="toolbar"><div><h1 class="sectionTitle">Meilensteine ${infoTip('Persönliche Vermögensziele mit aktuellem Fortschritt und optionaler Deadline.')}</h1><p class="sectionSub">Vom Notgroschen bis FIRE. Fortschritt und Zielwerte auf einen Blick.</p></div><button class="primary" data-action="addGoal">Ziel</button></div><div class="milestoneGrid">${cards||'<div class="card emptyState">Noch keine Meilensteine angelegt.</div>'}</div>`
 }
 function liquidityRunway(){let d=getMonth(),cash=state.assets.filter(a=>a.type==='Cash').reduce((s,a)=>s+Number(a.value||0),0),monthly=totals(d).expenses;return monthly>0?cash/monthly:0}
-function twelveMonthStats(){let income=0,expenses=0,invest=0,months=0,series=[];for(let i=0;i<12;i++){let dt=new Date(UI.year,UI.month-1-i,1),d=getMonth(dt.getFullYear(),dt.getMonth()+1,false),t=totals(d);income+=t.income;expenses+=t.expenses;invest+=t.invest;if(t.income||t.expenses||t.invest)months++;series.unshift({label:monthName(dt.getMonth()+1).slice(0,3),rate:t.income?(t.income-t.expenses)/t.income*100:0})}return {income,expenses,invest,months,series,rate:income?(income-expenses)/income*100:0}}
+function twelveMonthStats(){
+ let income=0,expenses=0,invest=0,months=0,series=[];
+ for(let i=0;i<12;i++){
+  const dt=new Date(UI.year,UI.month-1-i,1),d=getMonth(dt.getFullYear(),dt.getMonth()+1,false),t=totals(d);
+  const active=!!(t.income||t.expenses||t.invest),cashflow=t.income-t.expenses-t.invest,rate=t.income?(t.income-t.expenses)/t.income*100:null;
+  income+=t.income;expenses+=t.expenses;invest+=t.invest;if(active)months++;
+  series.unshift({label:monthName(dt.getMonth()+1).slice(0,3),fullLabel:monthName(dt.getMonth()+1)+' '+dt.getFullYear(),income:t.income,expenses:t.expenses,invest:t.invest,cashflow,rate,active})
+ }
+ const weightedRate=income?(income-expenses)/income*100:0;
+ const activeSeries=series.filter(x=>x.active&&Number.isFinite(x.rate));
+ const best=activeSeries.length?activeSeries.reduce((a,b)=>b.rate>a.rate?b:a):null;
+ const worst=activeSeries.length?activeSeries.reduce((a,b)=>b.rate<a.rate?b:a):null;
+ return {income,expenses,invest,months,series,rate:weightedRate,best,worst,avgIncome:months?income/months:0,avgExpenses:months?expenses/months:0,avgInvest:months?invest/months:0}
+}
 function fireSafety(){let d=getMonth(),target=fireTarget(d),nw=netWorth(),base=nw/Math.max(target,1),stressNW=nw*.8,stressTarget=target*1.1;return {base,stress:stressNW/Math.max(stressTarget,1),gap:stressTarget-stressNW}}
 function savingsTrendChart(series){
  let max=Math.max(1,...series.map(x=>x.rate)),min=Math.min(0,...series.map(x=>x.rate)),span=Math.max(max-min,1);
