@@ -4,7 +4,7 @@ const now=new Date();
 const startMonthDate=new Date(now.getFullYear(),now.getMonth()-1,1);
 const defaults={swr:4,returnRate:7,inflation:2,retirementAge:55,targetMode:'expense',fixedTarget:1200000,emergencyMonths:6,monthlyExtra:0,cryptoShare:25};
 function demoMonth(){return{income:[tx('Gehalt',6000,true),tx('Nebenjob',500,true)],expenses:[tx('Wohnen',1200,true),tx('Lebensmittel',600,true),tx('Versicherungen',400,true),tx('Mobilität',300,true),tx('Freizeit',300,false),tx('Sonstiges',200,false)],invest:[tx('ETF',1000,true),tx('Bitcoin',500,true),tx('Cash Reserve',500,true)]}}
-function tx(name,val,recurring=false,cat=''){return{id:crypto.randomUUID?crypto.randomUUID():String(Date.now()+Math.random()),name,val:+val||0,recurring,cat}}
+function tx(name,val,recurring=false,cat='',emergency=null){return{id:crypto.randomUUID?crypto.randomUUID():String(Date.now()+Math.random()),name,val:+val||0,recurring,cat,emergency}}
 const defaultAssets=[{id:'a1',name:'ETF',value:57000,type:'ETF',cost:42000,rate:7},{id:'a2',name:'Bitcoin',value:35600,type:'Crypto',cost:18000,rate:12},{id:'a3',name:'Depot',value:21400,type:'Aktien',cost:16000,rate:7},{id:'a4',name:'Cash',value:14300,type:'Cash',cost:14300,rate:1},{id:'a5',name:'Immobilien',value:9800,type:'Immobilie',cost:7000,rate:3},{id:'a6',name:'Sonstige',value:4400,type:'Sonstige',cost:3000,rate:2}];
 const initial={version:8,settings:{...defaults},months:{},assets:defaultAssets,liabilities:[],cryptoFavorites:['bitcoin','ethereum','solana','binancecoin'],cryptoHoldings:{},cryptoAveragePrices:{},cryptoPortfolioSnapshots:[],layout:{dashboard:{}},goals:[{id:'g1',name:'FIRE',target:1200000,current:0,deadline:2042},{id:'g2',name:'Notgroschen',target:15000,current:0,deadline:2027}],meta:{created:new Date().toISOString()}};
 let state=loadState();let UI={year:startMonthDate.getFullYear(),month:startMonthDate.getMonth()+1,view:'dashboard',stealth:false,coins:[],cryptoSearchResults:[],cryptoSearching:false,cryptoChartCoin:null,cryptoChartRange:'24h',cryptoHistory:{},cryptoHistoryInflight:{},sim:{extra:2000,returnRate:7,inflation:2,crash:0,crashYear:0,years:20,lumpSum:0,swr:4},risk:null};
@@ -25,6 +25,18 @@ function key(y=UI.year,m=UI.month){return `${y}-${String(m).padStart(2,'0')}`}
 function getMonth(y=UI.year,m=UI.month,create=true){let k=key(y,m);if(!state.months[k]&&create)state.months[k]={income:[],expenses:[],invest:[]};return state.months[k]||{income:[],expenses:[],invest:[]}}
 function sum(a){return(a||[]).reduce((s,x)=>s+(Number(x.val)||0),0)}
 function totals(d){return{income:sum(d.income),expenses:sum(d.expenses),invest:sum(d.invest)}}
+function isEmergencyExpense(x){
+ if(!x)return false;
+ if(x.emergency===true)return true;
+ if(x.emergency===false)return false;
+ return !!x.recurring
+}
+function emergencyMonthlyExpenses(d=getMonth()){
+ return (d?.expenses||[]).filter(isEmergencyExpense).reduce((s,x)=>s+(Number(x.val)||0),0)
+}
+function emergencyFundTarget(d=getMonth()){
+ return emergencyMonthlyExpenses(d)*Math.max(0,Number(state.settings.emergencyMonths)||0)
+}
 function assetsTotal(){return state.assets.reduce((s,a)=>s+(Number(a.value)||0),0)}
 function debtTotal(){return state.liabilities.reduce((s,a)=>s+(Number(a.value)||0),0)}
 function netWorth(){return assetsTotal()-debtTotal()}
@@ -479,7 +491,7 @@ function endPointerSort(e){
 function dashboard(){
  let d=getMonth(),t=totals(d),nw=netWorth(),target=fireTarget(d),fy=fireYears(d),cash=t.income-t.expenses-t.invest;
  let saveRate=t.income?(t.income-t.expenses)/t.income*100:0,monthlySurplus=t.income-t.expenses;
- let currentCash=state.assets.filter(a=>a.type==='Cash').reduce((s,a)=>s+Number(a.value||0),0),emergencyTarget=t.expenses*state.settings.emergencyMonths;
+ let currentCash=state.assets.filter(a=>a.type==='Cash').reduce((s,a)=>s+Number(a.value||0),0),emergencyBase=emergencyMonthlyExpenses(d),emergencyTarget=emergencyFundTarget(d);
  let emergencyProgress=emergencyTarget?Math.min(100,currentCash/emergencyTarget*100):100,fireProgress=target?Math.min(100,nw/target*100):0;
  let bp=btcPrice(),btcEq=bp?nw/bp:0,simYears=fireYears(d,UI.sim.extra,state.settings.returnRate),baseYears=fy;
  let trad=stressNetWorth(.3),crypt=stressNetWorth(.6),tradYears=fireYears(d,0,state.settings.returnRate,trad),cryptoYears=fireYears(d,0,state.settings.returnRate,crypt);
@@ -534,7 +546,7 @@ function dashboard(){
    <div class="crashCards"><div class="crashCard"><span>TradFi Crash</span><strong>−30%</strong><b class="sensitive">${euro(trad)}</b><small>${baseYears!==999&&tradYears!==999?'FIRE +'+Math.max(0,tradYears-baseYears).toFixed(1)+' J.':'FIRE N/A'}</small></div><div class="crashCard"><span>Crypto Winter</span><strong>−60%</strong><b class="sensitive">${euro(crypt)}</b><small>${baseYears!==999&&cryptoYears!==999?'FIRE +'+Math.max(0,cryptoYears-baseYears).toFixed(1)+' J.':'FIRE N/A'}</small></div></div>
   </div>
   <div class="card dashboardCard">
-   <div class="toolbar"><div><h2><span class="icon">${I('shield')}</span>Notgroschen ${infoTip('Liquide Reserve im Verhältnis zu den eingestellten Monatsausgaben.')}</h2><span class="sub">Ziel ${state.settings.emergencyMonths} Monatsausgaben</span></div></div>
+   <div class="toolbar"><div><h2><span class="icon">${I('shield')}</span>Notgroschen ${infoTip('Der Notgroschen basiert nur auf den Ausgaben, die du im Cashflow als notgroschen-relevant markiert hast. Investments und Sparpläne zählen nicht mit.')}</h2><span class="sub">${state.settings.emergencyMonths} Monate · Basis ${euro(emergencyBase)}/Monat</span></div></div>
    <div class="emergencyBig"><strong class="sensitive">${euro(currentCash)}</strong><span>/ ${euro(emergencyTarget)}</span></div><div class="progress"><i style="width:${emergencyProgress}%"></i></div>
    <div class="quickFacts"><div class="quickFact"><span>Erreicht</span><b>${pct(emergencyProgress)}</b></div><div class="quickFact"><span>Runway</span><b>${liquidityRunway().toFixed(1)} Monate</b></div></div>
   </div>
@@ -558,14 +570,18 @@ function dashboard(){
 function scenario(name,v){return `<button class="scenario ${UI.sim.crash===v?'active':''}" data-crash="${v}">${name}<b>${v?`-${v*100}%`:'Basis'}</b></button>`}
 function largest(a){let x=(a||[]).slice().sort((a,b)=>b.val-a.val)[0];return x?esc(x.name):'—'}
 function goalMini(){return state.goals.slice(0,4).map(g=>{let cur=goalCurrent(g),p=Math.min(100,cur/g.target*100);return `<div class="goal"><div class="goalTop"><span>${esc(g.name)}</span><b>${euro(cur)} / ${euro(g.target)}</b></div><div class="progress" style="margin-top:6px"><i style="width:${p}%"></i></div></div>`}).join('')}
-function entries(cat){let d=getMonth(),arr=d[cat]||[];return `<div class="cashflowEntries" data-cashflow-list="${cat}">${arr.map(x=>`<div class="entry cashflowEntry sortableItem" data-cat="${cat}" data-id="${x.id}">${dragHandle('Eintrag verschieben')}<input class="input name" value="${esc(x.name)}"><input class="input amount sensitive" type="number" step="0.01" value="${x.val}"><label class="toggle"><input class="rec" type="checkbox" ${x.recurring?'checked':''}>wiederkehrend</label><button class="danger del" title="Löschen" aria-label="Löschen"></button></div>`).join('')}</div><div class="addRow"><input class="input grow newName" placeholder="Bezeichnung"><input class="input" style="width:120px" type="number" step="0.01" placeholder="€" data-new="val"><label class="toggle"><input type="checkbox" data-new="rec">wiederkehrend</label><button class="primary addEntry iconOnly" data-cat="${cat}" title="Eintrag hinzufügen" aria-label="Eintrag hinzufügen"></button></div>`}
-function cashflow(){let d=getMonth(),t=totals(d);return `<div class="toolbar"><div><h1 class="sectionTitle">Cashflow</h1><p class="sectionSub">Monatliche Einnahmen, Ausgaben und Investments verwalten.</p></div><div><button class="ghost" data-action="applyRecurring">↻ Recurring anwenden</button><button class="primary" data-action="copyFromMonth">Monat übernehmen</button></div></div><div class="grid monthGrid" style="grid-template-columns:repeat(3,1fr)"><div class="card"><div class="toolbar"><h2>Einnahmen</h2><b class="green">${euro(t.income)}</b></div>${entries('income')}</div><div class="card"><div class="toolbar"><h2>Ausgaben</h2><b class="red">${euro(t.expenses)}</b></div>${entries('expenses')}</div><div class="card"><div class="toolbar"><h2>Investments</h2><b class="purple">${euro(t.invest)}</b></div>${entries('invest')}</div></div>`}
+function entries(cat){
+ let d=getMonth(),arr=d[cat]||[],isExp=cat==='expenses';
+ return `<div class="cashflowEntries" data-cashflow-list="${cat}">${arr.map(x=>`<div class="entry cashflowEntry sortableItem" data-cat="${cat}" data-id="${x.id}">${dragHandle('Eintrag verschieben')}<input class="input name" value="${esc(x.name)}"><input class="input amount sensitive" type="number" step="0.01" value="${x.val}"><label class="toggle"><input class="rec" type="checkbox" ${x.recurring?'checked':''}>wiederkehrend</label>${isExp?`<label class="toggle emergencyToggle" title="Für den Notgroschen berücksichtigen"><input class="emergency" type="checkbox" ${isEmergencyExpense(x)?'checked':''}>Notgroschen</label>`:''}<button class="danger del" title="Löschen" aria-label="Löschen"></button></div>`).join('')}</div>
+ <div class="addRow"><input class="input grow newName" placeholder="Bezeichnung"><input class="input" style="width:120px" type="number" step="0.01" placeholder="€" data-new="val"><label class="toggle"><input type="checkbox" data-new="rec">wiederkehrend</label>${isExp?'<label class="toggle emergencyToggle"><input type="checkbox" data-new="emergency">Notgroschen</label>':''}<button class="primary addEntry iconOnly" data-cat="${cat}" title="Eintrag hinzufügen" aria-label="Eintrag hinzufügen"></button></div>`
+}
+function cashflow(){let d=getMonth(),t=totals(d);return `<div class="toolbar"><div><h1 class="sectionTitle">Cashflow</h1><p class="sectionSub">Monatliche Einnahmen, Ausgaben und Investments verwalten.</p></div><div><button class="ghost" data-action="applyRecurring">↻ Recurring anwenden</button><button class="primary" data-action="copyFromMonth">Monat übernehmen</button></div></div><div class="grid monthGrid" style="grid-template-columns:repeat(3,1fr)"><div class="card"><div class="toolbar"><h2>Einnahmen</h2><b class="green">${euro(t.income)}</b></div>${entries('income')}</div><div class="card"><div class="toolbar"><div><h2>Ausgaben</h2><span class="sub">Notgroschen-Basis ${euro(emergencyMonthlyExpenses(d))}/Monat</span></div><b class="red">${euro(t.expenses)}</b></div>${entries('expenses')}</div><div class="card"><div class="toolbar"><h2>Investments</h2><b class="purple">${euro(t.invest)}</b></div>${entries('invest')}</div></div>`}
 function wealth(){return `<div class="toolbar"><div><h1 class="sectionTitle">Vermögen</h1><p class="sectionSub">Assets, Einstandswerte, erwartete Renditen und Schulden.</p></div><button class="primary" data-action="addAsset">Asset</button></div><div class="grid wide"><div class="card"><div class="toolbar"><h2>Assets</h2><b>${euro(assetsTotal())}</b></div><div class="wealthList" data-wealth-list="assets">${state.assets.map(a=>`<div class="assetCard wealthEntry sortableItem" data-asset="${a.id}">${dragHandle('Asset verschieben')}<input class="input assetName" value="${esc(a.name)}"><input class="input assetVal sensitive" type="number" value="${a.value}"><select class="input assetType"><option ${a.type==='ETF'?'selected':''}>ETF</option><option ${a.type==='Crypto'?'selected':''}>Crypto</option><option ${a.type==='Aktien'?'selected':''}>Aktien</option><option ${a.type==='Cash'?'selected':''}>Cash</option><option ${a.type==='Immobilie'?'selected':''}>Immobilie</option><option ${a.type==='Sonstige'?'selected':''}>Sonstige</option></select><button class="danger assetDel" title="Asset löschen" aria-label="Asset löschen"></button></div>`).join('')}</div></div><div class="card"><div class="toolbar"><h2>Schulden</h2><button class="primary" data-action="addDebt">Schuld</button></div><div class="wealthList" data-wealth-list="debts">${state.liabilities.map(a=>`<div class="assetCard wealthEntry sortableItem" data-debt="${a.id}">${dragHandle('Schuld verschieben')}<input class="input debtName" value="${esc(a.name)}"><input class="input debtVal sensitive" type="number" value="${a.value}"><span class="assetType">${esc(a.type||'Schuld')}</span><button class="danger debtDel" title="Schuld löschen" aria-label="Schuld löschen"></button></div>`).join('')}</div><div class="sub" style="margin-top:8px">Gesamt: ${euro(debtTotal())}</div></div><div class="card"><h2>Vermögenskennzahlen</h2>${stat('Assets',euro(assetsTotal()))}${stat('Schulden',euro(debtTotal()),'red')}${stat('Net Worth',euro(netWorth()),'green')}${stat('Liquidität',euro(state.assets.filter(a=>a.type==='Cash').reduce((s,a)=>s+a.value,0)))}${stat('FIRE Fortschritt',pct(netWorth()/fireTarget(getMonth())*100))}</div></div>`}
 function portfolio(){return `<div class="grid wide"><div class="card"><div class="toolbar"><div><h1 class="sectionTitle">Portfolio</h1><p class="sectionSub">Allocation und Konzentrationsrisiko.</p></div></div>${donut()}<div style="margin-top:10px">${allocationLegend()}</div></div><div class="card"><h2>Risiko-Check</h2>${riskRows()}</div></div>`}
 function riskRows(){let total=Math.max(netWorth(),1),cash=state.assets.filter(a=>a.type==='Cash').reduce((s,a)=>s+a.value,0),ca=cryptoAllocation(),drift=Math.abs(ca.drift);return `${stat('Crypto Anteil',pct(ca.current),drift>10?'red':drift>5?'orange':'green')}${stat('Crypto Ziel',pct(ca.target))}${stat('Abweichung',`${ca.drift>=0?'+':''}${ca.drift.toFixed(1)} %-Pkt.`,drift>10?'red':drift>5?'orange':'green')}${stat('Cash Anteil',pct(cash/total*100),cash/total<.05?'red':'green')}${stat('Größte Position',largestAsset())}${stat('FIRE Ziel',euro(fireTarget(getMonth())))}`}
 function largestAsset(){let a=state.assets.slice().sort((a,b)=>b.value-a.value)[0];return a?`${esc(a.name)} · ${euro(a.value)}`:'—'}
 function fire(){
- let d=getMonth(),t=totals(d),target=fireTarget(d),fy=fireYears(d),safe=t.expenses*state.settings.emergencyMonths,pace=firePace(d);
+ let d=getMonth(),t=totals(d),target=fireTarget(d),fy=fireYears(d),emergencyBase=emergencyMonthlyExpenses(d),safe=emergencyFundTarget(d),pace=firePace(d);
  return `<div class="toolbar"><div><h1 class="sectionTitle">FIRE Engine</h1><p class="sectionSub">Finanzielle Unabhängigkeit mit transparenten Annahmen.</p></div><button class="primary" data-nav="settings">Alle Annahmen</button></div>
  <div class="grid kpis">${q('Net Worth',euro(netWorth()),'aktuell','wallet')}${q('FIRE Ziel',euro(target),'dynamisch/fix','fire','purple')}${q('FIRE Countdown',fy===999?'N/A':fy.toFixed(1)+' Jahre','bei aktueller Rate','pulse')}${q('SWR',pct(state.settings.swr),'Entnahmerate','pie')}${q('Notgroschen',euro(safe),'Ziel','shield')}${q('Jahresausgaben',euro(annualExpenses(d)),'aktuell','chart','red')}</div>
  <div class="grid fireLower">
@@ -591,7 +607,7 @@ function fire(){
    </div>
   </div>
   <div class="card fireScenarioCard"><div class="fireCardHead"><h2>Was wenn?</h2><span class="sub">Wie zusätzliche Investments deinen FIRE-Zeitpunkt verändern.</span></div><div class="fireTableWrap">${fireTable(d)}</div></div>
-  <div class="card fireEmergencyCard"><div class="fireCardHead"><h2>Notgroschen</h2><span class="sub">Liquiditätsreserve auf Basis deiner Ausgaben.</span></div>${stat('Monatliche Ausgaben',euro(t.expenses))}${stat('Zielmonate',state.settings.emergencyMonths)}${stat('Zielbetrag',euro(safe))}${stat('Aktuelles Cash',euro(state.assets.filter(a=>a.type==='Cash').reduce((s,a)=>s+a.value,0)))}</div>
+  <div class="card fireEmergencyCard"><div class="fireCardHead"><h2>Notgroschen</h2><span class="sub">Nur markierte Fix- und Pflichtkosten, ohne Sparpläne und Investments.</span></div>${stat('Notgroschen-Basis',euro(emergencyBase))}${stat('Gesamte Ausgaben',euro(t.expenses))}${stat('Zielmonate',state.settings.emergencyMonths)}${stat('Zielbetrag',euro(safe))}${stat('Aktuelles Cash',euro(state.assets.filter(a=>a.type==='Cash').reduce((s,a)=>s+a.value,0)))}</div>
  </div>`
 }
 function saveFireQuick(){
@@ -1091,7 +1107,7 @@ function goals(){
  }).join('');
  return `<div class="toolbar"><div><h1 class="sectionTitle">Meilensteine ${infoTip('Persönliche Vermögensziele mit aktuellem Fortschritt und optionaler Deadline.')}</h1><p class="sectionSub">Vom Notgroschen bis FIRE. Fortschritt und Zielwerte auf einen Blick.</p></div><button class="primary" data-action="addGoal">Ziel</button></div><div class="milestoneGrid">${cards||'<div class="card emptyState">Noch keine Meilensteine angelegt.</div>'}</div>`
 }
-function liquidityRunway(){let d=getMonth(),cash=state.assets.filter(a=>a.type==='Cash').reduce((s,a)=>s+Number(a.value||0),0),monthly=totals(d).expenses;return monthly>0?cash/monthly:0}
+function liquidityRunway(){let d=getMonth(),cash=state.assets.filter(a=>a.type==='Cash').reduce((s,a)=>s+Number(a.value||0),0),monthly=emergencyMonthlyExpenses(d);return monthly>0?cash/monthly:0}
 function twelveMonthStats(){
  let income=0,expenses=0,invest=0,months=0,series=[];
  for(let i=0;i<12;i++){
@@ -1132,13 +1148,13 @@ function financeCheck(){
  const cash=state.assets.filter(a=>a.type==='Cash').reduce((x,a)=>x+Number(a.value||0),0);
  const runwayClass=r>=targetMonths?'green':r>=targetMonths*.75?'orange':'red';
  const largestExp=(d.expenses||[]).slice().sort((a,b)=>b.val-a.val)[0],topShare=t.expenses?largestExp.val/t.expenses*100:0;
- const cashTarget=t.expenses*targetMonths,cashBuffer=cash-cashTarget,fireTargetNow=fireTarget(d),basePct=f.base*100,stressPct=f.stress*100;
+ const emergencyBase=emergencyMonthlyExpenses(d),cashTarget=emergencyFundTarget(d),cashBuffer=cash-cashTarget,fireTargetNow=fireTarget(d),basePct=f.base*100,stressPct=f.stress*100;
  const activeRates=s.series.filter(x=>x.active&&Number.isFinite(x.rate)).map(x=>x.rate);
  const mean=activeRates.length?activeRates.reduce((a,b)=>a+b,0)/activeRates.length:0;
  const variability=activeRates.length>1?Math.sqrt(activeRates.reduce((a,v)=>a+Math.pow(v-mean,2),0)/activeRates.length):0;
  const riskCards=[
   {label:'Cash verfügbar',value:euro(cash),hint:'Sofort verfügbare Liquidität aus deinen Cash-Assets',tone:'blue'},
-  {label:'Cash-Ziel',value:euro(cashTarget),hint:`${targetMonths} Monate × aktuelle Monatsausgaben`,tone:'blue'},
+  {label:'Cash-Ziel',value:euro(cashTarget),hint:`${targetMonths} Monate × ${euro(emergencyBase)} markierte Fix-/Pflichtkosten`,tone:'blue'},
   {label:'Cash-Puffer',value:(cashBuffer>=0?'+':'−')+euro(Math.abs(cashBuffer)),hint:cashBuffer>=0?'Über deinem Notgroschen-Ziel':'Fehlbetrag bis zum Notgroschen-Ziel',tone:cashBuffer>=0?'green':'red'},
   {label:'Runway',value:r.toFixed(1)+' Monate',hint:'Wie lange dein Cash die aktuellen Ausgaben tragen würde',tone:runwayClass},
   {label:'FIRE Ziel',value:euro(fireTargetNow),hint:'Aktuell hinterlegtes Zielvermögen',tone:'blue'},
@@ -1183,10 +1199,15 @@ function openCalendar(){let y=UI.year,m=UI.month,cells=calendarData(y,m),days=['
 function bind(){/* Event delegation is installed once below. */}
 function toggleMobileMenu(){let m=document.getElementById('mobileMenu');if(!m)return;m.classList.toggle('show');m.setAttribute('aria-hidden',m.classList.contains('show')?'false':'true')}
 function navigate(v){UI.view=v;document.getElementById('mobileMenu')?.classList.remove('show');render();window.scrollTo({top:0,behavior:'smooth'})}
-function addEntry(cat,card){let name=card.querySelector('.newName').value.trim(),val=Number(card.querySelector('[data-new="val"]').value)||0,rec=card.querySelector('[data-new="rec"]').checked;if(!name)return showToast('Bezeichnung fehlt');getMonth()[cat].push(tx(name,val,rec,cat));save();render();showToast('Eintrag hinzugefügt')}
+function addEntry(cat,card){
+ let name=card.querySelector('.newName').value.trim(),val=Number(card.querySelector('[data-new="val"]').value)||0,rec=card.querySelector('[data-new="rec"]').checked;
+ const emergencyInput=card.querySelector('[data-new="emergency"]'),emergency=cat==='expenses'?(emergencyInput?emergencyInput.checked:rec):null;
+ if(!name)return showToast('Bezeichnung fehlt');
+ getMonth()[cat].push(tx(name,val,rec,cat,emergency));save();render();showToast('Eintrag hinzugefügt')
+}
 function findTx(cat,id){return getMonth()[cat].find(x=>String(x.id)===String(id))}
 function deleteTx(btn){let e=btn.closest('.entry'),d=getMonth(),cat=e.dataset.cat;d[cat]=d[cat].filter(x=>String(x.id)!==String(e.dataset.id));save();render();showToast('Eintrag gelöscht')}
-function updateTx(el){let e=el.closest('.entry'),x=findTx(e.dataset.cat,e.dataset.id);if(!x)return;if(el.classList.contains('name'))x.name=el.value;if(el.classList.contains('amount'))x.val=Number(el.value)||0;if(el.classList.contains('rec'))x.recurring=el.checked;save();render()}
+function updateTx(el){let e=el.closest('.entry'),x=findTx(e.dataset.cat,e.dataset.id);if(!x)return;if(el.classList.contains('name'))x.name=el.value;if(el.classList.contains('amount'))x.val=Number(el.value)||0;if(el.classList.contains('rec'))x.recurring=el.checked;if(el.classList.contains('emergency'))x.emergency=el.checked;save();render()}
 function addAsset(){state.assets.push({id:String(Date.now()),name:'Neues Asset',value:0,type:'ETF',cost:0,rate:7});save();render()}
 function updateAsset(el){let a=state.assets.find(x=>String(x.id)===el.closest('.assetCard').dataset.asset);if(!a)return;if(el.classList.contains('assetName'))a.name=el.value;if(el.classList.contains('assetVal'))a.value=Number(el.value)||0;if(el.classList.contains('assetType'))a.type=el.value;save();render()}
 function deleteAsset(b){state.assets=state.assets.filter(a=>String(a.id)!==b.closest('.assetCard').dataset.asset);save();render()}
@@ -1238,7 +1259,7 @@ function settingsView(){
    <div class="field"><label>SWR / Entnahmerate (%)</label><input class="input" id="setSWR" type="number" step="0.1" value="${s.swr}"></div>
    <div class="field"><label>Erwartete Rendite p.a. (%)</label><input class="input" id="setReturn" type="number" step="0.1" value="${s.returnRate}"></div>
    <div class="field"><label>Inflation p.a. (%)</label><input class="input" id="setInflation" type="number" step="0.1" value="${s.inflation}"></div>
-   <div class="field"><label>Notgroschen (Monate)</label><input class="input" id="setEmergency" type="number" step="1" min="0" value="${s.emergencyMonths}"></div>
+   <div class="field"><label>Notgroschen (Monate) ${infoTip('Das Ziel nutzt nur Ausgaben, die im Cashflow mit „Notgroschen“ markiert sind. Bestehende wiederkehrende Ausgaben gelten bis zur manuellen Änderung als relevant.')}</label><input class="input" id="setEmergency" type="number" step="1" min="0" value="${s.emergencyMonths}"></div>
    <div class="field"><label>FIRE-Zielmodus</label><select class="input" id="setMode"><option value="expense" ${s.targetMode==='expense'?'selected':''}>Dynamisch aus Ausgaben</option><option value="fixed" ${s.targetMode==='fixed'?'selected':''}>Fixes Zielvermögen</option></select></div>
    <div class="field"><label>Fixes FIRE-Ziel (€)</label><input class="input" id="setTarget" type="number" step="1000" value="${s.fixedTarget}"></div>
    <div class="field"><label>Krypto Zielanteil (%) ${infoTip('Dient als Rebalancing-Orientierung im Portfolio und Finanz-Check.')}</label><input class="input" id="setCryptoShare" type="number" step="1" min="0" max="100" value="${s.cryptoShare}"></div><div class="field"><label>Zusätzliche monatliche Investmentrate (€)</label><input class="input" id="setExtra" type="number" step="50" value="${s.monthlyExtra}"></div>
@@ -1249,7 +1270,7 @@ function settingsView(){
    <div class="actions"><button class="primary" data-action="checkpoint"><span class="icon" data-icon="save"></span>Checkpoint erstellen</button><button class="ghost" data-action="restoreCheckpoint"><span class="icon" data-icon="undo"></span>Letzten wiederherstellen</button></div>
   </div>
   <div class="card"><div class="toolbar"><div><h2>Daten & Cloud</h2><span class="sub">Geräteübergreifender Login mit lokalem Sicherheitsfallback.</span></div><span class="syncBadge"><i></i>Cloud + Lokal</span></div>
-   <div class="quickFacts"><div class="quickFact"><span>Gespeicherte Monate</span><b>${Object.keys(state.months||{}).length}</b></div><div class="quickFact"><span>Assets</span><b>${(state.assets||[]).length}</b></div><div class="quickFact"><span>Meilensteine</span><b>${(state.goals||[]).length}</b></div><div class="quickFact"><span>Datenformat</span><b>v9 · UI v49</b></div></div>
+   <div class="quickFacts"><div class="quickFact"><span>Gespeicherte Monate</span><b>${Object.keys(state.months||{}).length}</b></div><div class="quickFact"><span>Assets</span><b>${(state.assets||[]).length}</b></div><div class="quickFact"><span>Meilensteine</span><b>${(state.goals||[]).length}</b></div><div class="quickFact"><span>Datenformat</span><b>v9 · UI v50</b></div></div>
    <div class="actions"><button class="primary" data-action="export"><span class="icon" data-icon="download"></span>JSON Backup</button><button class="ghost" data-action="chooseImport"><span class="icon" data-icon="upload"></span>Import</button><button class="ghost" data-action="cloudInfo"><span class="icon" data-icon="cloud"></span>Login & Sync</button><button class="danger" data-action="resetDemo"><span class="icon" data-icon="trash"></span>Demo zurücksetzen</button></div>
   </div>
  </div>`;
@@ -1331,7 +1352,7 @@ function action(a){
  if(a==='closeModal')return closeModal();
  if(a==='deleteTx')return deleteTx(document.querySelector(`[data-id=\"${CSS.escape(UI.lastActionId||'')}\"]`));
 }
-function openQuick(){let body=`<div class="formGrid"><div class="field"><label>Kategorie</label><select class="input" id="quickCat"><option value="income">Einnahmen</option><option value="expenses">Ausgaben</option><option value="invest">Investment</option></select></div><div class="field"><label>Betrag</label><input class="input" id="quickVal" type="number" step="0.01"></div><div class="field full"><label>Bezeichnung</label><input class="input" id="quickName" placeholder="z. B. Gehalt"></div><div class="field"><label>Wiederkehrend</label><select class="input" id="quickRec"><option value="1">Ja</option><option value="0">Nein</option></select></div></div><div class="actions"><button class="primary" id="quickSave">Speichern</button></div>`;openModal('Schneller Eintrag',`Für ${monthName(UI.month)} ${UI.year}`,body);document.getElementById('quickSave').onclick=()=>{let c=document.getElementById('quickCat').value,n=document.getElementById('quickName').value.trim(),v=Number(document.getElementById('quickVal').value)||0,r=document.getElementById('quickRec').value==='1';if(!n)return showToast('Bezeichnung fehlt');getMonth()[c].push(tx(n,v,r,c));save();closeModal();render();showToast('Eintrag gespeichert')}
+function openQuick(){let body=`<div class="formGrid"><div class="field"><label>Kategorie</label><select class="input" id="quickCat"><option value="income">Einnahmen</option><option value="expenses">Ausgaben</option><option value="invest">Investment</option></select></div><div class="field"><label>Betrag</label><input class="input" id="quickVal" type="number" step="0.01"></div><div class="field full"><label>Bezeichnung</label><input class="input" id="quickName" placeholder="z. B. Gehalt"></div><div class="field"><label>Wiederkehrend</label><select class="input" id="quickRec"><option value="1">Ja</option><option value="0">Nein</option></select></div></div><div class="actions"><button class="primary" id="quickSave">Speichern</button></div>`;openModal('Schneller Eintrag',`Für ${monthName(UI.month)} ${UI.year}`,body);document.getElementById('quickSave').onclick=()=>{let c=document.getElementById('quickCat').value,n=document.getElementById('quickName').value.trim(),v=Number(document.getElementById('quickVal').value)||0,r=document.getElementById('quickRec').value==='1';if(!n)return showToast('Bezeichnung fehlt');getMonth()[c].push(tx(n,v,r,c,c==='expenses'?r:null));save();closeModal();render();showToast('Eintrag gespeichert')}
 }
 function openModal(title,sub,body){document.getElementById('modalTitle').textContent=title;document.getElementById('modalSub').textContent=sub;document.getElementById('modalBody').innerHTML=body;document.getElementById('modal').classList.add('show')}
 function closeModal(){document.getElementById('modal').classList.remove('show')}
