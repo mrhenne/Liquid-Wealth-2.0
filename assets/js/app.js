@@ -29,7 +29,20 @@ function debtTotal(){return state.liabilities.reduce((s,a)=>s+(Number(a.value)||
 function netWorth(){return assetsTotal()-debtTotal()}
 function stressNetWorth(type){let a=0;state.assets.forEach(x=>{let v=Number(x.value)||0;if(type===.3&&(x.type==='ETF'||x.type==='Aktien'))v*=.7;if(type===.6&&x.type==='Crypto')v*=.4;a+=v});return a-debtTotal()}
 function realReturn(nom=state.settings.returnRate){return ((1+Number(nom)/100)/(1+Number(state.settings.inflation)/100)-1)*100}
-function goalCurrent(g){if(g.name==='FIRE')return netWorth();if(g.name.toLowerCase().includes('notgroschen'))return state.assets.filter(a=>a.type==='Cash').reduce((s,a)=>s+Number(a.value||0),0);return Number(g.current)||0}
+function goalSource(g){
+ const explicit=String(g?.source||'').toLowerCase();
+ if(['networth','cash','manual'].includes(explicit))return explicit;
+ const name=String(g?.name||'').trim().toLowerCase();
+ if(name==='fire')return 'networth';
+ if(name.includes('notgroschen'))return 'cash';
+ return 'networth'
+}
+function goalCurrent(g){
+ const source=goalSource(g);
+ if(source==='cash')return state.assets.filter(a=>a.type==='Cash').reduce((s,a)=>s+Number(a.value||0),0);
+ if(source==='manual')return Number(g.current)||0;
+ return netWorth()
+}
 function euro(n){return new Intl.NumberFormat('de-DE',{style:'currency',currency:'EUR',maximumFractionDigits:0}).format(Number(n)||0)}
 function pct(n){return `${(Number(n)||0).toFixed(1)}%`}
 function esc(s){return String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
@@ -841,16 +854,23 @@ function milestoneRing(p){
  return `<div class="milestoneRing"><svg viewBox="0 0 100 100"><circle class="ringTrack" cx="50" cy="50" r="${r}"/><circle class="ringProgress" cx="50" cy="50" r="${r}" stroke-dasharray="${dash} ${c-dash}" transform="rotate(-90 50 50)"/></svg><strong>${Math.round(p)}%</strong></div>`
 }
 function goals(){
- const cards=state.goals.map(g=>{const cur=goalCurrent(g),p=Math.min(100,cur/Math.max(Number(g.target)||1,1)*100),done=p>=100;
- return `<article class="milestoneCard goal" data-goal="${g.id}">${dragHandle('Meilenstein verschieben')}
-  <div class="milestoneCardTop">
-   ${milestoneRing(p)}
-   <div class="milestoneHeadline"><span class="milestoneEyebrow">${done?'ERREICHT':'MEILENSTEIN'}</span><input class="input goalName" value="${esc(g.name)}"><div class="milestoneAmount sensitive">${euro(cur)} <span>/ ${euro(g.target)}</span></div></div>
-   <button class="danger goalDel iconOnly" title="Ziel löschen" aria-label="Ziel löschen"></button>
-  </div>
-  <div class="milestoneProgress"><i style="width:${p}%"></i></div>
-  <div class="milestoneFields"><label><span>Zielbetrag ${infoTip('Der Betrag, bei dem dieser Meilenstein als erreicht gilt.')}</span><input class="input goalTarget" type="number" value="${g.target}"></label><label><span>Deadline ${infoTip('Optionales Zieljahr für diesen Meilenstein.')}</span><input class="input goalDeadline" type="number" value="${g.deadline||''}"></label></div>
- </article>`}).join('');
+ const cards=state.goals.map(g=>{
+  const source=goalSource(g),cur=goalCurrent(g),p=Math.min(100,cur/Math.max(Number(g.target)||1,1)*100),done=p>=100;
+  return `<article class="milestoneCard goal" data-goal="${g.id}">${dragHandle('Meilenstein verschieben')}
+   <div class="milestoneCardTop">
+    ${milestoneRing(p)}
+    <div class="milestoneHeadline"><span class="milestoneEyebrow">${done?'ERREICHT':'MEILENSTEIN'}</span><input class="input goalName" value="${esc(g.name)}"><div class="milestoneAmount sensitive">${euro(cur)} <span>/ ${euro(g.target)}</span></div></div>
+    <button class="danger goalDel iconOnly" title="Ziel löschen" aria-label="Ziel löschen"></button>
+   </div>
+   <div class="milestoneProgress"><i style="width:${p}%"></i></div>
+   <div class="milestoneFields milestoneFieldsWide">
+    <label><span>Zielbetrag ${infoTip('Der Betrag, bei dem dieser Meilenstein als erreicht gilt.')}</span><input class="input goalTarget" type="number" value="${g.target}"></label>
+    <label><span>Deadline ${infoTip('Optionales Zieljahr für diesen Meilenstein.')}</span><input class="input goalDeadline" type="number" value="${g.deadline||''}"></label>
+    <label><span>Berechnung ${infoTip('Legt fest, welcher Wert für den Fortschritt verwendet wird. Neue Vermögensziele nutzen standardmäßig dein Net Worth.')}</span><select class="input goalSource"><option value="networth" ${source==='networth'?'selected':''}>Gesamtvermögen</option><option value="cash" ${source==='cash'?'selected':''}>Cash / Liquidität</option><option value="manual" ${source==='manual'?'selected':''}>Manueller Wert</option></select></label>
+    <label class="goalManualField ${source==='manual'?'':'isDisabled'}"><span>Aktueller Wert</span><input class="input goalCurrent" type="number" value="${Number(g.current)||0}" ${source==='manual'?'':'disabled'}></label>
+   </div>
+  </article>`
+ }).join('');
  return `<div class="toolbar"><div><h1 class="sectionTitle">Meilensteine ${infoTip('Persönliche Vermögensziele mit aktuellem Fortschritt und optionaler Deadline.')}</h1><p class="sectionSub">Vom Notgroschen bis FIRE. Fortschritt und Zielwerte auf einen Blick.</p></div><button class="primary" data-action="addGoal">Ziel</button></div><div class="milestoneGrid">${cards||'<div class="card emptyState">Noch keine Meilensteine angelegt.</div>'}</div>`
 }
 function liquidityRunway(){let d=getMonth(),cash=state.assets.filter(a=>a.type==='Cash').reduce((s,a)=>s+Number(a.value||0),0),monthly=totals(d).expenses;return monthly>0?cash/monthly:0}
@@ -885,8 +905,16 @@ function deleteAsset(b){state.assets=state.assets.filter(a=>String(a.id)!==b.clo
 function addDebt(){state.liabilities.push({id:String(Date.now()),name:'Neue Schuld',value:0,type:'Schuld'});save();render()}
 function updateDebt(el){let d=state.liabilities.find(x=>String(x.id)===el.closest('[data-debt]').dataset.debt);if(!d)return;if(el.classList.contains('debtName'))d.name=el.value;if(el.classList.contains('debtVal'))d.value=Number(el.value)||0;save();render()}
 function deleteDebt(b){state.liabilities=state.liabilities.filter(x=>String(x.id)!==b.closest('[data-debt]').dataset.debt);save();render()}
-function addGoal(){state.goals.push({id:String(Date.now()),name:'Neues Ziel',target:100000,current:0,deadline:2030});save();render()}
-function updateGoal(el){let g=state.goals.find(x=>String(x.id)===el.closest('.goal').dataset.goal);if(!g)return;if(el.classList.contains('goalName'))g.name=el.value;if(el.classList.contains('goalTarget'))g.target=Number(el.value)||0;if(el.classList.contains('goalDeadline'))g.deadline=Number(el.value)||0;save();render()}
+function addGoal(){state.goals.push({id:String(Date.now()),name:'Neues Ziel',target:100000,current:0,source:'networth',deadline:2030});save();render()}
+function updateGoal(el){
+ let g=state.goals.find(x=>String(x.id)===el.closest('.goal').dataset.goal);if(!g)return;
+ if(el.classList.contains('goalName'))g.name=el.value;
+ if(el.classList.contains('goalTarget'))g.target=Number(el.value)||0;
+ if(el.classList.contains('goalDeadline'))g.deadline=Number(el.value)||0;
+ if(el.classList.contains('goalSource'))g.source=el.value;
+ if(el.classList.contains('goalCurrent'))g.current=Number(el.value)||0;
+ save();render()
+}
 function deleteGoal(b){state.goals=state.goals.filter(g=>String(g.id)!==b.closest('.goal').dataset.goal);save();render()}
 function applyRecurring(){let d=getMonth();for(const cat of ['income','expenses','invest'])for(const x of d[cat])if(x.recurring&&x.val===0)x.val=0;let prev=new Date(UI.year,UI.month-2,1),p=getMonth(prev.getFullYear(),prev.getMonth()+1,false);if(!p){showToast('Kein Vormonat vorhanden');return}for(const cat of ['income','expenses','invest'])for(const x of p[cat]||[])if(x.recurring&&!d[cat].some(y=>y.name===x.name))d[cat].push({...x,id:String(Date.now()+Math.random())});save();render();showToast('Wiederkehrende Einträge übernommen')}
 function monthHasData(d){return ['income','expenses','invest'].some(cat=>(d?.[cat]||[]).length>0)}
@@ -933,7 +961,7 @@ function settingsView(){
    <div class="actions"><button class="primary" data-action="checkpoint"><span class="icon" data-icon="save"></span>Checkpoint erstellen</button><button class="ghost" data-action="restoreCheckpoint"><span class="icon" data-icon="undo"></span>Letzten wiederherstellen</button></div>
   </div>
   <div class="card"><div class="toolbar"><div><h2>Daten & Cloud</h2><span class="sub">Geräteübergreifender Login mit lokalem Sicherheitsfallback.</span></div><span class="syncBadge"><i></i>Cloud + Lokal</span></div>
-   <div class="quickFacts"><div class="quickFact"><span>Gespeicherte Monate</span><b>${Object.keys(state.months||{}).length}</b></div><div class="quickFact"><span>Assets</span><b>${(state.assets||[]).length}</b></div><div class="quickFact"><span>Meilensteine</span><b>${(state.goals||[]).length}</b></div><div class="quickFact"><span>Datenformat</span><b>v9 · UI v39</b></div></div>
+   <div class="quickFacts"><div class="quickFact"><span>Gespeicherte Monate</span><b>${Object.keys(state.months||{}).length}</b></div><div class="quickFact"><span>Assets</span><b>${(state.assets||[]).length}</b></div><div class="quickFact"><span>Meilensteine</span><b>${(state.goals||[]).length}</b></div><div class="quickFact"><span>Datenformat</span><b>v9 · UI v40</b></div></div>
    <div class="actions"><button class="primary" data-action="export"><span class="icon" data-icon="download"></span>JSON Backup</button><button class="ghost" data-action="chooseImport"><span class="icon" data-icon="upload"></span>Import</button><button class="ghost" data-action="cloudInfo"><span class="icon" data-icon="cloud"></span>Login & Sync</button><button class="danger" data-action="resetDemo"><span class="icon" data-icon="trash"></span>Demo zurücksetzen</button></div>
   </div>
  </div>`;
@@ -1173,7 +1201,7 @@ document.addEventListener('change',function(e){
  if(t.matches('.entry .name,.entry .amount,.entry .rec')) return updateTx(t);
  if(t.matches('.assetName,.assetVal,.assetType')) return updateAsset(t);
  if(t.matches('.debtName,.debtVal')) return updateDebt(t);
- if(t.matches('.goalName,.goalTarget,.goalDeadline')) return updateGoal(t);
+ if(t.matches('.goalName,.goalTarget,.goalDeadline,.goalSource,.goalCurrent')) return updateGoal(t);
  if(t.matches('.cryptoHoldingInput')) return updateCryptoHolding(t);
  if(t.matches('.cryptoAvgInput')) return updateCryptoAveragePrice(t);
  if(t.id==='cryptoChartCoin'){UI.cryptoChartCoin=t.value;refreshCryptoChartPanel();return ensureCryptoChartData(UI.cryptoChartCoin,UI.cryptoChartRange);}
