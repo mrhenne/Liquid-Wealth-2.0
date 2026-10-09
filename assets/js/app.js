@@ -908,7 +908,7 @@ function deleteDebt(b){state.liabilities=state.liabilities.filter(x=>String(x.id
 function addGoal(){state.goals.push({id:String(Date.now()),name:'Neues Ziel',target:100000,current:0,source:'networth',deadline:2030});save();render()}
 function updateGoal(el){
  let g=state.goals.find(x=>String(x.id)===el.closest('.goal').dataset.goal);if(!g)return;
- if(el.classList.contains('goalName'))g.name=el.value;
+ if(el.classList.contains('goalName')){if(!g.source)g.source=goalSource(g);g.name=el.value;}
  if(el.classList.contains('goalTarget'))g.target=Number(el.value)||0;
  if(el.classList.contains('goalDeadline'))g.deadline=Number(el.value)||0;
  if(el.classList.contains('goalSource'))g.source=el.value;
