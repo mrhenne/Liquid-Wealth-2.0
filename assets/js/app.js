@@ -564,7 +564,45 @@ function wealth(){return `<div class="toolbar"><div><h1 class="sectionTitle">Ver
 function portfolio(){return `<div class="grid wide"><div class="card"><div class="toolbar"><div><h1 class="sectionTitle">Portfolio</h1><p class="sectionSub">Allocation und Konzentrationsrisiko.</p></div></div>${donut()}<div style="margin-top:10px">${allocationLegend()}</div></div><div class="card"><h2>Risiko-Check</h2>${riskRows()}</div></div>`}
 function riskRows(){let total=Math.max(netWorth(),1),cash=state.assets.filter(a=>a.type==='Cash').reduce((s,a)=>s+a.value,0),ca=cryptoAllocation(),drift=Math.abs(ca.drift);return `${stat('Crypto Anteil',pct(ca.current),drift>10?'red':drift>5?'orange':'green')}${stat('Crypto Ziel',pct(ca.target))}${stat('Abweichung',`${ca.drift>=0?'+':''}${ca.drift.toFixed(1)} %-Pkt.`,drift>10?'red':drift>5?'orange':'green')}${stat('Cash Anteil',pct(cash/total*100),cash/total<.05?'red':'green')}${stat('Größte Position',largestAsset())}${stat('FIRE Ziel',euro(fireTarget(getMonth())))}`}
 function largestAsset(){let a=state.assets.slice().sort((a,b)=>b.value-a.value)[0];return a?`${esc(a.name)} · ${euro(a.value)}`:'—'}
-function fire(){let d=getMonth(),t=totals(d),target=fireTarget(d),fy=fireYears(d),safe=t.expenses*state.settings.emergencyMonths,pace=firePace(d);return `<div class="toolbar"><div><h1 class="sectionTitle">FIRE Engine</h1><p class="sectionSub">Finanzielle Unabhängigkeit mit transparenten Annahmen.</p></div><button class="primary" data-nav="settings">Annahmen bearbeiten</button></div><div class="grid kpis">${q('Net Worth',euro(netWorth()),'aktuell','wallet')}${q('FIRE Ziel',euro(target),'dynamisch/fix','fire','purple')}${q('FIRE Countdown',fy===999?'N/A':fy.toFixed(1)+' Jahre','bei aktueller Rate','pulse')}${q('SWR',pct(state.settings.swr),'Entnahmerate','pie')}${q('Notgroschen',euro(safe),'Ziel','shield')}${q('Jahresausgaben',euro(annualExpenses(d)),'aktuell','chart','red')}</div><div class="grid lower"><div class="card"><h2>FIRE Mathematik</h2><div class="metricGrid">${metric('Monatliche Investments',euro(t.invest))}${metric('Zusatzrate',euro(state.settings.monthlyExtra))}${metric('Rendite',pct(state.settings.returnRate))}${metric('Inflation',pct(state.settings.inflation))}${metric('Realrendite',pct(realReturn()))}${metric('Zielvermögen',euro(target))}${metric('FIRE Fortschritt',pct(netWorth()/Math.max(target,1)*100))}${metric('FIRE Deadline',pace.deadline||'nicht gesetzt')}${metric('Benötigte Rate',pace.deadline?euro(pace.required)+'/Monat':'—')}${metric('Rate vs. Plan',pace.deadline?(pace.gap>=0?'+':'−')+euro(Math.abs(pace.gap)):'—')}</div></div><div class="card"><h2>Was wenn?</h2>${fireTable(d)}</div><div class="card"><h2>Notgroschen</h2>${stat('Monatliche Ausgaben',euro(t.expenses))}${stat('Zielmonate',state.settings.emergencyMonths)}${stat('Zielbetrag',euro(safe))}${stat('Aktuelles Cash',euro(state.assets.filter(a=>a.type==='Cash').reduce((s,a)=>s+a.value,0)))}</div></div>`}
+function fire(){
+ let d=getMonth(),t=totals(d),target=fireTarget(d),fy=fireYears(d),safe=t.expenses*state.settings.emergencyMonths,pace=firePace(d);
+ return `<div class="toolbar"><div><h1 class="sectionTitle">FIRE Engine</h1><p class="sectionSub">Finanzielle Unabhängigkeit mit transparenten Annahmen.</p></div><button class="primary" data-nav="settings">Alle Annahmen</button></div>
+ <div class="grid kpis">${q('Net Worth',euro(netWorth()),'aktuell','wallet')}${q('FIRE Ziel',euro(target),'dynamisch/fix','fire','purple')}${q('FIRE Countdown',fy===999?'N/A':fy.toFixed(1)+' Jahre','bei aktueller Rate','pulse')}${q('SWR',pct(state.settings.swr),'Entnahmerate','pie')}${q('Notgroschen',euro(safe),'Ziel','shield')}${q('Jahresausgaben',euro(annualExpenses(d)),'aktuell','chart','red')}</div>
+ <div class="grid fireLower">
+  <div class="card fireMathCard">
+   <div class="toolbar fireCardHead"><div><h2>FIRE Mathematik ${infoTip('Berechnet dein FIRE-Ziel aus Vermögen, Sparrate, Rendite, Inflation und Entnahmerate.')}</h2><span class="sub">Wichtigste Annahmen direkt hier anpassen.</span></div><button class="ghost fireQuickSave" data-action="saveFireQuick">Übernehmen</button></div>
+   <div class="metricGrid fireMetricGrid">
+    ${metric('Monatliche Investments',euro(t.invest))}
+    ${metric('Zusatzrate',euro(state.settings.monthlyExtra))}
+    ${metric('Rendite',pct(state.settings.returnRate))}
+    ${metric('Inflation',pct(state.settings.inflation))}
+    ${metric('Realrendite',pct(realReturn()))}
+    ${metric('Zielvermögen',euro(target))}
+    ${metric('FIRE Fortschritt',pct(netWorth()/Math.max(target,1)*100))}
+    ${metric('FIRE Deadline',pace.deadline||'nicht gesetzt')}
+    ${metric('Benötigte Rate',pace.deadline?euro(pace.required)+'/Monat':'—')}
+    ${metric('Rate vs. Plan',pace.deadline?(pace.gap>=0?'+':'−')+euro(Math.abs(pace.gap)):'—')}
+   </div>
+   <div class="fireQuickGrid">
+    <label><span>Zusatzrate / Monat</span><input class="input" id="fireQuickExtra" type="number" min="0" step="50" value="${Number(state.settings.monthlyExtra)||0}"></label>
+    <label><span>Rendite p.a.</span><input class="input" id="fireQuickReturn" type="number" min="0" max="20" step="0.1" value="${Number(state.settings.returnRate)||0}"></label>
+    <label><span>Inflation p.a.</span><input class="input" id="fireQuickInflation" type="number" min="0" max="15" step="0.1" value="${Number(state.settings.inflation)||0}"></label>
+    <label><span>SWR / Entnahmerate</span><input class="input" id="fireQuickSWR" type="number" min="1" max="10" step="0.1" value="${Number(state.settings.swr)||0}"></label>
+   </div>
+  </div>
+  <div class="card fireScenarioCard"><div class="fireCardHead"><h2>Was wenn?</h2><span class="sub">Wie zusätzliche Investments deinen FIRE-Zeitpunkt verändern.</span></div><div class="fireTableWrap">${fireTable(d)}</div></div>
+  <div class="card fireEmergencyCard"><div class="fireCardHead"><h2>Notgroschen</h2><span class="sub">Liquiditätsreserve auf Basis deiner Ausgaben.</span></div>${stat('Monatliche Ausgaben',euro(t.expenses))}${stat('Zielmonate',state.settings.emergencyMonths)}${stat('Zielbetrag',euro(safe))}${stat('Aktuelles Cash',euro(state.assets.filter(a=>a.type==='Cash').reduce((s,a)=>s+a.value,0)))}</div>
+ </div>`
+}
+function saveFireQuick(){
+ const s=state.settings;
+ const extra=Math.max(0,Number(document.getElementById('fireQuickExtra')?.value)||0);
+ const ret=Math.max(0,Math.min(20,Number(document.getElementById('fireQuickReturn')?.value)||0));
+ const inf=Math.max(0,Math.min(15,Number(document.getElementById('fireQuickInflation')?.value)||0));
+ const swr=Math.max(1,Math.min(10,Number(document.getElementById('fireQuickSWR')?.value)||4));
+ s.monthlyExtra=extra;s.returnRate=ret;s.inflation=inf;s.swr=swr;
+ save();UI.risk=null;render();showToast('FIRE-Annahmen aktualisiert')
+}
 function fireTable(d){let base=fireYears(d),rows=[['Aktuell',0,base],['+500 €',500,fireYears(d,500)],['+1.000 €',1000,fireYears(d,1000)],['+2.000 €',2000,fireYears(d,2000)],['+5.000 €',5000,fireYears(d,5000)]];return `<table class="table"><tr><th>Szenario</th><th>Extra</th><th>FIRE</th></tr>${rows.map(r=>`<tr><td>${r[0]}</td><td>${euro(r[1])}</td><td>${r[2]===999?'N/A':r[2].toFixed(1)+' J'}</td></tr>`).join('')}</table>`}
 function simulator(){let d=getMonth(),base=fireYears(d),sim=fireYears(d,UI.sim.extra,UI.sim.returnRate,netWorth()*(1-UI.sim.crash)),series=projectedSeries(d,UI.sim.years,UI.sim.returnRate,UI.sim.extra,netWorth(),UI.sim.crash);return `<div class="toolbar"><div><h1 class="sectionTitle">Tactical FIRE Simulator</h1><p class="sectionSub">Parameter verändern und Wirkung sofort sehen.</p></div><button class="ghost" data-action="resetSim">Reset</button></div><div class="grid lower"><div class="card"><h2>Monatlicher Zusatzbetrag</h2><div class="bigNum sensitive">${euro(UI.sim.extra)}</div><input id="simExtra" class="slider" type="range" min="0" max="10000" step="100" value="${UI.sim.extra}"><div class="sub">0 € bis 10.000 €</div></div><div class="card"><h2>Rendite</h2><div class="bigNum">${pct(UI.sim.returnRate)}</div><input id="simReturn" class="slider" type="range" min="0" max="15" step="0.5" value="${UI.sim.returnRate}"><div class="sub">Nominal p.a.</div></div><div class="card"><h2>Crash</h2><div class="scenarioGrid">${scenario('0%',0)}${scenario('-30%',.3)}${scenario('-60%',.6)}</div><div class="sub" style="margin-top:8px">Einmaliger Schock zu Beginn.</div></div></div><div class="grid wide"><div class="card"><h2>Ergebnis</h2><div class="metricGrid">${metric('Basis FIRE',base===999?'N/A':base.toFixed(1)+' Jahre')}${metric('Simulation',sim===999?'N/A':sim.toFixed(1)+' Jahre')}${metric('Zeitgewinn',base===999?'N/A':Math.max(0,base-sim).toFixed(1)+' Jahre')}${metric('Endvermögen',euro(series.at(-1).value))}</div>${lineChart(series,fireTarget(d))}</div><div class="card"><h2>Parameter</h2>${stat('Aktuelle Investition',euro(totals(d).invest))}${stat('Zusatzbetrag',euro(UI.sim.extra))}${stat('Gesamtrate',euro(totals(d).invest+UI.sim.extra))}${stat('Rendite',pct(UI.sim.returnRate))}${stat('Crash',pct(UI.sim.crash*100),'red')}</div></div>`}
 function projection(){let d=getMonth(),series=projectedSeries(d,20,state.settings.returnRate,state.settings.monthlyExtra);return `<div class="toolbar"><div><h1 class="sectionTitle">Vermögensprojektion</h1><p class="sectionSub">20 Jahre · ${state.settings.returnRate}% nominal · ${state.settings.inflation}% Inflation · ${realReturn().toFixed(1)}% real.</p></div></div><div class="card">${lineChart(series,fireTarget(d))}</div><div class="grid monthGrid" style="grid-template-columns:repeat(4,1fr);margin-top:14px">${series.filter((x,i)=>[0,5,10,15,20].includes(i)).map(x=>`<div class="card">${metric('Jahr '+(UI.year+x.year),euro(x.value))}</div>`).join('')}</div>`}
@@ -973,7 +1011,7 @@ function settingsView(){
    <div class="actions"><button class="primary" data-action="checkpoint"><span class="icon" data-icon="save"></span>Checkpoint erstellen</button><button class="ghost" data-action="restoreCheckpoint"><span class="icon" data-icon="undo"></span>Letzten wiederherstellen</button></div>
   </div>
   <div class="card"><div class="toolbar"><div><h2>Daten & Cloud</h2><span class="sub">Geräteübergreifender Login mit lokalem Sicherheitsfallback.</span></div><span class="syncBadge"><i></i>Cloud + Lokal</span></div>
-   <div class="quickFacts"><div class="quickFact"><span>Gespeicherte Monate</span><b>${Object.keys(state.months||{}).length}</b></div><div class="quickFact"><span>Assets</span><b>${(state.assets||[]).length}</b></div><div class="quickFact"><span>Meilensteine</span><b>${(state.goals||[]).length}</b></div><div class="quickFact"><span>Datenformat</span><b>v9 · UI v43</b></div></div>
+   <div class="quickFacts"><div class="quickFact"><span>Gespeicherte Monate</span><b>${Object.keys(state.months||{}).length}</b></div><div class="quickFact"><span>Assets</span><b>${(state.assets||[]).length}</b></div><div class="quickFact"><span>Meilensteine</span><b>${(state.goals||[]).length}</b></div><div class="quickFact"><span>Datenformat</span><b>v9 · UI v44</b></div></div>
    <div class="actions"><button class="primary" data-action="export"><span class="icon" data-icon="download"></span>JSON Backup</button><button class="ghost" data-action="chooseImport"><span class="icon" data-icon="upload"></span>Import</button><button class="ghost" data-action="cloudInfo"><span class="icon" data-icon="cloud"></span>Login & Sync</button><button class="danger" data-action="resetDemo"><span class="icon" data-icon="trash"></span>Demo zurücksetzen</button></div>
   </div>
  </div>`;
@@ -1030,6 +1068,7 @@ function action(a){
    return showToast('Cloud-Modul lädt noch')
  }
  if(a==='saveSettings')return saveSettings();
+ if(a==='saveFireQuick')return saveFireQuick();
  if(a==='resetDemo')return reset();
  if(a==='quick')return openQuick();
  if(a==='copyFromMonth')return openCopyMonth();
