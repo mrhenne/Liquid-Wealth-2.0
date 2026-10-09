@@ -2251,3 +2251,24 @@ html.light .cryptoDonutCenter{background:rgba(255,255,255,.96)}
 .riskChartHelp b{flex:0 0 auto;font-size:9px}
 .riskChartHelp span{color:var(--muted);font-size:9px;line-height:1.45}
 @media(max-width:900px){.riskMetricExplain{min-height:0}.riskChartHelp{display:block}.riskChartHelp b{display:block;margin-bottom:3px}}
+
+
+/* v50 · explicit emergency-fund expense classification */
+.emergencyToggle{
+  border-left:1px solid rgba(117,160,204,.12);
+  padding-left:8px;
+  color:#7fd9cb!important;
+}
+.cashflowEntry:has(.emergency:checked){
+  box-shadow:inset 3px 0 0 rgba(35,211,189,.55)!important;
+}
+@media(max-width:900px){
+  .cashflowEntry .emergencyToggle{
+    grid-column:1/-1;
+    border-left:0;
+    padding-left:0;
+  }
+  .addRow .emergencyToggle{
+    width:100%;
+  }
+}
