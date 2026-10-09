@@ -1900,3 +1900,120 @@ html.light .cryptoDonutCenter{background:rgba(255,255,255,.96)}
   .dashboardAllocation .alloc{grid-template-columns:1fr!important}
   .dashboardAllocation .donut{margin:2px auto 8px!important}
 }
+
+
+/* v44 · FIRE layout and inline assumptions */
+.fireLower{
+ display:grid!important;
+ grid-template-columns:minmax(420px,1.18fr) minmax(360px,.95fr) minmax(300px,.82fr)!important;
+ gap:10px!important;
+ margin-top:14px!important;
+ align-items:start!important;
+}
+.fireLower>.card{
+ min-width:0!important;
+ align-self:start!important;
+ overflow:hidden!important;
+}
+.fireCardHead{
+ display:flex;
+ align-items:flex-start;
+ justify-content:space-between;
+ gap:10px;
+ margin-bottom:11px;
+}
+.fireCardHead h2{margin:0!important}
+.fireCardHead .sub{display:block;margin-top:4px}
+.fireMathCard{min-width:0!important}
+.fireMetricGrid{
+ grid-template-columns:repeat(2,minmax(0,1fr))!important;
+ gap:8px!important;
+}
+.fireMetricGrid .metric{
+ min-width:0!important;
+}
+.fireMetricGrid .metric span{
+ white-space:normal!important;
+ line-height:1.3!important;
+}
+.fireMetricGrid .metric b{
+ overflow-wrap:anywhere!important;
+}
+.fireQuickGrid{
+ display:grid;
+ grid-template-columns:repeat(2,minmax(0,1fr));
+ gap:8px;
+ margin-top:12px;
+ padding-top:12px;
+ border-top:1px solid var(--line);
+}
+.fireQuickGrid label{
+ display:grid;
+ gap:5px;
+ min-width:0;
+}
+.fireQuickGrid label>span{
+ color:var(--muted);
+ font-size:10px;
+ font-weight:700;
+}
+.fireQuickGrid .input{
+ width:100%!important;
+ min-width:0!important;
+ box-sizing:border-box!important;
+}
+.fireQuickSave{
+ flex:0 0 auto!important;
+}
+.fireScenarioCard{
+ min-width:0!important;
+}
+.fireTableWrap{
+ width:100%;
+ min-width:0;
+ overflow-x:hidden!important;
+}
+.fireTableWrap .table{
+ min-width:0!important;
+ width:100%!important;
+ table-layout:fixed!important;
+}
+.fireTableWrap .table th,
+.fireTableWrap .table td{
+ padding:9px 8px!important;
+ overflow:hidden;
+ text-overflow:ellipsis;
+ white-space:nowrap;
+}
+.fireTableWrap .table th:first-child,
+.fireTableWrap .table td:first-child{
+ width:42%;
+}
+.fireEmergencyCard .stat{
+ gap:12px;
+}
+.fireEmergencyCard .stat span{
+ min-width:0;
+}
+.fireEmergencyCard .stat b{
+ white-space:nowrap;
+}
+@media(max-width:1450px){
+ .fireLower{
+   grid-template-columns:minmax(0,1.1fr) minmax(0,.9fr)!important;
+ }
+ .fireEmergencyCard{grid-column:1/-1!important}
+}
+@media(max-width:1050px){
+ .fireLower{grid-template-columns:minmax(0,1fr)!important}
+ .fireEmergencyCard{grid-column:auto!important}
+}
+@media(max-width:720px){
+ .fireMetricGrid{grid-template-columns:repeat(2,minmax(0,1fr))!important}
+ .fireQuickGrid{grid-template-columns:1fr!important}
+ .fireCardHead{align-items:stretch;flex-direction:column}
+ .fireQuickSave{width:100%!important}
+}
+@media(max-width:430px){
+ .fireMetricGrid{grid-template-columns:1fr!important}
+}
