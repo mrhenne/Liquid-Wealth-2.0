@@ -2227,3 +2227,27 @@ html.light .cryptoDonutCenter{background:rgba(255,255,255,.96)}
 @media(max-width:1150px){.financeDetailGrid{grid-template-columns:1fr}.financeMiniStats{grid-template-columns:repeat(3,minmax(0,1fr))}}
 @media(max-width:720px){.financeMiniStats,.financeRiskGrid{grid-template-columns:repeat(2,minmax(0,1fr))}.savingsChartWrap{min-height:260px}.savingsChart{min-height:240px}}
 @media(max-width:430px){.financeMiniStats,.financeRiskGrid{grid-template-columns:1fr}}
+
+
+/* v49 · risk analysis explanations */
+.riskMetricExplain{display:flex;flex-direction:column;min-height:185px}
+.riskMetricNote{margin-top:10px;padding-top:9px;border-top:1px solid rgba(119,161,204,.10)}
+.riskMetricNote strong{display:block;font-size:10px;color:var(--text);margin-bottom:3px}
+.riskMetricNote em{display:block;color:var(--muted);font-size:9px;line-height:1.45;font-style:normal}
+.riskMetricNote.green strong{color:#2ad99a}.riskMetricNote.orange strong{color:#ffad4d}.riskMetricNote.red strong{color:#ff687f}
+.riskVerdict{padding:12px;border-radius:12px;border:1px solid rgba(117,160,204,.11);background:rgba(47,124,255,.055);margin:8px 0 12px}
+.riskVerdict span{display:block;color:var(--muted);font-size:9px;font-weight:800;text-transform:uppercase;letter-spacing:.04em}
+.riskVerdict strong{display:block;margin-top:3px;font-size:18px}
+.riskVerdict p{margin:6px 0 0;color:var(--muted);font-size:10px;line-height:1.5}
+.riskVerdict.green{border-color:rgba(42,217,154,.18);background:rgba(42,217,154,.06)}
+.riskVerdict.orange{border-color:rgba(255,173,77,.18);background:rgba(255,173,77,.06)}
+.riskVerdict.red{border-color:rgba(255,104,127,.18);background:rgba(255,104,127,.06)}
+.riskVerdict.green strong{color:#2ad99a}.riskVerdict.orange strong{color:#ffad4d}.riskVerdict.red strong{color:#ff687f}
+.riskExplainList{display:grid;gap:7px;margin-top:12px}
+.riskExplainList>div{padding:8px 9px;border-radius:9px;background:rgba(80,132,184,.045);border:1px solid rgba(117,160,204,.08)}
+.riskExplainList b{display:block;font-size:9px;margin-bottom:2px}
+.riskExplainList span{display:block;color:var(--muted);font-size:9px;line-height:1.4}
+.riskChartHelp{display:flex;gap:8px;align-items:flex-start;margin-top:10px;padding:9px 10px;border-radius:10px;background:rgba(80,132,184,.045);border:1px solid rgba(117,160,204,.08)}
+.riskChartHelp b{flex:0 0 auto;font-size:9px}
+.riskChartHelp span{color:var(--muted);font-size:9px;line-height:1.45}
+@media(max-width:900px){.riskMetricExplain{min-height:0}.riskChartHelp{display:block}.riskChartHelp b{display:block;margin-bottom:3px}}
