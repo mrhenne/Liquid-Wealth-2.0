@@ -1,12 +1,13 @@
 'use strict';
 const APP='LWTE_8';
 const now=new Date();
+const startMonthDate=new Date(now.getFullYear(),now.getMonth()-1,1);
 const defaults={swr:4,returnRate:7,inflation:2,retirementAge:55,targetMode:'expense',fixedTarget:1200000,emergencyMonths:6,monthlyExtra:0,cryptoShare:25};
 function demoMonth(){return{income:[tx('Gehalt',6000,true),tx('Nebenjob',500,true)],expenses:[tx('Wohnen',1200,true),tx('Lebensmittel',600,true),tx('Versicherungen',400,true),tx('Mobilität',300,true),tx('Freizeit',300,false),tx('Sonstiges',200,false)],invest:[tx('ETF',1000,true),tx('Bitcoin',500,true),tx('Cash Reserve',500,true)]}}
 function tx(name,val,recurring=false,cat=''){return{id:crypto.randomUUID?crypto.randomUUID():String(Date.now()+Math.random()),name,val:+val||0,recurring,cat}}
 const defaultAssets=[{id:'a1',name:'ETF',value:57000,type:'ETF',cost:42000,rate:7},{id:'a2',name:'Bitcoin',value:35600,type:'Crypto',cost:18000,rate:12},{id:'a3',name:'Depot',value:21400,type:'Aktien',cost:16000,rate:7},{id:'a4',name:'Cash',value:14300,type:'Cash',cost:14300,rate:1},{id:'a5',name:'Immobilien',value:9800,type:'Immobilie',cost:7000,rate:3},{id:'a6',name:'Sonstige',value:4400,type:'Sonstige',cost:3000,rate:2}];
 const initial={version:8,settings:{...defaults},months:{},assets:defaultAssets,liabilities:[],cryptoFavorites:['bitcoin','ethereum','solana','binancecoin'],cryptoHoldings:{},cryptoAveragePrices:{},cryptoPortfolioSnapshots:[],layout:{dashboard:{}},goals:[{id:'g1',name:'FIRE',target:1200000,current:0,deadline:2042},{id:'g2',name:'Notgroschen',target:15000,current:0,deadline:2027}],meta:{created:new Date().toISOString()}};
-let state=loadState();let UI={year:now.getFullYear(),month:now.getMonth()+1,view:'dashboard',stealth:false,coins:[],cryptoSearchResults:[],cryptoSearching:false,cryptoChartCoin:null,cryptoChartRange:'24h',cryptoHistory:{},cryptoHistoryInflight:{},sim:{extra:2000,returnRate:7,crash:0,years:15},risk:null};
+let state=loadState();let UI={year:startMonthDate.getFullYear(),month:startMonthDate.getMonth()+1,view:'dashboard',stealth:false,coins:[],cryptoSearchResults:[],cryptoSearching:false,cryptoChartCoin:null,cryptoChartRange:'24h',cryptoHistory:{},cryptoHistoryInflight:{},sim:{extra:2000,returnRate:7,crash:0,years:15},risk:null};
 const CHECKPOINT_KEY=APP+'_checkpoints_v1';
 const CRYPTO_HISTORY_CACHE=APP+'_crypto_history_v2';
 try{const cached=JSON.parse(sessionStorage.getItem(CRYPTO_HISTORY_CACHE)||'{}');if(cached&&typeof cached==='object')UI.cryptoHistory=cached}catch(e){}
@@ -244,6 +245,8 @@ function donut(){
 function allocationLegend(){let total=Math.max(netWorth(),1),groups={ETF:0,Crypto:0,Aktien:0,Cash:0,Immobilie:0,Sonstige:0},colors=['#1688ff','#ff9c24','#7d57ff','#20d8bd','#d5c7a8','#93dc35'];state.assets.forEach(a=>groups[a.type]=(groups[a.type]||0)+Number(a.value||0));return `<div class="legend">${Object.entries(groups).filter(x=>x[1]>0).map((x,i)=>`<div class="legendRow"><i class="sw" style="background:${colors[i%colors.length]}"></i><span>${x[0]}</span><b>${pct(x[1]/total*100)}</b><span class="sensitive">${euro(x[1])}</span></div>`).join('')}</div>`}
 function sankey(d){
   const t=totals(d);
+  const incomes=(d.income||[]).map(x=>({name:x.name,val:Number(x.val)||0})).filter(x=>x.val>0).sort((a,b)=>b.val-a.val);
+  const incomeTotal=Math.max(t.income,1),incomeMax=Math.max(...incomes.map(x=>x.val),1);
   const outs=[
     ...d.expenses.map(x=>({name:x.name,val:Number(x.val)||0,kind:'expense'})),
     ...d.invest.map(x=>({name:x.name,val:Number(x.val)||0,kind:'invest'}))
@@ -253,15 +256,24 @@ function sankey(d){
   const sorted=outs.filter(x=>x.val>0).sort((a,b)=>b.val-a.val).slice(0,9);
   const max=Math.max(...sorted.map(x=>x.val),1);
   const total=Math.max(sorted.reduce((s,x)=>s+x.val,0),1);
-  return `<div class="flowViz">
-    <div class="flowSource glassNode">
-      <span class="flowEyebrow">Einnahmen</span>
-      <strong class="sensitive">${euro(t.income)}</strong>
-      <small>100 % verfügbar</small>
+  return `<div class="flowViz flowVizSplit">
+    <div class="flowIncomeColumn">
+      <div class="flowColumnHead"><span>Einnahmen</span><b class="sensitive">${euro(t.income)}</b></div>
+      <div class="flowIncomeList">
+        ${incomes.length?incomes.map(x=>{
+          const share=x.val/incomeTotal*100,width=Math.max(18,x.val/incomeMax*100);
+          return `<div class="flowIncomeCard" style="--income-w:${width.toFixed(1)}%">
+            <div class="flowTargetTop"><span>${esc(x.name)}</span><b class="sensitive">${euro(x.val)}</b></div>
+            <div class="flowTrack incomeTrack"><i></i></div>
+            <small>${pct(share)} der Einnahmen</small>
+          </div>`
+        }).join(''):'<div class="flowEmpty">Noch keine Einnahmen erfasst.</div>'}
+      </div>
     </div>
     <div class="flowSpine" aria-hidden="true"><i></i></div>
     <div class="flowTargets">
-      ${sorted.map((o,i)=>{
+      <div class="flowColumnHead"><span>Verwendung</span><b class="sensitive">${euro(total)}</b></div>
+      ${sorted.map(o=>{
         const pctShare=o.val/total*100;
         const width=Math.max(18,o.val/max*100);
         return `<div class="flowTarget ${o.kind}" style="--flow-w:${width.toFixed(1)}%">
@@ -961,7 +973,7 @@ function settingsView(){
    <div class="actions"><button class="primary" data-action="checkpoint"><span class="icon" data-icon="save"></span>Checkpoint erstellen</button><button class="ghost" data-action="restoreCheckpoint"><span class="icon" data-icon="undo"></span>Letzten wiederherstellen</button></div>
   </div>
   <div class="card"><div class="toolbar"><div><h2>Daten & Cloud</h2><span class="sub">Geräteübergreifender Login mit lokalem Sicherheitsfallback.</span></div><span class="syncBadge"><i></i>Cloud + Lokal</span></div>
-   <div class="quickFacts"><div class="quickFact"><span>Gespeicherte Monate</span><b>${Object.keys(state.months||{}).length}</b></div><div class="quickFact"><span>Assets</span><b>${(state.assets||[]).length}</b></div><div class="quickFact"><span>Meilensteine</span><b>${(state.goals||[]).length}</b></div><div class="quickFact"><span>Datenformat</span><b>v9 · UI v40</b></div></div>
+   <div class="quickFacts"><div class="quickFact"><span>Gespeicherte Monate</span><b>${Object.keys(state.months||{}).length}</b></div><div class="quickFact"><span>Assets</span><b>${(state.assets||[]).length}</b></div><div class="quickFact"><span>Meilensteine</span><b>${(state.goals||[]).length}</b></div><div class="quickFact"><span>Datenformat</span><b>v9 · UI v42</b></div></div>
    <div class="actions"><button class="primary" data-action="export"><span class="icon" data-icon="download"></span>JSON Backup</button><button class="ghost" data-action="chooseImport"><span class="icon" data-icon="upload"></span>Import</button><button class="ghost" data-action="cloudInfo"><span class="icon" data-icon="cloud"></span>Login & Sync</button><button class="danger" data-action="resetDemo"><span class="icon" data-icon="trash"></span>Demo zurücksetzen</button></div>
   </div>
  </div>`;
