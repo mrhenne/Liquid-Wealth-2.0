@@ -2017,3 +2017,56 @@ html.light .cryptoDonutCenter{background:rgba(255,255,255,.96)}
 @media(max-width:430px){
  .fireMetricGrid{grid-template-columns:1fr!important}
 }
+
+
+/* v45 · richer and better-scaled projection chart */
+.projectionSummary{
+ display:grid;
+ grid-template-columns:repeat(5,minmax(0,1fr));
+ gap:9px;
+ margin:12px 0 10px;
+}
+.projectionStat{
+ min-width:0;
+ padding:10px 12px;
+ border:1px solid var(--glass-line);
+ border-radius:13px;
+ background:linear-gradient(145deg,rgba(16,34,57,.68),rgba(7,20,35,.58));
+ box-shadow:inset 0 1px 0 var(--glass-highlight);
+}
+.projectionStat span{display:block;color:var(--muted);font-size:10px;font-weight:700}
+.projectionStat strong{display:block;margin-top:4px;font-size:16px;overflow-wrap:anywhere}
+.projectionMainCard{padding:14px!important;overflow:hidden!important}
+.projectionChartShell{width:100%;min-width:0}
+.projectionLegend{
+ display:flex;gap:14px;align-items:center;justify-content:flex-end;flex-wrap:wrap;
+ margin:0 2px 8px;color:var(--muted);font-size:10px;font-weight:750
+}
+.projectionLegend span{display:flex;align-items:center;gap:6px}
+.projectionLegend i{width:20px;height:3px;border-radius:999px;display:inline-block}
+.projectionLegend i.nominal{background:#19d9c0}
+.projectionLegend i.real{background:#6f8fb5}
+.projectionLegend i.goal{background:#ff587b}
+.projectionChartWrap{width:100%;min-height:360px}
+.projectionChart{width:100%;height:auto;display:block;min-height:330px}
+.projectionGrid{stroke:rgba(123,167,211,.10);stroke-width:1}
+.projectionAxisLabel{fill:var(--muted);font-size:9px;font-family:inherit}
+.projectionRealLine{fill:none;stroke:#708eaf;stroke-width:2.2;stroke-dasharray:7 6;stroke-linecap:round;stroke-linejoin:round;opacity:.92}
+.projectionFireYear{stroke:rgba(255,183,76,.55);stroke-width:1.2;stroke-dasharray:4 5}
+.projectionFireDot{fill:#ffb14c;stroke:rgba(10,24,42,.95);stroke-width:3}
+.projectionFireLabel{fill:#ffb14c;font-size:10px;font-weight:850;font-family:inherit}
+.projectionFootnote{margin-top:8px;color:var(--muted);font-size:10px;line-height:1.45}
+@media(max-width:1100px){
+ .projectionSummary{grid-template-columns:repeat(3,minmax(0,1fr))}
+}
+@media(max-width:720px){
+ .projectionSummary{grid-template-columns:repeat(2,minmax(0,1fr))}
+ .projectionChartWrap{min-height:270px}
+ .projectionChart{min-height:250px}
+ .projectionMainCard{padding:10px!important}
+ .projectionLegend{justify-content:flex-start}
+}
+@media(max-width:430px){
+ .projectionSummary{grid-template-columns:1fr 1fr}
+ .projectionStat:last-child{grid-column:1/-1}
+}

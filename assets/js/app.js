@@ -605,7 +605,73 @@ function saveFireQuick(){
 }
 function fireTable(d){let base=fireYears(d),rows=[['Aktuell',0,base],['+500 €',500,fireYears(d,500)],['+1.000 €',1000,fireYears(d,1000)],['+2.000 €',2000,fireYears(d,2000)],['+5.000 €',5000,fireYears(d,5000)]];return `<table class="table"><tr><th>Szenario</th><th>Extra</th><th>FIRE</th></tr>${rows.map(r=>`<tr><td>${r[0]}</td><td>${euro(r[1])}</td><td>${r[2]===999?'N/A':r[2].toFixed(1)+' J'}</td></tr>`).join('')}</table>`}
 function simulator(){let d=getMonth(),base=fireYears(d),sim=fireYears(d,UI.sim.extra,UI.sim.returnRate,netWorth()*(1-UI.sim.crash)),series=projectedSeries(d,UI.sim.years,UI.sim.returnRate,UI.sim.extra,netWorth(),UI.sim.crash);return `<div class="toolbar"><div><h1 class="sectionTitle">Tactical FIRE Simulator</h1><p class="sectionSub">Parameter verändern und Wirkung sofort sehen.</p></div><button class="ghost" data-action="resetSim">Reset</button></div><div class="grid lower"><div class="card"><h2>Monatlicher Zusatzbetrag</h2><div class="bigNum sensitive">${euro(UI.sim.extra)}</div><input id="simExtra" class="slider" type="range" min="0" max="10000" step="100" value="${UI.sim.extra}"><div class="sub">0 € bis 10.000 €</div></div><div class="card"><h2>Rendite</h2><div class="bigNum">${pct(UI.sim.returnRate)}</div><input id="simReturn" class="slider" type="range" min="0" max="15" step="0.5" value="${UI.sim.returnRate}"><div class="sub">Nominal p.a.</div></div><div class="card"><h2>Crash</h2><div class="scenarioGrid">${scenario('0%',0)}${scenario('-30%',.3)}${scenario('-60%',.6)}</div><div class="sub" style="margin-top:8px">Einmaliger Schock zu Beginn.</div></div></div><div class="grid wide"><div class="card"><h2>Ergebnis</h2><div class="metricGrid">${metric('Basis FIRE',base===999?'N/A':base.toFixed(1)+' Jahre')}${metric('Simulation',sim===999?'N/A':sim.toFixed(1)+' Jahre')}${metric('Zeitgewinn',base===999?'N/A':Math.max(0,base-sim).toFixed(1)+' Jahre')}${metric('Endvermögen',euro(series.at(-1).value))}</div>${lineChart(series,fireTarget(d))}</div><div class="card"><h2>Parameter</h2>${stat('Aktuelle Investition',euro(totals(d).invest))}${stat('Zusatzbetrag',euro(UI.sim.extra))}${stat('Gesamtrate',euro(totals(d).invest+UI.sim.extra))}${stat('Rendite',pct(UI.sim.returnRate))}${stat('Crash',pct(UI.sim.crash*100),'red')}</div></div>`}
-function projection(){let d=getMonth(),series=projectedSeries(d,20,state.settings.returnRate,state.settings.monthlyExtra);return `<div class="toolbar"><div><h1 class="sectionTitle">Vermögensprojektion</h1><p class="sectionSub">20 Jahre · ${state.settings.returnRate}% nominal · ${state.settings.inflation}% Inflation · ${realReturn().toFixed(1)}% real.</p></div></div><div class="card">${lineChart(series,fireTarget(d))}</div><div class="grid monthGrid" style="grid-template-columns:repeat(4,1fr);margin-top:14px">${series.filter((x,i)=>[0,5,10,15,20].includes(i)).map(x=>`<div class="card">${metric('Jahr '+(UI.year+x.year),euro(x.value))}</div>`).join('')}</div>`}
+function projectionChart(series,goal,d){
+ if(!series?.length)return '';
+ const inflation=Math.max(0,Number(state.settings.inflation)||0)/100;
+ const monthly=totals(d).invest+Number(state.settings.monthlyExtra||0);
+ const start=Number(series[0]?.value)||netWorth();
+ const rows=series.map(p=>{
+  const year=Number(p.year)||0,nominal=Number(p.value)||0,real=nominal/Math.pow(1+inflation,year);
+  const contributed=monthly*12*year;
+  const growth=nominal-start-contributed;
+  return {...p,year,calendarYear:UI.year+year,nominal,real,contributed,growth}
+ });
+ const max=Math.max(goal||0,...rows.flatMap(x=>[x.nominal,x.real]),1),min=0;
+ const left=72,right=780,top=28,bottom=224,span=Math.max(max-min,1);
+ const x=i=>left+i*((right-left)/Math.max(rows.length-1,1));
+ const y=v=>bottom-(v-min)/span*(bottom-top);
+ const compact=n=>new Intl.NumberFormat('de-DE',{notation:'compact',maximumFractionDigits:1}).format(Number(n)||0)+' €';
+ const gridVals=[0,.25,.5,.75,1].map(f=>min+(max-min)*f);
+ const nominalPts=rows.map((p,i)=>`${x(i)},${y(p.nominal)}`).join(' ');
+ const realPts=rows.map((p,i)=>`${x(i)},${y(p.real)}`).join(' ');
+ const area=`${left},${bottom} ${nominalPts} ${right},${bottom}`;
+ const gid='pg'+Math.random().toString(36).slice(2,8);
+ const cross=goal?rows.findIndex(p=>p.nominal>=goal):-1;
+ const fireMarker=cross>=0?(()=>{
+   const cx=x(cross),cy=y(rows[cross].nominal),label=`FIRE ~ ${rows[cross].calendarYear}`;
+   return `<line x1="${cx}" x2="${cx}" y1="${top}" y2="${bottom}" class="projectionFireYear"/><circle cx="${cx}" cy="${cy}" r="7" class="projectionFireDot"/><text x="${Math.min(right-4,cx+8)}" y="${Math.max(top+12,cy-10)}" class="projectionFireLabel">${esc(label)}</text>`
+ })():'';
+ const goalLine=goal?`<line x1="${left}" x2="${right}" y1="${y(goal)}" y2="${y(goal)}" class="chartGoal"/><text x="${right}" y="${Math.max(14,y(goal)-7)}" text-anchor="end" class="chartGoalLabel">FIRE Ziel ${euro(goal)}</text>`:'';
+ const labels=rows.map((p,i)=>{
+   const show=p.year===0||p.year===rows.at(-1).year||p.year%5===0;
+   return show?`<text x="${x(i)}" y="245" text-anchor="middle" class="chartLabel">${p.calendarYear}</text>`:''
+ }).join('');
+ const points=rows.map((p,i)=>`<g class="chartPoint" data-chart-label="${p.calendarYear}" data-chart-value="${esc('Nominal '+euro(p.nominal)+' · real '+euro(p.real)+' · Einzahlungen '+euro(p.contributed)+' · Wertzuwachs '+euro(p.growth))}">
+   <circle cx="${x(i)}" cy="${y(p.nominal)}" r="12" class="chartHit"/>
+   <circle cx="${x(i)}" cy="${y(p.nominal)}" r="4" class="chartDot"/>
+ </g>`).join('');
+ return `<div class="projectionChartShell">
+   <div class="projectionLegend"><span><i class="nominal"></i>Nominal</span><span><i class="real"></i>Heutige Kaufkraft</span><span><i class="goal"></i>FIRE Ziel</span></div>
+   <div class="chartWrap interactiveChart projectionChartWrap">
+    <svg class="projectionChart" viewBox="0 0 820 260" role="img" aria-label="Vermögensprojektion über 20 Jahre">
+     <defs><linearGradient id="${gid}" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#19d9c0" stop-opacity=".26"/><stop offset="100%" stop-color="#19d9c0" stop-opacity="0"/></linearGradient></defs>
+     ${gridVals.map(v=>`<g><line x1="${left}" x2="${right}" y1="${y(v)}" y2="${y(v)}" class="projectionGrid"/><text x="${left-10}" y="${y(v)+4}" text-anchor="end" class="projectionAxisLabel">${esc(compact(v))}</text></g>`).join('')}
+     <polygon points="${area}" fill="url(#${gid})"/>
+     ${goalLine}
+     <polyline points="${realPts}" class="projectionRealLine"/>
+     <polyline points="${nominalPts}" class="chartTrend"/>
+     ${fireMarker}
+     ${points}
+     ${labels}
+    </svg>
+    <div class="chartTooltip" role="status" aria-live="polite"></div>
+   </div>
+ </div>`
+}
+function projection(){
+ let d=getMonth(),series=projectedSeries(d,20,state.settings.returnRate,state.settings.monthlyExtra),target=fireTarget(d),monthly=totals(d).invest+Number(state.settings.monthlyExtra||0);
+ const y10=series.find(x=>x.year===10)?.value||0,y20=series.at(-1)?.value||0,fy=fireYears(d);
+ return `<div class="toolbar"><div><h1 class="sectionTitle">Vermögensprojektion ${infoTip('Modellrechnung auf Basis deines aktuellen Vermögens, deiner monatlichen Investments und der hinterlegten Rendite. Keine Garantie für zukünftige Ergebnisse.')}</h1><p class="sectionSub">20 Jahre · ${state.settings.returnRate}% nominal · ${state.settings.inflation}% Inflation · ${realReturn().toFixed(1)}% real.</p></div><button class="ghost" data-nav="fire">FIRE Annahmen</button></div>
+ <div class="projectionSummary">
+  <div class="projectionStat"><span>Heute</span><strong class="sensitive">${euro(netWorth())}</strong></div>
+  <div class="projectionStat"><span>Monatliche Rate</span><strong class="sensitive">${euro(monthly)}</strong></div>
+  <div class="projectionStat"><span>In 10 Jahren</span><strong class="sensitive">${euro(y10)}</strong></div>
+  <div class="projectionStat"><span>In 20 Jahren</span><strong class="sensitive">${euro(y20)}</strong></div>
+  <div class="projectionStat"><span>FIRE voraussichtlich</span><strong>${fy===999?'nicht erreicht':(UI.year+Math.ceil(fy))}</strong></div>
+ </div>
+ <div class="card projectionMainCard">${projectionChart(series,target,d)}</div>
+ <div class="projectionFootnote">Hover oder Tippen auf einen Punkt zeigt Nominalwert, heutige Kaufkraft, kumulierte Einzahlungen und rechnerischen Wertzuwachs.</div>`
+}
 function year(){let rows=[],yi=0,ye=0,iv=0;for(let m=1;m<=12;m++){let d=getMonth(UI.year,m,false),t=totals(d);if(t.income||t.expenses||t.invest){rows.push({m,t});yi+=t.income;ye+=t.expenses;iv+=t.invest}}return `<div class="toolbar"><div><h1 class="sectionTitle">Jahresübersicht ${UI.year}</h1><p class="sectionSub">Monatliche Entwicklung und Jahreskennzahlen.</p></div><select class="input" id="yearSelect">${Array.from({length:7},(_,i)=>UI.year-3+i).map(y=>`<option ${y===UI.year?'selected':''}>${y}</option>`).join('')}</select></div><div class="grid kpis">${q('Income',euro(yi),'Jahr','chart')}${q('Expenses',euro(ye),'Jahr','chart')}${q('Investments',euro(iv),'Jahr','chart')}${q('Sparquote',pct(yi?(yi-ye)/yi*100:0),'Jahr','pie')}${q('Cashflow',euro(yi-ye),'Jahr','flow')}${q('Ø monatlich',euro((yi-ye)/12),'Cashflow','pulse')}</div><div class="card" style="margin-top:14px"><table class="table"><tr><th>Monat</th><th>Income</th><th>Expenses</th><th>Invest</th><th>Cashflow</th><th>Sparquote</th></tr>${rows.map(r=>`<tr><td>${monthName(r.m)}</td><td>${euro(r.t.income)}</td><td>${euro(r.t.expenses)}</td><td>${euro(r.t.invest)}</td><td class="${r.t.income-r.t.expenses>=0?'green':'red'}">${euro(r.t.income-r.t.expenses)}</td><td>${pct(r.t.income?(r.t.income-r.t.expenses)/r.t.income*100:0)}</td></tr>`).join('')}</table></div>`}
 async function fetchCoins(force=false){
  const mini=document.getElementById('coinMini');
@@ -1011,7 +1077,7 @@ function settingsView(){
    <div class="actions"><button class="primary" data-action="checkpoint"><span class="icon" data-icon="save"></span>Checkpoint erstellen</button><button class="ghost" data-action="restoreCheckpoint"><span class="icon" data-icon="undo"></span>Letzten wiederherstellen</button></div>
   </div>
   <div class="card"><div class="toolbar"><div><h2>Daten & Cloud</h2><span class="sub">Geräteübergreifender Login mit lokalem Sicherheitsfallback.</span></div><span class="syncBadge"><i></i>Cloud + Lokal</span></div>
-   <div class="quickFacts"><div class="quickFact"><span>Gespeicherte Monate</span><b>${Object.keys(state.months||{}).length}</b></div><div class="quickFact"><span>Assets</span><b>${(state.assets||[]).length}</b></div><div class="quickFact"><span>Meilensteine</span><b>${(state.goals||[]).length}</b></div><div class="quickFact"><span>Datenformat</span><b>v9 · UI v44</b></div></div>
+   <div class="quickFacts"><div class="quickFact"><span>Gespeicherte Monate</span><b>${Object.keys(state.months||{}).length}</b></div><div class="quickFact"><span>Assets</span><b>${(state.assets||[]).length}</b></div><div class="quickFact"><span>Meilensteine</span><b>${(state.goals||[]).length}</b></div><div class="quickFact"><span>Datenformat</span><b>v9 · UI v45</b></div></div>
    <div class="actions"><button class="primary" data-action="export"><span class="icon" data-icon="download"></span>JSON Backup</button><button class="ghost" data-action="chooseImport"><span class="icon" data-icon="upload"></span>Import</button><button class="ghost" data-action="cloudInfo"><span class="icon" data-icon="cloud"></span>Login & Sync</button><button class="danger" data-action="resetDemo"><span class="icon" data-icon="trash"></span>Demo zurücksetzen</button></div>
   </div>
  </div>`;
