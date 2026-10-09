@@ -2070,3 +2070,70 @@ html.light .cryptoDonutCenter{background:rgba(255,255,255,.96)}
  .projectionSummary{grid-template-columns:1fr 1fr}
  .projectionStat:last-child{grid-column:1/-1}
 }
+
+
+/* v46 · milestone action buttons alignment */
+.milestoneCard{
+  position:relative!important;
+}
+.milestoneCardTop{
+  grid-template-columns:86px minmax(0,1fr)!important;
+  padding-right:100px!important;
+  align-items:center!important;
+}
+.milestoneCard>.dragHandle,
+.milestoneCard .goalDel{
+  position:absolute!important;
+  top:14px!important;
+  width:40px!important;
+  height:40px!important;
+  min-width:40px!important;
+  min-height:40px!important;
+  padding:0!important;
+  border-radius:12px!important;
+  display:inline-flex!important;
+  align-items:center!important;
+  justify-content:center!important;
+  margin:0!important;
+  transform:none!important;
+}
+.milestoneCard>.dragHandle{
+  right:14px!important;
+  opacity:.82!important;
+}
+.milestoneCard .goalDel{
+  right:60px!important;
+  z-index:8!important;
+}
+.milestoneCard>.dragHandle svg,
+.milestoneCard .goalDel svg{
+  width:18px!important;
+  height:18px!important;
+  margin:0!important;
+}
+.milestoneCardTop .goalDel{
+  grid-column:auto!important;
+  align-self:auto!important;
+}
+@media(max-width:720px){
+  .milestoneCardTop{
+    grid-template-columns:72px minmax(0,1fr)!important;
+    padding-right:102px!important;
+  }
+  .milestoneCard>.dragHandle,
+  .milestoneCard .goalDel{
+    top:12px!important;
+    width:42px!important;
+    height:42px!important;
+    min-width:42px!important;
+    min-height:42px!important;
+  }
+  .milestoneCard>.dragHandle{right:12px!important}
+  .milestoneCard .goalDel{right:60px!important}
+}
+@media(max-width:430px){
+  .milestoneCardTop{
+    grid-template-columns:64px minmax(0,1fr)!important;
+    padding-right:98px!important;
+  }
+}
