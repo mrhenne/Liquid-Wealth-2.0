@@ -1708,3 +1708,37 @@ html.light .cryptoDonutCenter{background:rgba(255,255,255,.96)}
   .cryptoChartCard,.cryptoDistributionCard{overflow:hidden!important}
   .cryptoChartHeadline{gap:10px!important}
 }
+
+
+/* v40 · milestones calculation + dashboard action alignment */
+.dashboardCard{--dash-action-size:40px}
+.dashboardCard>.dragHandle{
+ top:15px!important;right:15px!important;
+ width:var(--dash-action-size)!important;height:var(--dash-action-size)!important;
+ min-width:var(--dash-action-size)!important;min-height:var(--dash-action-size)!important;
+ border-radius:12px!important;opacity:.78!important
+}
+.dashboardCard>.dragHandle svg{width:18px!important;height:18px!important}
+.dashboardCard>.toolbar{
+ min-height:var(--dash-action-size)!important;
+ padding-right:calc(var(--dash-action-size) + 10px)!important;
+ align-items:flex-start!important
+}
+.dashboardCard>.toolbar>button,
+.dashboardCard>.toolbar>.ghost,
+.dashboardCard>.toolbar>.primary{
+ min-height:var(--dash-action-size)!important;height:var(--dash-action-size)!important;align-self:flex-start!important
+}
+.dashboardCard>.toolbar>.monthNavMini{height:var(--dash-action-size)!important;align-items:flex-start!important}
+.dashboardCard>.toolbar>.monthNavMini button{
+ width:var(--dash-action-size)!important;height:var(--dash-action-size)!important;min-height:var(--dash-action-size)!important
+}
+.milestoneFieldsWide{grid-template-columns:repeat(2,minmax(0,1fr))!important}
+.goalManualField.isDisabled{opacity:.5}
+.goalManualField.isDisabled .input{cursor:not-allowed}
+@media(max-width:720px){
+ .dashboardCard{--dash-action-size:42px}
+ .dashboardCard>.dragHandle{top:14px!important;right:14px!important}
+ .dashboardCard>.toolbar{padding-right:52px!important}
+ .milestoneFieldsWide{grid-template-columns:1fr!important}
+}
