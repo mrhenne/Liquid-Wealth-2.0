@@ -2137,3 +2137,56 @@ html.light .cryptoDonutCenter{background:rgba(255,255,255,.96)}
     padding-right:98px!important;
   }
 }
+
+
+/* v47 · tactical FIRE simulator */
+.simControls{
+ display:grid;
+ grid-template-columns:repeat(3,minmax(0,1fr));
+ gap:10px;
+ margin:12px 0 10px;
+}
+.simControlCard{min-width:0}
+.simControlCard>span{display:block;color:var(--muted);font-size:10px;font-weight:750}
+.simControlCard>strong{display:block;margin:6px 0 8px;font-size:24px;line-height:1}
+.simControlCard>small{display:block;margin-top:7px;color:var(--muted);font-size:9px}
+.simStressGrid{display:grid;grid-template-columns:minmax(0,1.5fr) minmax(280px,.5fr);gap:10px;margin-bottom:10px}
+.simCrashTiming .bigNum{font-size:22px}
+.simResults{
+ display:grid;
+ grid-template-columns:repeat(6,minmax(0,1fr));
+ gap:8px;
+ margin:0 0 10px;
+}
+.simLayout{display:grid;grid-template-columns:minmax(0,1.65fr) minmax(260px,.45fr);gap:10px;align-items:start}
+.simChartCard,.simParamCard{min-width:0}
+.simChartShell{width:100%;min-width:0}
+.simLegend{display:flex;justify-content:flex-end;align-items:center;gap:12px;flex-wrap:wrap;margin:0 0 8px;color:var(--muted);font-size:9px;font-weight:750}
+.simLegend span{display:flex;align-items:center;gap:5px}
+.simLegend i{display:inline-block;width:18px;height:3px;border-radius:99px}
+.simLegend i.sim{background:#1fd5c0}.simLegend i.base{background:#5c7b9f}.simLegend i.real{background:#8b6dff}.simLegend i.goal{background:#ff587b}
+.simChartWrap{width:100%;min-height:360px}
+.simChart{display:block;width:100%;height:auto;min-height:330px}
+.simBaseLine{fill:none;stroke:#5d7c9f;stroke-width:2.2;stroke-dasharray:6 6;opacity:.9}
+.simRealLine{fill:none;stroke:#8b6dff;stroke-width:2;stroke-dasharray:3 6;opacity:.9}
+.simFireYear{stroke:rgba(255,181,76,.5);stroke-width:1.2;stroke-dasharray:4 5}
+.simFireDot{fill:#ffb14c;stroke:#0a182a;stroke-width:3}
+.simFireLabel{fill:#ffb14c;font-size:9px;font-weight:850;font-family:inherit}
+.simCrashYear{stroke:rgba(255,91,119,.52);stroke-width:1.2;stroke-dasharray:4 4}
+.simCrashLabel{fill:#ff6c86;font-size:9px;font-weight:850;font-family:inherit}
+@media(max-width:1200px){
+ .simControls{grid-template-columns:repeat(2,minmax(0,1fr))}
+ .simResults{grid-template-columns:repeat(3,minmax(0,1fr))}
+ .simLayout{grid-template-columns:1fr}
+}
+@media(max-width:820px){
+ .simStressGrid{grid-template-columns:1fr}
+ .simControls{grid-template-columns:1fr 1fr}
+ .simChartWrap{min-height:280px}
+ .simChart{min-height:260px}
+}
+@media(max-width:520px){
+ .simControls{grid-template-columns:1fr}
+ .simResults{grid-template-columns:1fr 1fr}
+ .scenarioGrid{grid-template-columns:repeat(2,minmax(0,1fr))!important}
+}
