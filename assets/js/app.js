@@ -1249,7 +1249,7 @@ function settingsView(){
    <div class="actions"><button class="primary" data-action="checkpoint"><span class="icon" data-icon="save"></span>Checkpoint erstellen</button><button class="ghost" data-action="restoreCheckpoint"><span class="icon" data-icon="undo"></span>Letzten wiederherstellen</button></div>
   </div>
   <div class="card"><div class="toolbar"><div><h2>Daten & Cloud</h2><span class="sub">Geräteübergreifender Login mit lokalem Sicherheitsfallback.</span></div><span class="syncBadge"><i></i>Cloud + Lokal</span></div>
-   <div class="quickFacts"><div class="quickFact"><span>Gespeicherte Monate</span><b>${Object.keys(state.months||{}).length}</b></div><div class="quickFact"><span>Assets</span><b>${(state.assets||[]).length}</b></div><div class="quickFact"><span>Meilensteine</span><b>${(state.goals||[]).length}</b></div><div class="quickFact"><span>Datenformat</span><b>v9 · UI v48</b></div></div>
+   <div class="quickFacts"><div class="quickFact"><span>Gespeicherte Monate</span><b>${Object.keys(state.months||{}).length}</b></div><div class="quickFact"><span>Assets</span><b>${(state.assets||[]).length}</b></div><div class="quickFact"><span>Meilensteine</span><b>${(state.goals||[]).length}</b></div><div class="quickFact"><span>Datenformat</span><b>v9 · UI v49</b></div></div>
    <div class="actions"><button class="primary" data-action="export"><span class="icon" data-icon="download"></span>JSON Backup</button><button class="ghost" data-action="chooseImport"><span class="icon" data-icon="upload"></span>Import</button><button class="ghost" data-action="cloudInfo"><span class="icon" data-icon="cloud"></span>Login & Sync</button><button class="danger" data-action="resetDemo"><span class="icon" data-icon="trash"></span>Demo zurücksetzen</button></div>
   </div>
  </div>`;
@@ -1340,16 +1340,38 @@ function normalRandom(){let u=0,v=0;while(u===0)u=Math.random();while(v===0)v=Ma
 function runMonteCarlo(){let d=getMonth(),target=fireTarget(d),start=netWorth(),monthly=totals(d).invest+Number(state.settings.monthlyExtra||0),mu=Number(state.settings.returnRate)/100,vol=.16,horizon=15,paths=1000,hit=0,terminal=[];for(let p=0;p<paths;p++){let w=start;for(let y=0;y<horizon;y++){let r=mu+vol*normalRandom();r=Math.max(-.45,Math.min(.45,r));for(let m=0;m<12;m++)w=Math.max(0,w*(1+r/12)+monthly)}if(w>=target)hit++;terminal.push(w)}terminal.sort((a,b)=>a-b);return{success:hit/paths*100,p10:terminal[Math.floor(paths*.1)],p50:terminal[Math.floor(paths*.5)],p90:terminal[Math.floor(paths*.9)],target,horizon,paths}}
 function risk(){
  let d=getMonth(),r=UI.risk||(UI.risk=runMonteCarlo()),fy=fireYears(d),color=r.success>=80?'green':r.success>=60?'orange':'red';
+ const chanceLabel=r.success>=80?'Sehr robust':r.success>=70?'Robust':r.success>=50?'Mittlere Chance':r.success>=30?'Erhöhtes Risiko':'Niedrige Chance';
+ const chanceText=r.success>=80?'Dein Ziel wird in den meisten simulierten Marktverläufen erreicht.'
+   :r.success>=70?'Dein Plan ist recht robust, hat aber noch spürbare Marktrisiken.'
+   :r.success>=50?'Dein Ziel wird ungefähr in jedem zweiten Szenario erreicht. Mehr Puffer würde die Robustheit erhöhen.'
+   :r.success>=30?'Mehr als die Hälfte der simulierten Pfade verfehlen das Ziel. Sparrate, Zeit oder Zielhöhe sind die wichtigsten Stellschrauben.'
+   :'Der aktuelle Plan ist unter schwankenden Marktbedingungen noch nicht robust genug.';
+ const medianGap=r.p50-r.target,defGap=r.p10-r.target,optGap=r.p90-r.target;
+ const gapText=v=>v>=0?'+'+euro(v):'−'+euro(Math.abs(v));
  return `<div class="toolbar"><div><h1 class="sectionTitle">Risikoanalyse ${infoTip('Monte-Carlo-Modell mit zufälligen Renditepfaden. Es zeigt Bandbreiten und Wahrscheinlichkeit, keine sichere Prognose.')}</h1><p class="sectionSub">1.000 simulierte Renditepfade zeigen, wie robust dein aktueller FIRE-Plan ist.</p></div><button class="primary" data-action="rerunRisk">Neu simulieren</button></div>
  <div class="riskGrid modernRiskMetrics">
-  <div class="riskMetric"><span>FIRE-Chance ${infoTip('Anteil der Simulationen, die das FIRE-Ziel innerhalb des Horizonts erreichen.')}</span><b class="${color}">${pct(r.success)}</b><small>in ${r.horizon} Jahren</small></div>
-  <div class="riskMetric"><span>Median ${infoTip('Mittleres Simulationsergebnis. 50 % liegen darunter, 50 % darüber.')}</span><b class="sensitive">${euro(r.p50)}</b><small>50%-Szenario</small></div>
-  <div class="riskMetric"><span>Defensiv ${infoTip('Nur 10 % der simulierten Ergebnisse liegen unter diesem Wert.')}</span><b class="sensitive red">${euro(r.p10)}</b><small>10%-Perzentil</small></div>
-  <div class="riskMetric"><span>Optimistisch ${infoTip('90 % der simulierten Ergebnisse liegen unter diesem Wert.')}</span><b class="sensitive green">${euro(r.p90)}</b><small>90%-Perzentil</small></div>
+  <div class="riskMetric riskMetricExplain"><span>FIRE-Chance ${infoTip('Anteil der Simulationen, die das FIRE-Ziel innerhalb des Horizonts erreichen.')}</span><b class="${color}">${pct(r.success)}</b><small>in ${r.horizon} Jahren</small><div class="riskMetricNote ${color}"><strong>${chanceLabel}</strong><em>${chanceText}</em></div></div>
+  <div class="riskMetric riskMetricExplain"><span>Median ${infoTip('Mittleres Simulationsergebnis. 50 % liegen darunter, 50 % darüber.')}</span><b class="sensitive">${euro(r.p50)}</b><small>50%-Szenario</small><div class="riskMetricNote"><strong>Mittlerer Pfad</strong><em>50 % der Simulationen enden höher und 50 % niedriger. Abstand zum FIRE-Ziel: ${gapText(medianGap)}.</em></div></div>
+  <div class="riskMetric riskMetricExplain"><span>Defensiv ${infoTip('Nur 10 % der simulierten Ergebnisse liegen unter diesem Wert.')}</span><b class="sensitive red">${euro(r.p10)}</b><small>10%-Perzentil</small><div class="riskMetricNote red"><strong>Schwaches Marktumfeld</strong><em>90 % der Simulationen liegen über diesem Wert. Abstand zum FIRE-Ziel: ${gapText(defGap)}.</em></div></div>
+  <div class="riskMetric riskMetricExplain"><span>Optimistisch ${infoTip('90 % der simulierten Ergebnisse liegen unter diesem Wert.')}</span><b class="sensitive green">${euro(r.p90)}</b><small>90%-Perzentil</small><div class="riskMetricNote green"><strong>Starkes Marktumfeld</strong><em>Nur rund 10 % der Simulationen enden noch höher. Abstand zum FIRE-Ziel: ${gapText(optGap)}.</em></div></div>
  </div>
  <div class="grid riskLayout">
-  <div class="card riskDistributionCard"><div class="toolbar"><div><h2>Verteilung der Ergebnisse ${infoTip('Je höher die Kurve, desto häufiger endeten Simulationen in diesem Vermögensbereich.')}</h2><span class="sub">Start ${euro(netWorth())} · FIRE-Ziel ${euro(r.target)}</span></div><span class="riskModelBadge">Monte Carlo</span></div><canvas id="riskCanvas" class="riskCanvas"></canvas><div class="riskLegend"><span><i class="riskDot defensive"></i>10 % ${euro(r.p10)}</span><span><i class="riskDot median"></i>Median ${euro(r.p50)}</span><span><i class="riskDot optimistic"></i>90 % ${euro(r.p90)}</span><span><i class="riskDot target"></i>FIRE Ziel ${euro(r.target)}</span></div></div>
-  <div class="card riskExplain"><h2>Einordnung</h2>${stat('FIRE Countdown',fy===999?'N/A':fy.toFixed(1)+' Jahre')}${stat('Simulationshorizont',r.horizon+' Jahre')}${stat('Pfade',r.paths.toLocaleString('de-DE'))}${stat('Erwartete Rendite',pct(state.settings.returnRate))}<div class="notice">Das Modell zeigt mögliche Bandbreiten. Renditereihenfolge, Steuern und reale Marktbedingungen können anders ausfallen.</div></div>
+  <div class="card riskDistributionCard"><div class="toolbar"><div><h2>Verteilung der Ergebnisse ${infoTip('Je höher die Kurve, desto häufiger endeten Simulationen in diesem Vermögensbereich.')}</h2><span class="sub">Start ${euro(netWorth())} · FIRE-Ziel ${euro(r.target)}</span></div><span class="riskModelBadge">Monte Carlo</span></div><canvas id="riskCanvas" class="riskCanvas"></canvas><div class="riskLegend"><span><i class="riskDot defensive"></i>10 % ${euro(r.p10)}</span><span><i class="riskDot median"></i>Median ${euro(r.p50)}</span><span><i class="riskDot optimistic"></i>90 % ${euro(r.p90)}</span><span><i class="riskDot target"></i>FIRE Ziel ${euro(r.target)}</span></div><div class="riskChartHelp"><b>So liest du den Chart:</b><span>Hohe Balken zeigen besonders häufige Endvermögen. Liegt viel Fläche links vom FIRE-Ziel, ist dein Plan empfindlicher gegenüber schwächeren Marktphasen. Rechts vom Ziel liegen die erfolgreichen FIRE-Szenarien.</span></div></div>
+  <div class="card riskExplain"><h2>Einordnung</h2>
+   <div class="riskVerdict ${color}"><span>Gesamtbewertung</span><strong>${chanceLabel}</strong><p>${chanceText}</p></div>
+   ${stat('FIRE Countdown',fy===999?'N/A':fy.toFixed(1)+' Jahre')}
+   ${stat('Simulationshorizont',r.horizon+' Jahre')}
+   ${stat('Pfade',r.paths.toLocaleString('de-DE'))}
+   ${stat('Erwartete Rendite',pct(state.settings.returnRate))}
+   ${stat('Median vs. Ziel',gapText(medianGap),medianGap>=0?'green':'red')}
+   <div class="riskExplainList">
+    <div><b>FIRE-Chance</b><span>Wie oft dein Ziel innerhalb des Zeitraums erreicht wird.</span></div>
+    <div><b>Median</b><span>Der mittlere Verlauf. Gut geeignet als zentrale Orientierung.</span></div>
+    <div><b>Defensiv</b><span>Ein schwaches, aber noch realistisches Ergebnis.</span></div>
+    <div><b>Optimistisch</b><span>Ein starkes, aber nicht extremes Ergebnis.</span></div>
+   </div>
+   <div class="notice">Monte Carlo ist keine Vorhersage. Steuern, Gebühren, Renditereihenfolge und reale Marktbedingungen können deutlich abweichen.</div>
+  </div>
  </div>`
 }
 function roundedRect(ctx,x,y,w,h,r){const rr=Math.min(r,w/2,h/2);ctx.beginPath();ctx.roundRect?ctx.roundRect(x,y,w,h,rr):(ctx.rect(x,y,w,h));}
