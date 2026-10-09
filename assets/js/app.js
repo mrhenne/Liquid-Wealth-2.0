@@ -7,7 +7,7 @@ function demoMonth(){return{income:[tx('Gehalt',6000,true),tx('Nebenjob',500,tru
 function tx(name,val,recurring=false,cat=''){return{id:crypto.randomUUID?crypto.randomUUID():String(Date.now()+Math.random()),name,val:+val||0,recurring,cat}}
 const defaultAssets=[{id:'a1',name:'ETF',value:57000,type:'ETF',cost:42000,rate:7},{id:'a2',name:'Bitcoin',value:35600,type:'Crypto',cost:18000,rate:12},{id:'a3',name:'Depot',value:21400,type:'Aktien',cost:16000,rate:7},{id:'a4',name:'Cash',value:14300,type:'Cash',cost:14300,rate:1},{id:'a5',name:'Immobilien',value:9800,type:'Immobilie',cost:7000,rate:3},{id:'a6',name:'Sonstige',value:4400,type:'Sonstige',cost:3000,rate:2}];
 const initial={version:8,settings:{...defaults},months:{},assets:defaultAssets,liabilities:[],cryptoFavorites:['bitcoin','ethereum','solana','binancecoin'],cryptoHoldings:{},cryptoAveragePrices:{},cryptoPortfolioSnapshots:[],layout:{dashboard:{}},goals:[{id:'g1',name:'FIRE',target:1200000,current:0,deadline:2042},{id:'g2',name:'Notgroschen',target:15000,current:0,deadline:2027}],meta:{created:new Date().toISOString()}};
-let state=loadState();let UI={year:startMonthDate.getFullYear(),month:startMonthDate.getMonth()+1,view:'dashboard',stealth:false,coins:[],cryptoSearchResults:[],cryptoSearching:false,cryptoChartCoin:null,cryptoChartRange:'24h',cryptoHistory:{},cryptoHistoryInflight:{},sim:{extra:2000,returnRate:7,crash:0,years:15},risk:null};
+let state=loadState();let UI={year:startMonthDate.getFullYear(),month:startMonthDate.getMonth()+1,view:'dashboard',stealth:false,coins:[],cryptoSearchResults:[],cryptoSearching:false,cryptoChartCoin:null,cryptoChartRange:'24h',cryptoHistory:{},cryptoHistoryInflight:{},sim:{extra:2000,returnRate:7,inflation:2,crash:0,crashYear:0,years:20,lumpSum:0,swr:4},risk:null};
 const CHECKPOINT_KEY=APP+'_checkpoints_v1';
 const CRYPTO_HISTORY_CACHE=APP+'_crypto_history_v2';
 try{const cached=JSON.parse(sessionStorage.getItem(CRYPTO_HISTORY_CACHE)||'{}');if(cached&&typeof cached==='object')UI.cryptoHistory=cached}catch(e){}
@@ -604,7 +604,109 @@ function saveFireQuick(){
  save();UI.risk=null;render();showToast('FIRE-Annahmen aktualisiert')
 }
 function fireTable(d){let base=fireYears(d),rows=[['Aktuell',0,base],['+500 €',500,fireYears(d,500)],['+1.000 €',1000,fireYears(d,1000)],['+2.000 €',2000,fireYears(d,2000)],['+5.000 €',5000,fireYears(d,5000)]];return `<table class="table"><tr><th>Szenario</th><th>Extra</th><th>FIRE</th></tr>${rows.map(r=>`<tr><td>${r[0]}</td><td>${euro(r[1])}</td><td>${r[2]===999?'N/A':r[2].toFixed(1)+' J'}</td></tr>`).join('')}</table>`}
-function simulator(){let d=getMonth(),base=fireYears(d),sim=fireYears(d,UI.sim.extra,UI.sim.returnRate,netWorth()*(1-UI.sim.crash)),series=projectedSeries(d,UI.sim.years,UI.sim.returnRate,UI.sim.extra,netWorth(),UI.sim.crash);return `<div class="toolbar"><div><h1 class="sectionTitle">Tactical FIRE Simulator</h1><p class="sectionSub">Parameter verändern und Wirkung sofort sehen.</p></div><button class="ghost" data-action="resetSim">Reset</button></div><div class="grid lower"><div class="card"><h2>Monatlicher Zusatzbetrag</h2><div class="bigNum sensitive">${euro(UI.sim.extra)}</div><input id="simExtra" class="slider" type="range" min="0" max="10000" step="100" value="${UI.sim.extra}"><div class="sub">0 € bis 10.000 €</div></div><div class="card"><h2>Rendite</h2><div class="bigNum">${pct(UI.sim.returnRate)}</div><input id="simReturn" class="slider" type="range" min="0" max="15" step="0.5" value="${UI.sim.returnRate}"><div class="sub">Nominal p.a.</div></div><div class="card"><h2>Crash</h2><div class="scenarioGrid">${scenario('0%',0)}${scenario('-30%',.3)}${scenario('-60%',.6)}</div><div class="sub" style="margin-top:8px">Einmaliger Schock zu Beginn.</div></div></div><div class="grid wide"><div class="card"><h2>Ergebnis</h2><div class="metricGrid">${metric('Basis FIRE',base===999?'N/A':base.toFixed(1)+' Jahre')}${metric('Simulation',sim===999?'N/A':sim.toFixed(1)+' Jahre')}${metric('Zeitgewinn',base===999?'N/A':Math.max(0,base-sim).toFixed(1)+' Jahre')}${metric('Endvermögen',euro(series.at(-1).value))}</div>${lineChart(series,fireTarget(d))}</div><div class="card"><h2>Parameter</h2>${stat('Aktuelle Investition',euro(totals(d).invest))}${stat('Zusatzbetrag',euro(UI.sim.extra))}${stat('Gesamtrate',euro(totals(d).invest+UI.sim.extra))}${stat('Rendite',pct(UI.sim.returnRate))}${stat('Crash',pct(UI.sim.crash*100),'red')}</div></div>`}
+function simulatorTarget(d){
+ return state.settings.targetMode==='fixed'
+  ? Number(state.settings.fixedTarget)||0
+  : annualExpenses(d)*100/Math.max(1,Number(UI.sim.swr)||4)
+}
+function simulatorSeries(d){
+ const years=Math.max(5,Math.min(40,Number(UI.sim.years)||20));
+ const annual=Math.max(0,Math.min(20,Number(UI.sim.returnRate)||0))/100;
+ const inflation=Math.max(0,Math.min(15,Number(UI.sim.inflation)||0))/100;
+ const crash=Math.max(0,Math.min(.9,Number(UI.sim.crash)||0));
+ const crashMonth=Math.max(0,Math.min(years*12,Math.round((Number(UI.sim.crashYear)||0)*12)));
+ const baseExtra=Number(state.settings.monthlyExtra)||0;
+ const simExtra=Math.max(0,Number(UI.sim.extra)||0);
+ const baseMonthly=totals(d).invest+baseExtra;
+ const simMonthly=baseMonthly+simExtra;
+ const lump=Math.max(0,Number(UI.sim.lumpSum)||0);
+ const r=annual/12;
+ let simValue=Math.max(0,netWorth()+lump),baseValue=Math.max(0,netWorth()),contrib=lump;
+ const out=[];
+ for(let m=0;m<=years*12;m++){
+   if(m===crashMonth&&crash>0)simValue*=1-crash;
+   if(m%12===0){
+     const year=m/12,real=simValue/Math.pow(1+inflation,year);
+     out.push({year,value:simValue,real,base:baseValue,contributed:contrib});
+   }
+   if(m===years*12)break;
+   simValue=simValue*(1+r)+simMonthly;
+   baseValue=baseValue*(1+(Number(state.settings.returnRate)||0)/100/12)+baseMonthly;
+   contrib+=simMonthly;
+ }
+ return out
+}
+function simulatorFireYears(series,target){
+ const hit=series.find(p=>p.value>=target);
+ return hit?hit.year:999
+}
+function simulatorChart(series,target){
+ if(!series?.length)return '';
+ const max=Math.max(target||0,...series.flatMap(p=>[p.value,p.real,p.base]),1),left=70,right=790,top=30,bottom=230,span=max;
+ const x=i=>left+i*((right-left)/Math.max(series.length-1,1)), y=v=>bottom-(Math.max(0,v)/span)*(bottom-top);
+ const compact=n=>new Intl.NumberFormat('de-DE',{notation:'compact',maximumFractionDigits:1}).format(Number(n)||0)+' €';
+ const gridVals=[0,.25,.5,.75,1].map(f=>max*f);
+ const simPts=series.map((p,i)=>`${x(i)},${y(p.value)}`).join(' ');
+ const basePts=series.map((p,i)=>`${x(i)},${y(p.base)}`).join(' ');
+ const realPts=series.map((p,i)=>`${x(i)},${y(p.real)}`).join(' ');
+ const area=`${left},${bottom} ${simPts} ${right},${bottom}`,gid='sg'+Math.random().toString(36).slice(2,8);
+ const fireIdx=series.findIndex(p=>p.value>=target),fireMark=fireIdx>=0?(()=>{
+   const cx=x(fireIdx),cy=y(series[fireIdx].value);
+   return `<line x1="${cx}" x2="${cx}" y1="${top}" y2="${bottom}" class="simFireYear"/><circle cx="${cx}" cy="${cy}" r="6" class="simFireDot"/><text x="${Math.min(right-5,cx+8)}" y="${Math.max(top+11,cy-9)}" class="simFireLabel">FIRE ~ ${UI.year+series[fireIdx].year}</text>`
+ })():'';
+ const crashYear=Math.max(0,Number(UI.sim.crashYear)||0),crash=Number(UI.sim.crash)||0;
+ const crashMark=crash>0?(()=>{
+   const idx=Math.min(series.length-1,Math.round(crashYear)),cx=x(idx);
+   return `<line x1="${cx}" x2="${cx}" y1="${top}" y2="${bottom}" class="simCrashYear"/><text x="${Math.min(right-4,cx+7)}" y="${top+13}" class="simCrashLabel">Crash -${Math.round(crash*100)}%</text>`
+ })():'';
+ const goalLine=target?`<line x1="${left}" x2="${right}" y1="${y(target)}" y2="${y(target)}" class="chartGoal"/><text x="${right}" y="${Math.max(15,y(target)-7)}" text-anchor="end" class="chartGoalLabel">FIRE Ziel ${euro(target)}</text>`:'';
+ const points=series.map((p,i)=>`<g class="chartPoint" data-chart-label="${UI.year+p.year}" data-chart-value="${esc('Simulation '+euro(p.value)+' · real '+euro(p.real)+' · Basis '+euro(p.base)+' · Einzahlungen '+euro(p.contributed))}"><circle cx="${x(i)}" cy="${y(p.value)}" r="11" class="chartHit"/><circle cx="${x(i)}" cy="${y(p.value)}" r="3.6" class="chartDot"/></g>`).join('');
+ const labels=series.map((p,i)=>(p.year===0||p.year===series.at(-1).year||p.year%5===0)?`<text x="${x(i)}" y="250" text-anchor="middle" class="chartLabel">${UI.year+p.year}</text>`:'').join('');
+ return `<div class="simChartShell">
+  <div class="simLegend"><span><i class="sim"></i>Simulation</span><span><i class="base"></i>Aktueller Plan</span><span><i class="real"></i>Heutige Kaufkraft</span><span><i class="goal"></i>FIRE Ziel</span></div>
+  <div class="chartWrap interactiveChart simChartWrap"><svg viewBox="0 0 830 266" class="simChart" role="img" aria-label="Tactical FIRE Simulation">
+   <defs><linearGradient id="${gid}" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#1fd5c0" stop-opacity=".28"/><stop offset="100%" stop-color="#1fd5c0" stop-opacity="0"/></linearGradient></defs>
+   ${gridVals.map(v=>`<g><line x1="${left}" x2="${right}" y1="${y(v)}" y2="${y(v)}" class="projectionGrid"/><text x="${left-10}" y="${y(v)+4}" text-anchor="end" class="projectionAxisLabel">${esc(compact(v))}</text></g>`).join('')}
+   <polygon points="${area}" fill="url(#${gid})"/>
+   ${goalLine}${crashMark}
+   <polyline points="${basePts}" class="simBaseLine"/>
+   <polyline points="${realPts}" class="simRealLine"/>
+   <polyline points="${simPts}" class="chartTrend"/>
+   ${fireMark}${points}${labels}
+  </svg><div class="chartTooltip" role="status" aria-live="polite"></div></div>
+ </div>`
+}
+function simulator(){
+ const d=getMonth(),target=simulatorTarget(d),series=simulatorSeries(d);
+ const baseSeries=projectedSeries(d,Math.max(5,Math.min(40,Number(UI.sim.years)||20)),state.settings.returnRate,state.settings.monthlyExtra,netWorth(),0);
+ const baseHit=baseSeries.find(p=>p.value>=fireTarget(d)),base=baseHit?baseHit.year:999,sim=simulatorFireYears(series,target);
+ const timeGain=(base===999||sim===999)?null:base-sim,end=series.at(-1),growth=end.value-netWorth()-end.contributed;
+ return `<div class="toolbar"><div><h1 class="sectionTitle">Tactical FIRE Simulator ${infoTip('Interaktives Szenario-Tool. Alle Werte sind Modellrechnungen und keine Prognosen.')}</h1><p class="sectionSub">Spiele Sparrate, Rendite, Inflation, Crash, Einmalanlage und Zeithorizont durch.</p></div><button class="ghost" data-action="resetSim">Reset</button></div>
+ <div class="simControls">
+  <div class="card simControlCard"><span>Zusatzbetrag / Monat</span><strong class="sensitive">${euro(UI.sim.extra)}</strong><input id="simExtra" class="slider" type="range" min="0" max="10000" step="100" value="${UI.sim.extra}"><small>zusätzlich zur aktuellen Rate</small></div>
+  <div class="card simControlCard"><span>Rendite</span><strong>${pct(UI.sim.returnRate)}</strong><input id="simReturn" class="slider" type="range" min="0" max="15" step="0.25" value="${UI.sim.returnRate}"><small>nominal p.a.</small></div>
+  <div class="card simControlCard"><span>Inflation</span><strong>${pct(UI.sim.inflation)}</strong><input id="simInflation" class="slider" type="range" min="0" max="8" step="0.25" value="${UI.sim.inflation}"><small>für reale Kaufkraft</small></div>
+  <div class="card simControlCard"><span>Einmalanlage</span><strong class="sensitive">${euro(UI.sim.lumpSum)}</strong><input id="simLumpSum" class="slider" type="range" min="0" max="100000" step="1000" value="${UI.sim.lumpSum}"><small>sofort investiert</small></div>
+  <div class="card simControlCard"><span>Zeithorizont</span><strong>${UI.sim.years} Jahre</strong><input id="simYears" class="slider" type="range" min="5" max="40" step="1" value="${UI.sim.years}"><small>5 bis 40 Jahre</small></div>
+  <div class="card simControlCard"><span>SWR / Entnahmerate</span><strong>${pct(UI.sim.swr)}</strong><input id="simSWR" class="slider" type="range" min="2" max="6" step="0.1" value="${UI.sim.swr}"><small>beeinflusst dynamisches FIRE Ziel</small></div>
+ </div>
+ <div class="simStressGrid">
+  <div class="card"><div class="toolbar"><div><h2>Crash-Szenario</h2><span class="sub">Einmaliger Marktschock</span></div></div><div class="scenarioGrid">${scenario('Kein Crash',0)}${scenario('-20%',.2)}${scenario('-30%',.3)}${scenario('-40%',.4)}${scenario('-60%',.6)}</div></div>
+  <div class="card simCrashTiming"><h2>Crash-Zeitpunkt</h2><div class="bigNum">${UI.sim.crashYear===0?'sofort':UI.sim.crashYear+' Jahre'}</div><input id="simCrashYear" class="slider" type="range" min="0" max="${Math.min(10,UI.sim.years)}" step="1" value="${Math.min(UI.sim.crashYear,Math.min(10,UI.sim.years))}"><div class="sub">0 = sofort, maximal 10 Jahre</div></div>
+ </div>
+ <div class="simResults">
+  <div class="projectionStat"><span>Basis FIRE</span><strong>${base===999?'N/A':base.toFixed(1)+' J.'}</strong></div>
+  <div class="projectionStat"><span>Simulation FIRE</span><strong>${sim===999?'N/A':sim.toFixed(1)+' J.'}</strong></div>
+  <div class="projectionStat"><span>Zeitgewinn</span><strong class="${timeGain!==null&&timeGain>=0?'green':'red'}">${timeGain===null?'—':(timeGain>=0?'+':'')+timeGain.toFixed(1)+' J.'}</strong></div>
+  <div class="projectionStat"><span>Endvermögen</span><strong class="sensitive">${euro(end.value)}</strong></div>
+  <div class="projectionStat"><span>Heutige Kaufkraft</span><strong class="sensitive">${euro(end.real)}</strong></div>
+  <div class="projectionStat"><span>Wertzuwachs</span><strong class="${growth>=0?'green':'red'} sensitive">${euro(growth)}</strong></div>
+ </div>
+ <div class="simLayout">
+  <div class="card simChartCard"><div class="toolbar"><div><h2>Simulation im Zeitverlauf</h2><span class="sub">Simulation vs. aktueller Plan vs. reale Kaufkraft</span></div></div>${simulatorChart(series,target)}</div>
+  <div class="card simParamCard"><h2>Parameter</h2>${stat('Aktuelle Rate',euro(totals(d).invest+Number(state.settings.monthlyExtra||0)))}${stat('Zusatzrate',euro(UI.sim.extra))}${stat('Gesamtrate',euro(totals(d).invest+Number(state.settings.monthlyExtra||0)+UI.sim.extra))}${stat('Rendite',pct(UI.sim.returnRate))}${stat('Inflation',pct(UI.sim.inflation))}${stat('SWR',pct(UI.sim.swr))}${stat('Crash',UI.sim.crash?pct(UI.sim.crash*100):'kein Crash',UI.sim.crash?'red':'green')}${stat('FIRE Ziel',euro(target))}</div>
+ </div>`
+}
 function projectionChart(series,goal,d){
  if(!series?.length)return '';
  const inflation=Math.max(0,Number(state.settings.inflation)||0)/100;
@@ -1077,7 +1179,7 @@ function settingsView(){
    <div class="actions"><button class="primary" data-action="checkpoint"><span class="icon" data-icon="save"></span>Checkpoint erstellen</button><button class="ghost" data-action="restoreCheckpoint"><span class="icon" data-icon="undo"></span>Letzten wiederherstellen</button></div>
   </div>
   <div class="card"><div class="toolbar"><div><h2>Daten & Cloud</h2><span class="sub">Geräteübergreifender Login mit lokalem Sicherheitsfallback.</span></div><span class="syncBadge"><i></i>Cloud + Lokal</span></div>
-   <div class="quickFacts"><div class="quickFact"><span>Gespeicherte Monate</span><b>${Object.keys(state.months||{}).length}</b></div><div class="quickFact"><span>Assets</span><b>${(state.assets||[]).length}</b></div><div class="quickFact"><span>Meilensteine</span><b>${(state.goals||[]).length}</b></div><div class="quickFact"><span>Datenformat</span><b>v9 · UI v46</b></div></div>
+   <div class="quickFacts"><div class="quickFact"><span>Gespeicherte Monate</span><b>${Object.keys(state.months||{}).length}</b></div><div class="quickFact"><span>Assets</span><b>${(state.assets||[]).length}</b></div><div class="quickFact"><span>Meilensteine</span><b>${(state.goals||[]).length}</b></div><div class="quickFact"><span>Datenformat</span><b>v9 · UI v47</b></div></div>
    <div class="actions"><button class="primary" data-action="export"><span class="icon" data-icon="download"></span>JSON Backup</button><button class="ghost" data-action="chooseImport"><span class="icon" data-icon="upload"></span>Import</button><button class="ghost" data-action="cloudInfo"><span class="icon" data-icon="cloud"></span>Login & Sync</button><button class="danger" data-action="resetDemo"><span class="icon" data-icon="trash"></span>Demo zurücksetzen</button></div>
   </div>
  </div>`;
@@ -1149,7 +1251,7 @@ function action(a){
  if(a==='cryptoSnapshotHistory')return openCryptoSnapshotModal();
  if(a==='searchCrypto')return searchCrypto();
  if(a==='rerunRisk'){UI.risk=null;render();return showToast('Risikoanalyse neu simuliert');}
- if(a==='resetSim'){UI.sim={...UI.sim,extra:2000,returnRate:7,crash:0};return render();} if(a==='prevMonth')return shift(-1);
+ if(a==='resetSim'){UI.sim={extra:2000,returnRate:7,inflation:2,crash:0,crashYear:0,years:20,lumpSum:0,swr:4};return render();} if(a==='prevMonth')return shift(-1);
  if(a==='nextMonth')return shift(1);
  if(a==='today'){UI.year=now.getFullYear();UI.month=now.getMonth()+1;getMonth();return render();}
  if(a==='calendar')return openCalendar();
@@ -1331,6 +1433,11 @@ document.addEventListener('input',function(e){
  if(t.matches('.cryptoAvgInput')) return updateCryptoAveragePrice(t);
  if(t.id==='dashExtra'||t.id==='simExtra'){UI.sim.extra=Number(t.value);return scheduleRender();}
  if(t.id==='simReturn'){UI.sim.returnRate=Number(t.value);return scheduleRender();}
+ if(t.id==='simInflation'){UI.sim.inflation=Number(t.value);return scheduleRender();}
+ if(t.id==='simLumpSum'){UI.sim.lumpSum=Number(t.value);return scheduleRender();}
+ if(t.id==='simYears'){UI.sim.years=Number(t.value);UI.sim.crashYear=Math.min(UI.sim.crashYear,Math.min(10,UI.sim.years));return scheduleRender();}
+ if(t.id==='simSWR'){UI.sim.swr=Number(t.value);return scheduleRender();}
+ if(t.id==='simCrashYear'){UI.sim.crashYear=Number(t.value);return scheduleRender();}
 });
 
 document.addEventListener('input',function(e){
