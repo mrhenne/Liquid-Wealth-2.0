@@ -2190,3 +2190,40 @@ html.light .cryptoDonutCenter{background:rgba(255,255,255,.96)}
  .simResults{grid-template-columns:1fr 1fr}
  .scenarioGrid{grid-template-columns:repeat(2,minmax(0,1fr))!important}
 }
+
+
+/* v48 · richer finance check */
+.financeDetailGrid{display:grid;grid-template-columns:minmax(0,1.65fr) minmax(320px,.95fr);gap:10px;margin-top:14px;align-items:start}
+.financeTrendCard,.financeRiskCard{min-width:0}
+.financeMiniStats{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:7px;margin:8px 0 10px}
+.financeMiniStats>div{padding:8px 10px;border:1px solid rgba(117,160,204,.10);border-radius:10px;background:rgba(48,91,134,.045);min-width:0}
+.financeMiniStats span{display:block;color:var(--muted);font-size:9px;font-weight:700}
+.financeMiniStats strong{display:block;margin-top:3px;font-size:12px;overflow-wrap:anywhere}
+.savingsChartShell{width:100%;min-width:0}
+.savingsChartLegend{display:flex;justify-content:flex-end;gap:12px;flex-wrap:wrap;margin:0 2px 6px;color:var(--muted);font-size:9px;font-weight:700}
+.savingsChartLegend span{display:flex;align-items:center;gap:5px}
+.savingsChartLegend i{width:18px;height:3px;border-radius:999px;display:inline-block}
+.savingsChartLegend i.rate{background:#1688ff}.savingsChartLegend i.avg{background:#21d3bd}.savingsChartLegend i.target{background:#ffb14c}
+.savingsChartWrap{min-height:330px}
+.savingsChart{width:100%;height:auto;display:block;min-height:300px}
+.savingsGrid{stroke:rgba(117,160,204,.10);stroke-width:1}
+.savingsAxisLabel{fill:var(--muted);font-size:9px;font-family:inherit}
+.savingsTargetLine{stroke:#ffb14c;stroke-width:1.3;stroke-dasharray:5 5;opacity:.7}
+.savingsAvgLine{stroke:#21d3bd;stroke-width:1.4;stroke-dasharray:8 5;opacity:.8}
+.savingsTrendLine{fill:none;stroke:#1688ff;stroke-width:3.4;stroke-linecap:round;stroke-linejoin:round}
+.savingsPoint{fill:#1688ff;stroke:#07182b;stroke-width:2.2}
+.savingsNoData{fill:#526b86;opacity:.65}
+.financeRiskGrid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;margin-top:8px}
+.financeRiskItem{position:relative;min-width:0;padding:11px 12px;border:1px solid rgba(117,160,204,.11);border-radius:12px;background:linear-gradient(145deg,rgba(15,33,55,.7),rgba(8,23,40,.62));overflow:hidden}
+.financeRiskItem:before{content:"";position:absolute;left:0;top:0;bottom:0;width:3px;background:#3989df;opacity:.9}
+.financeRiskItem.green:before{background:#25d5a4}.financeRiskItem.orange:before{background:#ffad4d}.financeRiskItem.red:before{background:#ff607d}
+.financeRiskLabel{color:var(--muted);font-size:9px;font-weight:800;letter-spacing:.02em;text-transform:uppercase}
+.financeRiskValue{margin-top:4px;font-size:17px;font-weight:850;line-height:1.1;overflow-wrap:anywhere}
+.financeRiskItem.green .financeRiskValue{color:#25d5a4}.financeRiskItem.orange .financeRiskValue{color:#ffad4d}.financeRiskItem.red .financeRiskValue{color:#ff607d}
+.financeRiskHint{margin-top:5px;color:var(--muted);font-size:9px;line-height:1.35}
+.financeInsight{margin-top:10px;padding:11px 12px;border-radius:11px;border:1px solid rgba(33,211,189,.12);background:rgba(20,91,85,.12)}
+.financeInsight b{display:block;font-size:10px;margin-bottom:4px}
+.financeInsight span{color:var(--muted);font-size:10px;line-height:1.45}
+@media(max-width:1150px){.financeDetailGrid{grid-template-columns:1fr}.financeMiniStats{grid-template-columns:repeat(3,minmax(0,1fr))}}
+@media(max-width:720px){.financeMiniStats,.financeRiskGrid{grid-template-columns:repeat(2,minmax(0,1fr))}.savingsChartWrap{min-height:260px}.savingsChart{min-height:240px}}
+@media(max-width:430px){.financeMiniStats,.financeRiskGrid{grid-template-columns:1fr}}

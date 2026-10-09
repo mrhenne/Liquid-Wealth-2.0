@@ -1092,20 +1092,90 @@ function goals(){
  return `<div class="toolbar"><div><h1 class="sectionTitle">Meilensteine ${infoTip('Persönliche Vermögensziele mit aktuellem Fortschritt und optionaler Deadline.')}</h1><p class="sectionSub">Vom Notgroschen bis FIRE. Fortschritt und Zielwerte auf einen Blick.</p></div><button class="primary" data-action="addGoal">Ziel</button></div><div class="milestoneGrid">${cards||'<div class="card emptyState">Noch keine Meilensteine angelegt.</div>'}</div>`
 }
 function liquidityRunway(){let d=getMonth(),cash=state.assets.filter(a=>a.type==='Cash').reduce((s,a)=>s+Number(a.value||0),0),monthly=totals(d).expenses;return monthly>0?cash/monthly:0}
-function twelveMonthStats(){let income=0,expenses=0,invest=0,months=0,series=[];for(let i=0;i<12;i++){let dt=new Date(UI.year,UI.month-1-i,1),d=getMonth(dt.getFullYear(),dt.getMonth()+1,false),t=totals(d);income+=t.income;expenses+=t.expenses;invest+=t.invest;if(t.income||t.expenses||t.invest)months++;series.unshift({label:monthName(dt.getMonth()+1).slice(0,3),rate:t.income?(t.income-t.expenses)/t.income*100:0})}return {income,expenses,invest,months,series,rate:income?(income-expenses)/income*100:0}}
-function fireSafety(){let d=getMonth(),target=fireTarget(d),nw=netWorth(),base=nw/Math.max(target,1),stressNW=nw*.8,stressTarget=target*1.1;return {base,stress:stressNW/Math.max(stressTarget,1),gap:stressTarget-stressNW}}
-function savingsTrendChart(series){
- let max=Math.max(1,...series.map(x=>x.rate)),min=Math.min(0,...series.map(x=>x.rate)),span=Math.max(max-min,1);
- const px=i=>25+i*(750/Math.max(series.length-1,1)),py=v=>215-(v-min)/span*170;
- const pts=series.map((x,i)=>`${px(i)},${py(x.rate)}`).join(' ');
- return `<div class="chartWrap interactiveChart"><svg class="chart" viewBox="0 0 800 240">
-  <line x1="25" y1="215" x2="775" y2="215" stroke="var(--line)"/><line x1="25" y1="130" x2="775" y2="130" stroke="var(--line)" stroke-dasharray="5 5"/>
-  <text x="770" y="125" text-anchor="end" fill="var(--muted)" font-size="9">0%</text>
-  <polyline points="${pts}" fill="none" stroke="#1688ff" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
-  ${series.map((x,i)=>`<g class="chartPoint" data-chart-label="${esc(x.label)}" data-chart-value="${esc(pct(x.rate))}"><circle cx="${px(i)}" cy="${py(x.rate)}" r="12" class="chartHit"/><circle cx="${px(i)}" cy="${py(x.rate)}" r="3.5" fill="#1688ff"/><text x="${px(i)}" y="232" text-anchor="middle" fill="var(--muted)" font-size="9">${esc(x.label)}</text></g>`).join('')}
- </svg><div class="chartTooltip" role="status" aria-live="polite"></div></div>`
+function twelveMonthStats(){
+ let income=0,expenses=0,invest=0,months=0,series=[];
+ for(let i=0;i<12;i++){
+  const dt=new Date(UI.year,UI.month-1-i,1),d=getMonth(dt.getFullYear(),dt.getMonth()+1,false),t=totals(d);
+  const active=!!(t.income||t.expenses||t.invest),cashflow=t.income-t.expenses-t.invest,rate=t.income?(t.income-t.expenses)/t.income*100:null;
+  income+=t.income;expenses+=t.expenses;invest+=t.invest;if(active)months++;
+  series.unshift({label:monthName(dt.getMonth()+1).slice(0,3),fullLabel:monthName(dt.getMonth()+1)+' '+dt.getFullYear(),income:t.income,expenses:t.expenses,invest:t.invest,cashflow,rate,active})
+ }
+ const weightedRate=income?(income-expenses)/income*100:0;
+ const activeSeries=series.filter(x=>x.active&&Number.isFinite(x.rate));
+ const best=activeSeries.length?activeSeries.reduce((a,b)=>b.rate>a.rate?b:a):null;
+ const worst=activeSeries.length?activeSeries.reduce((a,b)=>b.rate<a.rate?b:a):null;
+ return {income,expenses,invest,months,series,rate:weightedRate,best,worst,avgIncome:months?income/months:0,avgExpenses:months?expenses/months:0,avgInvest:months?invest/months:0}
 }
-function financeCheck(){let d=getMonth(),t=totals(d),r=liquidityRunway(),s=twelveMonthStats(),f=fireSafety(),pace=firePace(d),ca=cryptoAllocation(),targetMonths=state.settings.emergencyMonths;let runwayClass=r>=targetMonths?'green':r>=targetMonths*.75?'orange':'red';let largestExp=(d.expenses||[]).slice().sort((a,b)=>b.val-a.val)[0];let topShare=t.expenses?largestExp.val/t.expenses*100:0;return `<div class="toolbar"><div><h1 class="sectionTitle">Finanz-Check</h1><p class="sectionSub">Zwei zusätzliche Kontrollinstrumente: Liquiditäts-Runway und FIRE-Sicherheitsmarge. Dazu ein 12-Monats-Blick auf deine Sparquote.</p></div><button class="ghost" data-nav="settings">Annahmen prüfen</button></div><div class="checkGrid"><div class="checkCard"><div class="label">LIQUIDITY RUNWAY</div><div class="value ${runwayClass}">${r.toFixed(1)} Monate</div><div class="hint">Cash / aktuelle Monatsausgaben · Ziel ${targetMonths} Monate</div><div class="progress" style="margin-top:10px"><i style="width:${Math.min(100,r/Math.max(targetMonths,1)*100)}%"></i></div></div><div class="checkCard"><div class="label">FIRE SICHERHEITSMARGE</div><div class="value ${f.stress>=1?'green':f.stress>=.8?'orange':'red'}">${pct(f.base*100)}</div><div class="hint">Basis: Net Worth / FIRE Ziel · Stress: −20% Vermögen und +10% Ziel</div><div class="progress" style="margin-top:10px"><i style="width:${Math.min(100,f.stress*100)}%"></i></div></div><div class="checkCard"><div class="label">12-MONATS-SPARQUOTE</div><div class="value ${s.rate>=25?'green':s.rate>=10?'orange':'red'}">${pct(s.rate)}</div><div class="hint">${s.months} aktive Monate · Investments ${euro(s.invest)}</div></div><div class="checkCard"><div class="label">FIRE PACE ${infoTip('Benötigte monatliche Rate bis zur Deadline des FIRE-Meilensteins.')}</div><div class="value ${pace.onTrack?'green':'red'}">${pace.deadline?(pace.onTrack?'On Track':euro(Math.abs(pace.gap))+' Lücke'):'—'}</div><div class="hint">${pace.deadline?`Benötigt ${euro(pace.required)}/Monat bis ${pace.deadline}`:'FIRE-Deadline noch nicht gesetzt'}</div></div><div class="checkCard"><div class="label">KRYPTO DRIFT ${infoTip('Abweichung des aktuellen Krypto-Anteils von deinem Zielanteil in den Einstellungen.')}</div><div class="value ${Math.abs(ca.drift)>10?'red':Math.abs(ca.drift)>5?'orange':'green'}">${ca.drift>=0?'+':''}${ca.drift.toFixed(1)} %-Pkt.</div><div class="hint">Aktuell ${pct(ca.current)} · Ziel ${pct(ca.target)}</div></div></div><div class="grid wide" style="margin-top:14px"><div class="card"><div class="toolbar"><div><h2>Sparquoten-Trend</h2><span class="sub">Rolling 12 Monate</span></div><b>${pct(s.rate)}</b></div>${savingsTrendChart(s.series)}</div><div class="card"><h2>Risiko- und Liquiditätscheck</h2>${stat('Cash verfügbar',euro(state.assets.filter(a=>a.type==='Cash').reduce((x,a)=>x+a.value,0)))}${stat('Runway',r.toFixed(1)+' Monate',runwayClass)}${stat('FIRE Ziel',euro(fireTarget(d)))}${stat('Stress Gap',f.gap>0?euro(f.gap):'kein Gap',f.gap>0?'red':'green')}${stat('Größter Ausgabenposten',largestExp?esc(largestExp.name):'—')}${stat('Anteil größter Posten',pct(topShare),topShare>35?'red':'green')}<div class="notice" style="margin-top:12px">Der Check ersetzt keine Anlageberatung. Er soll dir früh zeigen, wo Liquidität, Sparrate oder FIRE-Puffer zu knapp werden.</div></div></div>`}
+function fireSafety(){let d=getMonth(),target=fireTarget(d),nw=netWorth(),base=nw/Math.max(target,1),stressNW=nw*.8,stressTarget=target*1.1;return {base,stress:stressNW/Math.max(stressTarget,1),gap:stressTarget-stressNW}}
+function savingsTrendChart(series,weightedRate=0){
+ const valid=series.filter(x=>x.active&&Number.isFinite(x.rate));
+ const vals=valid.map(x=>x.rate),max=Math.max(60,weightedRate,25,...vals,1),min=Math.min(-10,...vals,0),span=Math.max(max-min,1);
+ const left=58,right=786,top=22,bottom=222,px=i=>left+i*((right-left)/Math.max(series.length-1,1)),py=v=>bottom-(v-min)/span*(bottom-top);
+ const segments=[];let seg=[];
+ series.forEach((x,i)=>{if(x.active&&Number.isFinite(x.rate))seg.push(`${px(i)},${py(x.rate)}`);else if(seg.length){segments.push(seg);seg=[]}});
+ if(seg.length)segments.push(seg);
+ const grid=[0,25,50].filter(v=>v>=min&&v<=max);
+ const points=series.map((x,i)=>{
+  if(!x.active||!Number.isFinite(x.rate))return `<g class="chartPoint" data-chart-label="${esc(x.fullLabel)}" data-chart-value="Keine Daten"><circle cx="${px(i)}" cy="${bottom}" r="10" class="chartHit"/><circle cx="${px(i)}" cy="${bottom}" r="2.5" class="savingsNoData"/></g>`;
+  const tip=`Sparquote ${pct(x.rate)} · Einnahmen ${euro(x.income)} · Ausgaben ${euro(x.expenses)} · Invest ${euro(x.invest)} · Netto ${euro(x.cashflow)}`;
+  return `<g class="chartPoint" data-chart-label="${esc(x.fullLabel)}" data-chart-value="${esc(tip)}"><circle cx="${px(i)}" cy="${py(x.rate)}" r="12" class="chartHit"/><circle cx="${px(i)}" cy="${py(x.rate)}" r="4" class="savingsPoint"/></g>`
+ }).join('');
+ return `<div class="savingsChartShell"><div class="savingsChartLegend"><span><i class="rate"></i>Monatliche Sparquote</span><span><i class="avg"></i>12M Ø ${pct(weightedRate)}</span><span><i class="target"></i>Orientierung 25%</span></div><div class="chartWrap interactiveChart savingsChartWrap"><svg class="savingsChart" viewBox="0 0 820 260" role="img" aria-label="Sparquoten-Trend der letzten 12 Monate">
+ ${grid.map(v=>`<g><line x1="${left}" x2="${right}" y1="${py(v)}" y2="${py(v)}" class="savingsGrid"/><text x="${left-10}" y="${py(v)+4}" text-anchor="end" class="savingsAxisLabel">${v}%</text></g>`).join('')}
+ <line x1="${left}" x2="${right}" y1="${py(25)}" y2="${py(25)}" class="savingsTargetLine"/><line x1="${left}" x2="${right}" y1="${py(weightedRate)}" y2="${py(weightedRate)}" class="savingsAvgLine"/>
+ ${segments.map(seg=>`<polyline points="${seg.join(' ')}" class="savingsTrendLine"/>`).join('')}${points}
+ ${series.map((x,i)=>`<text x="${px(i)}" y="246" text-anchor="middle" class="chartLabel">${esc(x.label)}</text>`).join('')}
+ </svg><div class="chartTooltip" role="status" aria-live="polite"></div></div></div>`
+}
+function financeCheck(){
+ let d=getMonth(),t=totals(d),r=liquidityRunway(),s=twelveMonthStats(),f=fireSafety(),pace=firePace(d),ca=cryptoAllocation(),targetMonths=state.settings.emergencyMonths;
+ const cash=state.assets.filter(a=>a.type==='Cash').reduce((x,a)=>x+Number(a.value||0),0);
+ const runwayClass=r>=targetMonths?'green':r>=targetMonths*.75?'orange':'red';
+ const largestExp=(d.expenses||[]).slice().sort((a,b)=>b.val-a.val)[0],topShare=t.expenses?largestExp.val/t.expenses*100:0;
+ const cashTarget=t.expenses*targetMonths,cashBuffer=cash-cashTarget,fireTargetNow=fireTarget(d),basePct=f.base*100,stressPct=f.stress*100;
+ const activeRates=s.series.filter(x=>x.active&&Number.isFinite(x.rate)).map(x=>x.rate);
+ const mean=activeRates.length?activeRates.reduce((a,b)=>a+b,0)/activeRates.length:0;
+ const variability=activeRates.length>1?Math.sqrt(activeRates.reduce((a,v)=>a+Math.pow(v-mean,2),0)/activeRates.length):0;
+ const riskCards=[
+  {label:'Cash verfügbar',value:euro(cash),hint:'Sofort verfügbare Liquidität aus deinen Cash-Assets',tone:'blue'},
+  {label:'Cash-Ziel',value:euro(cashTarget),hint:`${targetMonths} Monate × aktuelle Monatsausgaben`,tone:'blue'},
+  {label:'Cash-Puffer',value:(cashBuffer>=0?'+':'−')+euro(Math.abs(cashBuffer)),hint:cashBuffer>=0?'Über deinem Notgroschen-Ziel':'Fehlbetrag bis zum Notgroschen-Ziel',tone:cashBuffer>=0?'green':'red'},
+  {label:'Runway',value:r.toFixed(1)+' Monate',hint:'Wie lange dein Cash die aktuellen Ausgaben tragen würde',tone:runwayClass},
+  {label:'FIRE Ziel',value:euro(fireTargetNow),hint:'Aktuell hinterlegtes Zielvermögen',tone:'blue'},
+  {label:'FIRE Fortschritt',value:pct(basePct),hint:'Net Worth im Verhältnis zum FIRE-Ziel',tone:basePct>=100?'green':'blue'},
+  {label:'Stress-Fortschritt',value:pct(stressPct),hint:'Nach 20% Vermögensrückgang und 10% höherem Ziel',tone:stressPct>=100?'green':stressPct>=80?'orange':'red'},
+  {label:'Stress Gap',value:f.gap>0?euro(f.gap):'kein Gap',hint:'Fehlender Betrag im definierten Stress-Szenario',tone:f.gap>0?'red':'green'},
+  {label:'Größter Ausgabenposten',value:largestExp?esc(largestExp.name):'—',hint:largestExp?euro(largestExp.val):'Keine Ausgaben erfasst',tone:'blue'},
+  {label:'Anteil größter Posten',value:pct(topShare),hint:'Anteil an allen Monatsausgaben',tone:topShare>35?'red':topShare>25?'orange':'green'}
+ ];
+ return `<div class="toolbar"><div><h1 class="sectionTitle">Finanz-Check ${infoTip('Frühwarnsystem für Liquidität, Sparquote, FIRE-Puffer und Portfolio-Abweichungen.')}</h1><p class="sectionSub">12-Monats-Trend, Liquidität, FIRE-Pace und Risikopuffer auf einen Blick.</p></div><button class="ghost" data-nav="settings">Annahmen prüfen</button></div>
+ <div class="checkGrid">
+  <div class="checkCard"><div class="label">LIQUIDITY RUNWAY</div><div class="value ${runwayClass}">${r.toFixed(1)} Monate</div><div class="hint">Cash ${euro(cash)} · Ziel ${targetMonths} Monate</div><div class="progress" style="margin-top:10px"><i style="width:${Math.min(100,r/Math.max(targetMonths,1)*100)}%"></i></div></div>
+  <div class="checkCard"><div class="label">FIRE SICHERHEITSMARGE</div><div class="value ${f.stress>=1?'green':f.stress>=.8?'orange':'red'}">${pct(basePct)}</div><div class="hint">Stress-Puffer ${pct(stressPct)} nach −20% Vermögen / +10% Ziel</div><div class="progress" style="margin-top:10px"><i style="width:${Math.min(100,f.stress*100)}%"></i></div></div>
+  <div class="checkCard"><div class="label">12-MONATS-SPARQUOTE</div><div class="value ${s.rate>=25?'green':s.rate>=10?'orange':'red'}">${pct(s.rate)}</div><div class="hint">${s.months} aktive Monate · Invest ${euro(s.invest)}</div></div>
+  <div class="checkCard"><div class="label">FIRE PACE ${infoTip('Vergleicht deine aktuelle Rate mit der für die FIRE-Deadline benötigten Rate.')}</div><div class="value ${pace.onTrack?'green':'red'}">${pace.deadline?(pace.onTrack?'On Track':euro(Math.abs(pace.gap))+' Lücke'):'—'}</div><div class="hint">${pace.deadline?`Benötigt ${euro(pace.required)}/Monat bis ${pace.deadline}`:'FIRE-Deadline noch nicht gesetzt'}</div></div>
+  <div class="checkCard"><div class="label">KRYPTO DRIFT ${infoTip('Abweichung des aktuellen Krypto-Anteils von deinem Zielanteil.')}</div><div class="value ${Math.abs(ca.drift)>10?'red':Math.abs(ca.drift)>5?'orange':'green'}">${ca.drift>=0?'+':''}${ca.drift.toFixed(1)} %-Pkt.</div><div class="hint">Aktuell ${pct(ca.current)} · Ziel ${pct(ca.target)}</div></div>
+ </div>
+ <div class="financeDetailGrid">
+  <div class="card financeTrendCard">
+   <div class="toolbar"><div><h2>Sparquoten-Trend</h2><span class="sub">Letzte 12 Monate · fehlende Monate zählen nicht als 0%</span></div><b>${pct(s.rate)}</b></div>
+   <div class="financeMiniStats">
+    <div><span>Bester Monat</span><strong class="green">${s.best?`${esc(s.best.label)} · ${pct(s.best.rate)}`:'—'}</strong></div>
+    <div><span>Schwächster Monat</span><strong class="${s.worst&&s.worst.rate<0?'red':''}">${s.worst?`${esc(s.worst.label)} · ${pct(s.worst.rate)}`:'—'}</strong></div>
+    <div><span>Ø Einnahmen</span><strong class="sensitive">${euro(s.avgIncome)}</strong></div>
+    <div><span>Ø Ausgaben</span><strong class="sensitive">${euro(s.avgExpenses)}</strong></div>
+    <div><span>Ø Investments</span><strong class="sensitive">${euro(s.avgInvest)}</strong></div>
+    <div><span>Schwankung</span><strong>${variability.toFixed(1)} %-Pkt.</strong></div>
+   </div>
+   ${savingsTrendChart(s.series,s.rate)}
+  </div>
+  <div class="card financeRiskCard">
+   <div class="toolbar"><div><h2>Risiko- und Liquiditätscheck</h2><span class="sub">Aktueller Monat und strategische Puffer</span></div></div>
+   <div class="financeRiskGrid">${riskCards.map(x=>`<div class="financeRiskItem ${x.tone}"><div class="financeRiskLabel">${x.label}</div><div class="financeRiskValue sensitive">${x.value}</div><div class="financeRiskHint">${x.hint}</div></div>`).join('')}</div>
+   <div class="financeInsight"><b>Einordnung</b><span>${r>=targetMonths?'Deine Liquiditätsreserve liegt über deinem Ziel.':'Deine Liquiditätsreserve liegt unter dem gesetzten Ziel.'} ${pace.deadline?(pace.onTrack?'Deine aktuelle Rate liegt auf FIRE-Kurs.':'Für deine FIRE-Deadline fehlt aktuell monatliche Sparleistung.'):'Setze eine FIRE-Deadline, um die Pace bewerten zu können.'}</span></div>
+  </div>
+ </div>`
+}
 function calendarData(y,m){let first=new Date(y,m-1,1),days=new Date(y,m,0).getDate(),startDay=(first.getDay()+6)%7;let cells=[];for(let i=0;i<startDay;i++){let d=new Date(y,m-1,-(startDay-i-1));cells.push({day:d.getDate(),y:d.getFullYear(),m:d.getMonth()+1,other:true})}for(let day=1;day<=days;day++)cells.push({day,y,m,other:false});while(cells.length<42){let d=new Date(y,m-1,days+(cells.length-(startDay+days))+1);cells.push({day:d.getDate(),y:d.getFullYear(),m:d.getMonth()+1,other:true})}return cells}
 function openCalendarWith(year,month){const oldY=UI.year,oldM=UI.month;UI.year=year;UI.month=month;openCalendar();UI.year=oldY;UI.month=oldM}
 function openCalendar(){let y=UI.year,m=UI.month,cells=calendarData(y,m),days=['Mo','Di','Mi','Do','Fr','Sa','So'];let dataKeys=Object.keys(state.months);let body=`<div class="calendarShell"><div class="calendarBox"><div class="calendarHead"><button class="ghost" id="calPrev"><span class="icon" data-icon="chevronLeft"></span></button><div class="calendarTitle" id="calTitle">${monthName(m)} ${y}</div><button class="ghost" id="calNext"><span class="icon" data-icon="chevronRight"></span></button></div><div class="calendarWeek">${days.map(x=>`<div>${x}</div>`).join('')}</div><div class="calendarDays" id="calendarDays">${cells.map(c=>{let selected=c.y===UI.year&&c.m===UI.month&&!c.other,today=c.y===now.getFullYear()&&c.m===now.getMonth()+1&&c.day===now.getDate(),has=dataKeys.includes(`${c.y}-${String(c.m).padStart(2,'0')}`);return `<button class="calDay ${c.other?'other':''} ${selected?'selected':''} ${today?'today':''} ${has?'hasData':''}" data-y="${c.y}" data-m="${c.m}" data-d="${c.day}">${c.day}</button>`}).join('')}</div></div><div class="calendarBox calControls"><div class="field"><label>Jahr</label><select class="input" id="calYear">${Array.from({length:31},(_,i)=>now.getFullYear()-15+i).map(v=>`<option value="${v}" ${v===y?'selected':''}>${v}</option>`).join('')}</select></div><div class="field"><label>Monat</label><select class="input" id="calMonth">${Array.from({length:12},(_,i)=>`<option value="${i+1}" ${i+1===m?'selected':''}>${monthName(i+1)}</option>`).join('')}</select></div><div class="calendarHint">Grüne Punkte markieren Monate, in denen bereits Finanzdaten gespeichert sind. Ein Klick auf einen Tag öffnet den zugehörigen Monat.</div><div class="calJump"><button class="ghost" id="calToday">Heute</button><button class="primary" id="calGo">Monat öffnen</button></div></div></div>`;openModal('Kalender','Monat auswählen',body);paintIcons();const rerender=()=>{closeModal();openCalendarWith(y,m)};document.getElementById('calPrev').onclick=()=>{let d=new Date(y,m-2,1);y=d.getFullYear();m=d.getMonth()+1;rerender()};document.getElementById('calNext').onclick=()=>{let d=new Date(y,m,1);y=d.getFullYear();m=d.getMonth()+1;rerender()};document.getElementById('calYear').onchange=e=>{y=Number(e.target.value);rerender()};document.getElementById('calMonth').onchange=e=>{m=Number(e.target.value);rerender()};document.getElementById('calToday').onclick=()=>{UI.year=now.getFullYear();UI.month=now.getMonth()+1;getMonth();closeModal();render();showToast('Aktueller Monat geöffnet')};document.getElementById('calGo').onclick=()=>{UI.year=y;UI.month=m;getMonth();closeModal();render();showToast(`Geöffnet: ${monthName(m)} ${y}`)};document.querySelectorAll('.calDay').forEach(b=>b.onclick=()=>{UI.year=Number(b.dataset.y);UI.month=Number(b.dataset.m);getMonth();closeModal();render();showToast(`Geöffnet: ${monthName(UI.month)} ${UI.year}`)})}
@@ -1179,7 +1249,7 @@ function settingsView(){
    <div class="actions"><button class="primary" data-action="checkpoint"><span class="icon" data-icon="save"></span>Checkpoint erstellen</button><button class="ghost" data-action="restoreCheckpoint"><span class="icon" data-icon="undo"></span>Letzten wiederherstellen</button></div>
   </div>
   <div class="card"><div class="toolbar"><div><h2>Daten & Cloud</h2><span class="sub">Geräteübergreifender Login mit lokalem Sicherheitsfallback.</span></div><span class="syncBadge"><i></i>Cloud + Lokal</span></div>
-   <div class="quickFacts"><div class="quickFact"><span>Gespeicherte Monate</span><b>${Object.keys(state.months||{}).length}</b></div><div class="quickFact"><span>Assets</span><b>${(state.assets||[]).length}</b></div><div class="quickFact"><span>Meilensteine</span><b>${(state.goals||[]).length}</b></div><div class="quickFact"><span>Datenformat</span><b>v9 · UI v47</b></div></div>
+   <div class="quickFacts"><div class="quickFact"><span>Gespeicherte Monate</span><b>${Object.keys(state.months||{}).length}</b></div><div class="quickFact"><span>Assets</span><b>${(state.assets||[]).length}</b></div><div class="quickFact"><span>Meilensteine</span><b>${(state.goals||[]).length}</b></div><div class="quickFact"><span>Datenformat</span><b>v9 · UI v48</b></div></div>
    <div class="actions"><button class="primary" data-action="export"><span class="icon" data-icon="download"></span>JSON Backup</button><button class="ghost" data-action="chooseImport"><span class="icon" data-icon="upload"></span>Import</button><button class="ghost" data-action="cloudInfo"><span class="icon" data-icon="cloud"></span>Login & Sync</button><button class="danger" data-action="resetDemo"><span class="icon" data-icon="trash"></span>Demo zurücksetzen</button></div>
   </div>
  </div>`;
